@@ -2,8 +2,9 @@
 
 remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/Estretegia_Comercial"
 oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/02_Estrategia_Comercial'
+casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
 
-setwd(oficina)
+setwd(casa)
 rm(list = ls())
 
 library(tidyverse)
@@ -11,20 +12,21 @@ library(readr)
 library(janitor)
 library(readxl)
 
-### Prueba de codificacion ###
 
-ruta <- '/run/media/wparedes/wparedesBD/Parque_Vehicular/informacion_est/INE_PARQUE_VEHICULAR.txt'
-
-# (Opcional) Detectar codificación probable en una muestra
-readr::guess_encoding(ruta, n_max = 50000)[[1]]
-#> suele devolver "WINDOWS-1252" o "ISO-8859-1"
-
+# # (Opcional) Detectar codificación probable en una muestra
+# readr::guess_encoding(ruta, n_max = 50000)[[1]]
+# #> suele devolver "WINDOWS-1252" o "ISO-8859-1"
 
 ############ Carga de Datos  ###############
 
-Parque_Veh <- read_delim('/run/media/wparedes/wparedesBD/Parque_Vehicular/informacion_est/INE_PARQUE_VEHICULAR.txt',
+f_lee_pv <- function(ruta){
+
+Parque_Veh <- read_delim(ruta,
                          delim = '|', col_names = TRUE, 
                          locale = readr::locale(encoding = readr::guess_encoding(ruta, n_max = 50000)[[1]] ))
+
+if ("...11" %in% names(Parque_Veh)) Parque_Veh$...11 <- NULL
+#Parque_Veh$...11 <- NULL
 
 Parque_Veh <- Parque_Veh %>% filter(!TIPO_VEHICULO %in% c('MOTOCICLETA', 'MOTO', 'PLATAFORMA', 
                                                          'PORTA CONTENEDOR'))
@@ -50,14 +52,6 @@ Parque_Veh$MARCA_VEHICULO <- str_replace_all(Parque_Veh$MARCA_VEHICULO, 'WHITEGM
 Parque_Veh$MARCA_VEHICULO <- str_replace_all(Parque_Veh$MARCA_VEHICULO, 'BOYD$', 'BYD')
 Parque_Veh$MARCA_VEHICULO <- str_replace_all(Parque_Veh$MARCA_VEHICULO, 'DATSUN NISSAN', 'DATSUN')
 
-
-
-Marcas_men_100 <- Parque_Veh %>% 
-  group_by(MARCA_VEHICULO) %>% 
-  summarise(total = sum(CANTIDAD))  %>% 
-  filter(total <= 100)
-
-
 Marcas <- Parque_Veh %>% 
   group_by(MARCA_VEHICULO) %>% 
   summarise(total = sum(CANTIDAD)) %>% 
@@ -68,6 +62,76 @@ Marcas <- Marcas %>%
                                 'ING CONCEPCION', 'ING MADRE TIERRA', 'ING PANTALEON', 'GONZALES', 
                                 "RUBEN'S Y DISEÑO", 'SIN MARCA'))
 
+return(Marcas)
+
+}
+
+##### Construye DF con todas las fechas ######
+
+# ### Prueba de codificacion ###
+# 
+# archivo <- 'INE_PARQUE_VEHICULAR.txt'
+# carpeta <- '2024-01'
+# ruta <- paste0('C:/Registro_Fiscal_Vehiculos', '/', carpeta, '/', archivo) 
+
+base_dir <- 'C:/Registro_Fiscal_Vehiculos'
+
+# Mes más reciente a considerar: SIEMPRE el mes anterior al actual
+ultimo_mes_disponible <- floor_date(Sys.Date(), "month") - months(1)
+
+# Detectar subcarpetas válidas con formato YYYY-MM
+subcarpetas <- list.dirs(base_dir, recursive = FALSE, full.names = FALSE) %>%
+  keep(~ grepl("^\\d{4}-\\d{2}$", .x))
+
+# Parsear las fechas de esas carpetas y quedarnos solo con <= último mes disponible
+fechas <- ymd(paste0(subcarpetas, "-01"))
+idx_validas <- which(!is.na(fechas) & fechas <= ultimo_mes_disponible)
+subcarpetas <- subcarpetas[idx_validas]
+fechas      <- fechas[idx_validas]
+
+# Orden cronológico
+ord <- order(fechas)
+subcarpetas <- subcarpetas[ord]
+fechas      <- fechas[ord]
+
+stopifnot(length(subcarpetas) > 0)
+
+# Etiquetas de meses en español para las columnas
+meses_es <- c("Enero","Febrero","Marzo","Abril","Mayo","Junio",
+              "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")
+mes_label <- function(d) paste0(meses_es[month(d)], "_", year(d))
+
+# Leer cada archivo y acumular en formato largo
+registros_largos <- purrr::map2_dfr(subcarpetas, fechas, function(carp, fch){
+  ruta_archivo <- file.path(base_dir, carp, "INE_PARQUE_VEHICULAR.txt")
+  if(!file.exists(ruta_archivo)) return(NULL)
+  df <- tryCatch(f_lee_pv(ruta_archivo), error = function(e) NULL)
+  if(is.null(df) || !nrow(df)) return(NULL)
+  df %>%
+    dplyr::rename(Marca_Vehiculo = MARCA_VEHICULO, Unidades = total) %>%
+    mutate(Periodo = fch, Columna = mes_label(Periodo))
+})
+
+# Por si algún mes no devolvió filas (p. ej., todo < 100 uds), evitar error
+stopifnot(nrow(registros_largos) > 0)
+
+# Orden esperado de columnas mes-a-mes
+orden_columnas <- c("Marca_Vehiculo", unique(sapply(fechas, mes_label)))
+
+# Pivot a formato ancho con ceros cuando falte una marca en un mes
+muestra <- registros_largos %>%
+  group_by(Marca_Vehiculo, Columna) %>%
+  summarise(Unidades = sum(Unidades, na.rm = TRUE), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = Columna, values_from = Unidades, values_fill = 0) %>%
+  # reordenar columnas: Marca_Vehiculo + meses en orden cronológico
+  dplyr::select(all_of(orden_columnas)) %>%
+  arrange(Marca_Vehiculo)
 
 
+saveRDS(muestra, 'datos/rfv.rds')
+
+# Chequeo rápido en consola
+cat("Meses incluidos:\n"); print(unique(sapply(fechas, mes_label)))
+cat("Dimensiones de la tabla final (filas x columnas): ", paste(dim(muestra), collapse=" x "), "\n")
+print(head(muestra, 10))
 
