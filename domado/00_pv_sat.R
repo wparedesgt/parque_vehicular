@@ -129,6 +129,7 @@ muestra <- registros_largos %>%
 
 
 saveRDS(muestra, 'datos/rfv.rds')
+write.csv(muestra, 'datos/rfv.csv')
 
 # Chequeo rápido en consola
 cat("Meses incluidos:\n"); print(unique(sapply(fechas, mes_label)))
