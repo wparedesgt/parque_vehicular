@@ -4,7 +4,7 @@ remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inv
 oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/02_Estrategia_Comercial'
 casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
 
-setwd(casa)
+setwd(oficina)
 rm(list = ls())
 
 library(tidyverse)

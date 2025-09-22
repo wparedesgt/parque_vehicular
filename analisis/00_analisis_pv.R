@@ -5,11 +5,11 @@
 # Período: Enero 2024 - Agosto 2025
 # =============================================================================
 
-remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/Estretegia_Comercial"
-oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/02_Estrategia_Comercial'
+remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular"
+oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular'
 casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
 
-setwd(casa)
+setwd(oficina)
 rm(list = ls())
 
 # Cargar librerías necesarias
@@ -37,11 +37,6 @@ cat("=== RESUMEN DEL DATASET ===\n")
 cat("Dimensiones:", dim(datos_rfv), "\n")
 cat("Marcas únicas:", nrow(datos_rfv), "\n")
 cat("Período de análisis: Enero 2024 - Agosto 2025\n\n")
-
-# Limpiar y transformar datos
-datos_clean <- datos_rfv %>%
-  select(-1) %>%  # Eliminar columna índice
-  rename_with(~str_replace_all(.x, "_", " "), -Marca_Vehiculo)
 
 # Convertir a formato long para análisis temporal
 datos_long <- datos_rfv %>%
@@ -163,26 +158,80 @@ segmentos_estrategicos <- metricas_marcas %>%
 # 4. VISUALIZACIONES AVANZADAS
 # =============================================================================
 
-# 1. Mapa de Calor - Volumen vs Crecimiento
-p1 <- ggplot(metricas_marcas %>% filter(Volumen_Final >= 1000), 
-             aes(x = log10(Volumen_Final), y = Crecimiento_Relativo)) +
-  geom_point(aes(size = Volumen_Final, color = Potencial_Radiadores), alpha = 0.7) +
-  geom_text(data = metricas_marcas %>% 
-              filter(Potencial_Radiadores %in% c("ALTA PRIORIDAD", "MEDIA PRIORIDAD")),
-            aes(label = Marca_Vehiculo), vjust = -0.5, size = 3) +
-  scale_size_continuous(range = c(2, 12), guide = "none") +
-  scale_color_manual(values = c("ALTA PRIORIDAD" = "#E31A1C", 
-                                "MEDIA PRIORIDAD" = "#FF7F00",
-                                "EMERGENTE" = "#1F78B4",
-                                "BAJA PRIORIDAD" = "#CCCCCC")) +
-  labs(title = "MAPA ESTRATÉGICO: Volumen vs Crecimiento",
-       subtitle = "Identificación de oportunidades para radiadores",
-       x = "Volumen de Vehículos (Log10)",
-       y = "Crecimiento Relativo (%)",
-       color = "Potencial para Radiadores") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 14, face = "bold"),
-        legend.position = "bottom")
+# 1. Mapa de Calor Interactivo - Volumen vs Crecimiento
+p1 <- metricas_marcas %>% 
+  filter(Volumen_Final >= 1000) %>%
+  mutate(
+    # Crear una escala de tamaño controlada entre 8 y 25
+    tamano_punto = pmax(8, pmin(25, sqrt(Volumen_Final/5000) * 10))
+  ) %>%
+  plot_ly(
+    x = ~log10(Volumen_Final), 
+    y = ~Crecimiento_Relativo,
+    size = ~tamano_punto,
+    color = ~Potencial_Radiadores,
+    colors = c("ALTA PRIORIDAD" = "#E31A1C", 
+               "MEDIA PRIORIDAD" = "#FF7F00",
+               "EMERGENTE" = "#1F78B4",
+               "BAJA PRIORIDAD" = "#666666"),
+    text = ~paste0("Marca: ", Marca_Vehiculo,
+                   "<br>Volumen: ", format(Volumen_Final, big.mark = ","),
+                   "<br>Crecimiento: ", round(Crecimiento_Relativo, 1), "%",
+                   "<br>Potencial: ", Potencial_Radiadores),
+    hovertemplate = "%{text}<extra></extra>",
+    type = "scatter",
+    mode = "markers",
+    marker = list(
+      opacity = 1,
+      line = list(width = 2, color = "#000000"),
+      sizemode = "diameter"
+    ),
+    sizes = c(8, 25)
+  ) %>%
+  add_annotations(
+    data = metricas_marcas %>% 
+      filter(Potencial_Radiadores %in% c("ALTA PRIORIDAD", "MEDIA PRIORIDAD"),
+             Volumen_Final >= 1000),
+    x = ~log10(Volumen_Final),
+    y = ~Crecimiento_Relativo + 3,
+    text = ~Marca_Vehiculo,
+    showarrow = FALSE,
+    font = list(size = 11, color = "#000000", family = "Arial")
+  ) %>%
+  layout(
+    title = list(
+      text = "<b>MAPA ESTRATÉGICO: Volumen vs Crecimiento</b><br><sub>Identificación de oportunidades para radiadores</sub>",
+      font = list(size = 16, color = "#000000", family = "Arial")
+    ),
+    xaxis = list(
+      title = "Volumen de Vehículos (Log10)",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 14),
+      tickfont = list(color = "#000000", size = 12)
+    ),
+    yaxis = list(
+      title = "Crecimiento Relativo (%)",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 14),
+      tickfont = list(color = "#000000", size = 12)
+    ),
+    legend = list(
+      title = list(text = "<b>Potencial para Radiadores</b>"),
+      orientation = "h",
+      x = 0.5,
+      xanchor = "center",
+      y = -0.15,
+      font = list(color = "#000000", size = 11)
+    ),
+    plot_bgcolor = "#FAFAFA",
+    paper_bgcolor = "#FFFFFF",
+    hovermode = "closest"
+  )
+
+# Mostrar la gráfica interactiva
+p1
 
 # 2. Top 15 Marcas por Volumen
 p2 <- top_volumen %>%
@@ -201,38 +250,124 @@ p2 <- top_volumen %>%
   theme_minimal() +
   theme(plot.title = element_text(size = 12, face = "bold"))
 
-# 3. Marcas Emergentes con Alto Potencial
-p3 <- marcas_emergentes %>%
-  mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Crecimiento_Relativo)) %>%
-  ggplot(aes(x = Marca_Vehiculo, y = Crecimiento_Relativo)) +
-  geom_col(fill = "#1F78B4", alpha = 0.8) +
-  geom_text(aes(label = paste0("+", format(Crecimiento_Absoluto, big.mark = ","))), 
-            hjust = -0.1, size = 3) +
-  coord_flip() +
-  labs(title = "MARCAS EMERGENTES CON ALTO POTENCIAL",
-       subtitle = "Oportunidades de crecimiento para radiadores",
-       x = "", y = "Crecimiento Relativo (%)") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 12, face = "bold"))
+p2
 
-# 4. Evolución Temporal de Top Marcas
+# 3. Marcas Emergentes con Alto Potencial - Interactivo
+p3 <- marcas_emergentes %>%
+  arrange(Crecimiento_Relativo) %>%  # Ordenar de menor a mayor
+  mutate(
+    etiqueta_crecimiento = paste0("+", format(Crecimiento_Absoluto, big.mark = ","))
+  ) %>%
+  plot_ly(
+    y = ~factor(Marca_Vehiculo, levels = Marca_Vehiculo),  # Mantener orden
+    x = ~Crecimiento_Relativo,
+    type = "bar",
+    orientation = "h",
+    marker = list(
+      color = "#1F78B4",
+      opacity = 0.8,
+      line = list(color = "#0F4C75", width = 1)
+    ),
+    text = ~paste0("Marca: ", Marca_Vehiculo,
+                   "<br>Crecimiento: ", round(Crecimiento_Relativo, 1), "%",
+                   "<br>Volumen Actual: ", format(Volumen_Final, big.mark = ","),
+                   "<br>Crecimiento Absoluto: +", format(Crecimiento_Absoluto, big.mark = ",")),
+    hovertemplate = "%{text}<extra></extra>",
+    showlegend = FALSE
+  ) %>%
+  add_annotations(
+    y = ~factor(Marca_Vehiculo, levels = Marca_Vehiculo),
+    x = ~Crecimiento_Relativo + 2,
+    text = ~etiqueta_crecimiento,
+    showarrow = FALSE,
+    font = list(size = 10, color = "#000000"),
+    xanchor = "left"
+  ) %>%
+  layout(
+    title = list(
+      text = "<b>MARCAS EMERGENTES CON ALTO POTENCIAL</b><br><sub>Oportunidades de crecimiento para radiadores</sub>",
+      font = list(size = 14, color = "#000000", family = "Arial")
+    ),
+    xaxis = list(
+      title = "Crecimiento Relativo (%)",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10)
+    ),
+    yaxis = list(
+      title = "",
+      showgrid = FALSE,
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10)
+    ),
+    plot_bgcolor = "#FAFAFA",
+    paper_bgcolor = "#FFFFFF",
+    margin = list(l = 150, r = 100, t = 80, b = 50),
+    hovermode = "y"
+  )
+
+# Mostrar la gráfica interactiva
+p3
+
+# 4. Evolución Temporal de Top Marcas - Interactivo
 top_5_marcas <- top_volumen$Marca_Vehiculo[1:5]
 datos_top5 <- datos_long %>%
   filter(Marca_Vehiculo %in% top_5_marcas) %>%
   mutate(Vehiculos_Miles = Vehiculos_Registrados / 1000)
 
-p4 <- ggplot(datos_top5, aes(x = Fecha, y = Vehiculos_Miles, color = Marca_Vehiculo)) +
-  geom_line(size = 1.2) +
-  geom_point(size = 2) +
-  scale_color_viridis_d(option = "turbo") +
-  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
-  labs(title = "EVOLUCIÓN TEMPORAL - TOP 5 MARCAS",
-       subtitle = "Tendencias de crecimiento en el tiempo",
-       x = "Período", y = "Vehículos Registrados (Miles)",
-       color = "Marca") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 12, face = "bold"),
-        axis.text.x = element_text(angle = 45, hjust = 1))
+p4 <- datos_top5 %>%
+  plot_ly(
+    x = ~Fecha,
+    y = ~Vehiculos_Miles,
+    color = ~Marca_Vehiculo,
+    colors = viridis::turbo(5),
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(width = 3),
+    marker = list(size = 6, opacity = 0.8),
+    text = ~paste0("Marca: ", Marca_Vehiculo,
+                   "<br>Fecha: ", format(Fecha, "%b %Y"),
+                   "<br>Vehículos: ", format(round(Vehiculos_Miles, 1), big.mark = ","), "K",
+                   "<br>Registrados: ", format(Vehiculos_Registrados, big.mark = ",")),
+    hovertemplate = "%{text}<extra></extra>"
+  ) %>%
+  layout(
+    title = list(
+      text = "<b>EVOLUCIÓN TEMPORAL - TOP 5 MARCAS</b><br><sub>Tendencias de crecimiento en el tiempo</sub>",
+      font = list(size = 14, color = "#000000", family = "Arial")
+    ),
+    xaxis = list(
+      title = "Período",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10),
+      tickangle = -45,
+      dtick = "M3"  # Cada 3 meses
+    ),
+    yaxis = list(
+      title = "Vehículos Registrados (Miles)",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10)
+    ),
+    legend = list(
+      title = list(text = "<b>Marca</b>"),
+      orientation = "v",
+      x = 1.02,
+      y = 1,
+      font = list(color = "#000000", size = 10)
+    ),
+    plot_bgcolor = "#FAFAFA",
+    paper_bgcolor = "#FFFFFF",
+    hovermode = "x unified",
+    margin = list(l = 80, r = 120, t = 80, b = 80)
+  )
+
+# Mostrar la gráfica interactiva
+p4
 
 # 5. Distribución por Categorías de Potencial
 p5 <- metricas_marcas %>%
@@ -252,10 +387,7 @@ p5 <- metricas_marcas %>%
   theme(plot.title = element_text(size = 12, face = "bold"),
         legend.position = "none")
 
-# Crear layout de gráficos
-grid.arrange(p1, arrangeGrob(p2, p3, ncol = 2), p4, p5, 
-             layout_matrix = rbind(c(1,1), c(2,2), c(3,3), c(4,4)),
-             heights = c(1, 1, 1, 0.8))
+p5
 
 # =============================================================================
 # 6. ANÁLISIS PREDICTIVO Y FORECASTING
@@ -263,7 +395,6 @@ grid.arrange(p1, arrangeGrob(p2, p3, ncol = 2), p4, p5,
 
 # Predicción para las top 5 marcas
 predicciones <- data.frame()
-
 for(marca in top_5_marcas) {
   datos_marca <- datos_long %>%
     filter(Marca_Vehiculo == marca) %>%
@@ -288,28 +419,123 @@ for(marca in top_5_marcas) {
   predicciones <- rbind(predicciones, pred_temp)
 }
 
-# Visualizar predicciones
-p_forecast <- datos_long %>%
+# Datos históricos filtrados
+datos_historicos <- datos_long %>%
   filter(Marca_Vehiculo %in% top_5_marcas, Fecha >= as.Date("2024-06-01")) %>%
-  ggplot(aes(x = Fecha, y = Vehiculos_Registrados / 1000, color = Marca_Vehiculo)) +
-  geom_line(size = 1) +
-  geom_point(size = 2) +
-  geom_line(data = predicciones, 
-            aes(x = Fecha, y = Prediccion / 1000), 
-            linetype = "dashed", size = 1) +
-  geom_ribbon(data = predicciones,
-              aes(x = Fecha, ymin = Lower / 1000, ymax = Upper / 1000, fill = Marca_Vehiculo),
-              alpha = 0.2, color = NA) +
-  scale_color_viridis_d(option = "turbo") +
-  scale_fill_viridis_d(option = "turbo") +
-  labs(title = "PREDICCIONES A 6 MESES - TOP 5 MARCAS",
-       subtitle = "Proyección de crecimiento hasta febrero 2026",
-       x = "Período", y = "Vehículos Registrados (Miles)",
-       color = "Marca", fill = "Marca") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 12, face = "bold"))
+  mutate(Vehiculos_Miles = Vehiculos_Registrados / 1000)
 
-print(p_forecast)
+# Colores viridis turbo para consistencia
+colores_marcas <- viridis::turbo(5)
+names(colores_marcas) <- top_5_marcas
+
+# Crear gráfico base
+p_forecast <- plot_ly()
+
+# Agregar datos históricos (líneas sólidas + puntos)
+for(i in 1:length(top_5_marcas)) {
+  marca <- top_5_marcas[i]
+  datos_marca <- datos_historicos %>% filter(Marca_Vehiculo == marca)
+  
+  p_forecast <- p_forecast %>%
+    add_trace(
+      data = datos_marca,
+      x = ~Fecha,
+      y = ~Vehiculos_Miles,
+      type = "scatter",
+      mode = "lines+markers",
+      line = list(color = colores_marcas[i], width = 3),
+      marker = list(color = colores_marcas[i], size = 6),
+      name = marca,
+      legendgroup = marca,
+      text = ~paste0("Marca: ", Marca_Vehiculo,
+                     "<br>Fecha: ", format(Fecha, "%b %Y"),
+                     "<br>Vehículos: ", format(round(Vehiculos_Miles, 1), big.mark = ","), "K"),
+      hovertemplate = "%{text}<extra></extra>"
+    )
+}
+
+# Agregar predicciones (líneas punteadas)
+for(i in 1:length(top_5_marcas)) {
+  marca <- top_5_marcas[i]
+  datos_pred <- predicciones %>% filter(Marca_Vehiculo == marca)
+  
+  p_forecast <- p_forecast %>%
+    add_trace(
+      data = datos_pred,
+      x = ~Fecha,
+      y = ~Prediccion / 1000,
+      type = "scatter",
+      mode = "lines",
+      line = list(color = colores_marcas[i], width = 3, dash = "dash"),
+      name = paste(marca, "(Predicción)"),
+      legendgroup = marca,
+      showlegend = FALSE,
+      text = ~paste0("Marca: ", Marca_Vehiculo,
+                     "<br>Fecha: ", format(Fecha, "%b %Y"),
+                     "<br>Predicción: ", format(round(Prediccion / 1000, 1), big.mark = ","), "K",
+                     "<br>Rango: ", format(round(Lower / 1000, 1), big.mark = ","), "K - ", 
+                     format(round(Upper / 1000, 1), big.mark = ","), "K"),
+      hovertemplate = "%{text}<extra></extra>"
+    )
+}
+
+# Agregar intervalos de confianza (ribbons)
+for(i in 1:length(top_5_marcas)) {
+  marca <- top_5_marcas[i]
+  datos_pred <- predicciones %>% filter(Marca_Vehiculo == marca)
+  
+  p_forecast <- p_forecast %>%
+    add_ribbons(
+      data = datos_pred,
+      x = ~Fecha,
+      ymin = ~Lower / 1000,
+      ymax = ~Upper / 1000,
+      fillcolor = colores_marcas[i],
+      opacity = 0.2,
+      line = list(color = "transparent"),
+      name = paste(marca, "(Intervalo)"),
+      legendgroup = marca,
+      showlegend = FALSE,
+      hoverinfo = "none"
+    )
+}
+
+# Layout final
+p_forecast <- p_forecast %>%
+  layout(
+    title = list(
+      text = "<b>PREDICCIONES A 6 MESES - TOP 5 MARCAS</b><br><sub>Proyección de crecimiento hasta febrero 2026</sub>",
+      font = list(size = 14, color = "#000000", family = "Arial")
+    ),
+    xaxis = list(
+      title = "Período",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10)
+    ),
+    yaxis = list(
+      title = "Vehículos Registrados (Miles)",
+      showgrid = TRUE,
+      gridcolor = "#E0E0E0",
+      titlefont = list(color = "#000000", size = 12),
+      tickfont = list(color = "#000000", size = 10)
+    ),
+    legend = list(
+      title = list(text = "<b>Marca</b>"),
+      orientation = "v",
+      x = 1.02,
+      y = 1,
+      font = list(color = "#000000", size = 10)
+    ),
+    plot_bgcolor = "#FAFAFA",
+    paper_bgcolor = "#FFFFFF",
+    hovermode = "x unified",
+    margin = list(l = 80, r = 120, t = 80, b = 80)
+  )
+
+# Mostrar la gráfica
+p_forecast
 
 # =============================================================================
 # 7. RECOMENDACIONES ESTRATÉGICAS

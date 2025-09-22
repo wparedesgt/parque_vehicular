@@ -1,0 +1,632 @@
+/* ===============================
+   MANUAL RLT - ANÁLISIS AVANZADO DE SUCURSALES
+   CSS Optimizado v1.0
+   Sistema Empresarial SAP Business One + ML
+   =============================== */
+
+/* ===== VARIABLES CSS CORPORATIVAS RLT ===== */
+:root {
+    /* Colores Corporativos RLT */
+    --rlt-red: #c41e3a;
+    --rlt-dark-red: #8b1538;
+    --rlt-light-red: #e74c3c;
+    --rlt-blue: #2c3e50;
+    --rlt-light-blue: #3498db;
+    --rlt-dark-blue: #1a252f;
+    
+    /* Colores Sistema Dashboard */
+    --dashboard-primary: #2c3e50;
+    --dashboard-secondary: #34495e;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --info: #3498db;
+    --error: #e74c3c;
+    
+    /* Colores Análisis */
+    --prediction-color: #9b59b6;
+    --ml-color: #e67e22;
+    --sap-color: #0f7b0f;
+    
+    /* Escala de Grises */
+    --gray-50: #f8f9fa;
+    --gray-100: #e9ecef;
+    --gray-200: #dee2e6;
+    --gray-300: #ced4da;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    
+    /* Sombras Empresariales */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 15px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+    --shadow-enterprise: 0 8px 32px rgba(44, 62, 80, 0.15);
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease-out;
+    --transition-base: 0.3s ease-out;
+    --transition-slow: 0.5s ease-out;
+    
+    /* Espaciado */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 50%;
+}
+
+/* ===== RESET Y BASE ===== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--gray-800);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 16px;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.manual-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    max-width: 1500px;
+    margin: 0 auto;
+    background: white;
+    box-shadow: var(--shadow-enterprise);
+    position: relative;
+}
+
+/* ===== HEADER CORPORATIVO ESPECIALIZADO ===== */
+.rlt-header {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--dashboard-primary) 0%, var(--dashboard-secondary) 50%, var(--rlt-blue) 100%);
+    color: white;
+    padding: var(--space-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rlt-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://radiadoreslatorre.com/wp-content/uploads/2024/02/logoblancoyrojo-copia.webp') no-repeat center right;
+    background-size: contain;
+    opacity: 0.08;
+    z-index: 1;
+}
+
+.rlt-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(196, 30, 58, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.header-content h1 {
+    font-size: 2.8em;
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: -0.5px;
+}
+
+.header-content .subtitle {
+    font-size: 1.3em;
+    font-weight: 300;
+    opacity: 0.9;
+    margin-bottom: var(--space-xs);
+}
+
+.header-content .version {
+    font-size: 1em;
+    opacity: 0.7;
+    font-weight: 400;
+    margin-top: var(--space-sm);
+}
+
+/* ===== NAVEGACIÓN LATERAL ESPECIALIZADA ===== */
+.manual-nav {
+    background: linear-gradient(180deg, var(--gray-50) 0%, white 100%);
+    padding: var(--space-lg);
+    border-right: 2px solid var(--gray-200);
+    overflow-y: auto;
+    max-height: calc(100vh - 140px);
+}
+
+.nav-header {
+    background: linear-gradient(135deg, var(--dashboard-primary), var(--rlt-blue));
+    color: white;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+    text-align: center;
+    position: relative;
+}
+
+.nav-header h2 {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin: 0;
+}
+
+.nav-header .description {
+    font-size: 0.85em;
+    opacity: 0.9;
+    margin-top: var(--space-xs);
+}
+
+/* ===== TABLA DE CONTENIDOS MEJORADA ===== */
+.toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc li {
+    margin-bottom: var(--space-xs);
+}
+
+.toc a {
+    display: block;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.toc a:hover {
+    background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+    color: var(--dashboard-primary);
+    transform: translateX(8px);
+    border-left-color: var(--rlt-blue);
+    box-shadow: var(--shadow-sm);
+}
+
+.toc a.active {
+    background: linear-gradient(135deg, var(--rlt-blue), var(--dashboard-primary));
+    color: white;
+    border-left-color: var(--rlt-red);
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.manual-content {
+    padding: var(--space-xl);
+    background: white;
+    overflow-y: auto;
+    max-height: calc(100vh - 140px);
+}
+
+/* ===== SECCIONES ===== */
+.section {
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    position: relative;
+}
+
+.section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--rlt-red), var(--rlt-blue));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.section h2 {
+    color: var(--dashboard-primary);
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 3px solid var(--rlt-blue);
+    position: relative;
+}
+
+.section h3 {
+    color: var(--rlt-blue);
+    font-size: 1.6em;
+    font-weight: 600;
+    margin: var(--space-lg) 0 var(--space-md) 0;
+    position: relative;
+    padding-left: var(--space-md);
+}
+
+.section h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: var(--rlt-red);
+    border-radius: var(--radius-sm);
+}
+
+.section h4 {
+    color: var(--gray-700);
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: var(--space-md) 0 var(--space-sm) 0;
+}
+
+/* ===== SUBSECCIONES ===== */
+.sub-section {
+    background: var(--gray-50);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+    border-left: 4px solid var(--rlt-blue);
+    position: relative;
+}
+
+.sub-section h4 {
+    color: var(--dashboard-primary);
+    margin-top: 0;
+}
+
+/* ===== CAJAS DE INFORMACIÓN ESPECIALIZADAS ===== */
+.info, .warning, .tip, .feature-box {
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    margin: var(--space-lg) 0;
+    position: relative;
+    border-left: 6px solid;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.info {
+    background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+    border-left-color: var(--info);
+    color: #1565c0;
+}
+
+.warning {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-left-color: var(--warning);
+    color: #e65100;
+}
+
+.tip {
+    background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+    border-left-color: var(--success);
+    color: #2e7d32;
+}
+
+.feature-box {
+    background: linear-gradient(135deg, var(--gray-50), #f8f9fa);
+    border-left-color: var(--dashboard-primary);
+    color: var(--gray-800);
+}
+
+/* ===== CAJAS DE MÉTRICAS (ESPECÍFICAS PARA DASHBOARD) ===== */
+.metric-box {
+    background: linear-gradient(135deg, white, var(--gray-50));
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin: var(--space-md) 0;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    transition: all var(--transition-base);
+}
+
+.metric-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rlt-red), var(--rlt-blue));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.metric-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--rlt-blue);
+}
+
+.metric-box h4 {
+    color: var(--dashboard-primary);
+    margin-top: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+/* ===== TABLAS MEJORADAS ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-lg) 0;
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+table thead {
+    background: linear-gradient(135deg, var(--dashboard-primary), var(--rlt-blue));
+    color: white;
+}
+
+table th {
+    padding: var(--space-md);
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--gray-200);
+    transition: background-color var(--transition-fast);
+}
+
+table tbody tr:hover {
+    background-color: var(--gray-50);
+}
+
+table tbody tr:nth-child(even) {
+    background-color: rgba(248, 249, 250, 0.5);
+}
+
+/* ===== PLACEHOLDERS DE IMÁGENES ===== */
+.image-placeholder {
+    background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin: var(--space-lg) 0;
+    text-align: center;
+    color: var(--gray-600);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.image-placeholder::before {
+/*    content: '🖼️';
+    font-size: 3em;
+    margin-bottom: var(--space-sm);
+*/    
+  content: none !important;
+  display: none !important;
+
+}
+
+.image-placeholder img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+/* ===== LISTAS MEJORADAS ===== */
+ul, ol {
+    padding-left: var(--space-lg);
+    margin: var(--space-md) 0;
+}
+
+li {
+    margin-bottom: var(--space-xs);
+    color: var(--gray-700);
+}
+
+li strong {
+    color: var(--dashboard-primary);
+}
+
+/* ===== CÓDIGO Y ELEMENTOS TÉCNICOS ===== */
+code {
+    background: var(--gray-100);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    color: var(--rlt-red);
+    font-size: 0.9em;
+}
+
+pre {
+    background: var(--gray-900);
+    color: var(--gray-100);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    margin: var(--space-lg) 0;
+    box-shadow: var(--shadow-md);
+}
+
+/* ===== FOOTER ===== */
+.manual-footer {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
+    color: white;
+    padding: var(--space-lg);
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.manual-footer a {
+    color: var(--rlt-light-red);
+    text-decoration: none;
+}
+
+.manual-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 1024px) {
+    .manual-container {
+        grid-template-columns: 280px 1fr;
+    }
+    
+    .header-content h1 {
+        font-size: 2.2em;
+    }
+}
+
+@media (max-width: 768px) {
+    .manual-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+    }
+    
+    .manual-nav {
+        max-height: none;
+        border-right: none;
+        border-bottom: 2px solid var(--gray-200);
+    }
+    
+    .rlt-header {
+        padding: var(--space-lg);
+        min-height: 100px;
+    }
+    
+    .header-content h1 {
+        font-size: 1.8em;
+    }
+    
+    .section {
+        padding: var(--space-md);
+        margin-bottom: var(--space-md);
+    }
+    
+    table {
+        font-size: 0.9em;
+    }
+    
+    .metric-box {
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .manual-content {
+        padding: var(--space-md);
+    }
+    
+    .rlt-header {
+        padding: var(--space-md);
+    }
+    
+    .header-content h1 {
+        font-size: 1.5em;
+    }
+    
+    .section h2 {
+        font-size: 1.8em;
+    }
+    
+    .section h3 {
+        font-size: 1.4em;
+    }
+}
+
+/* ===== EFECTOS HOVER AVANZADOS ===== */
+.toc li:hover {
+    background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+    transform: translateX(5px);
+}
+
+.section h2:hover {
+    color: var(--rlt-red);
+    transition: color var(--transition-base);
+}
+
+.info:hover, .warning:hover, .tip:hover, .feature-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== ANIMACIONES SUTILES ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .manual-nav, .manual-footer {
+        display: none;
+    }
+    
+    .manual-container {
+        grid-template-columns: 1fr;
+        box-shadow: none;
+    }
+    
+    .section {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+    }
+    
+    .rlt-header {
+        background: var(--dashboard-primary) !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}
