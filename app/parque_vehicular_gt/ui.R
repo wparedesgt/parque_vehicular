@@ -155,9 +155,9 @@ lateral <- dashboardSidebar(
       badgeColor = "red"
     ),
     
+    # CORREGIDO: Eliminado tabName = 'analisis_marcas' que causaba el problema
     menuItem(
       'Análisis de Marcas',
-      tabName = 'analisis_marcas',
       icon = icon('chart-bar', lib = 'font-awesome'),
       startExpanded = TRUE,
       menuSubItem('Panorama General', tabName = 'panorama_general'),
@@ -166,10 +166,8 @@ lateral <- dashboardSidebar(
       menuSubItem('Análisis Detallado', tabName = 'analisis_detallado')
     ),
     
-    # CORREGIDO: Eliminado el badge del menuItem que tiene subitems
     menuItem(
       'Oportunidades Estratégicas',
-      tabName = 'oportunidades',
       icon = icon('bullseye', lib = 'font-awesome'),
       startExpanded = FALSE,
       menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades'),
@@ -179,7 +177,6 @@ lateral <- dashboardSidebar(
     
     menuItem(
       'Proyecciones y Predicciones',
-      tabName = 'proyecciones',
       icon = icon('crystal-ball', lib = 'font-awesome'),
       startExpanded = FALSE,
       menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_rlt'),
@@ -188,7 +185,6 @@ lateral <- dashboardSidebar(
     
     menuItem(
       'Inteligencia de Mercado',
-      tabName = 'inteligencia',
       icon = icon('brain', lib = 'font-awesome'),
       startExpanded = FALSE,
       menuSubItem('Alertas Automáticas', tabName = 'alertas_automaticas'),
