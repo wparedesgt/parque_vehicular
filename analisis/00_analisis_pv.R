@@ -233,7 +233,7 @@ p1 <- metricas_marcas %>%
 # Mostrar la gráfica interactiva
 p1
 
-# 2. Top 15 Marcas por Volumen
+ # 2. Top 15 Marcas por Volumen
 p2 <- top_volumen %>%
   mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Volumen_Final)) %>%
   ggplot(aes(x = Marca_Vehiculo, y = Volumen_Final, fill = Categoria_Crecimiento)) +
