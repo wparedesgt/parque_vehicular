@@ -1550,6 +1550,44 @@ function(input, output, session) {
   })
   
   # Matriz de potencial
+  # output$grafico_matriz_potencial <- renderPlotly({
+  #   
+  #   if(is.null(metricas_global) || nrow(metricas_global) == 0) {
+  #     return(plot_ly() %>% layout(title = "Sin datos disponibles"))
+  #   }
+  #   
+  #   datos_matriz <- metricas_global %>%
+  #     count(Potencial_Radiadores, name = "cantidad") %>%
+  #     mutate(
+  #       color_categoria = case_when(
+  #         str_detect(Potencial_Radiadores, "ALTA") ~ "#E31A1C",
+  #         str_detect(Potencial_Radiadores, "MEDIA") ~ "#FF7F00", 
+  #         str_detect(Potencial_Radiadores, "EMERGENTE") ~ "#1F78B4",
+  #         TRUE ~ "#666666"
+  #       )
+  #     )
+  #   
+  #   plot_ly(
+  #     datos_matriz,
+  #     labels = ~Potencial_Radiadores,
+  #     values = ~cantidad,
+  #     type = "pie",
+  #     marker = list(colors = ~color_categoria),
+  #     textinfo = "label+percent",
+  #     hovertemplate = paste0(
+  #       "<b>%{label}</b><br>",
+  #       "Marcas: %{value}<br>",
+  #       "Porcentaje: %{percent}<br>",
+  #       "<extra></extra>"
+  #     )
+  #   ) %>%
+  #     layout(
+  #       title = "Matriz de Potencial de Radiadores"
+  #     )
+  # })
+  
+  
+  # Matriz de potencial
   output$grafico_matriz_potencial <- renderPlotly({
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
@@ -1559,32 +1597,49 @@ function(input, output, session) {
     datos_matriz <- metricas_global %>%
       count(Potencial_Radiadores, name = "cantidad") %>%
       mutate(
+        porcentaje = round(cantidad / sum(cantidad) * 100, 1),
         color_categoria = case_when(
           str_detect(Potencial_Radiadores, "ALTA") ~ "#E31A1C",
           str_detect(Potencial_Radiadores, "MEDIA") ~ "#FF7F00", 
           str_detect(Potencial_Radiadores, "EMERGENTE") ~ "#1F78B4",
           TRUE ~ "#666666"
+        ),
+        # Ordenar por prioridad
+        orden = case_when(
+          str_detect(Potencial_Radiadores, "ALTA") ~ 1,
+          str_detect(Potencial_Radiadores, "MEDIA") ~ 2,
+          str_detect(Potencial_Radiadores, "EMERGENTE") ~ 3,
+          TRUE ~ 4
         )
-      )
+      ) %>%
+      arrange(orden) %>%
+      mutate(Potencial_Radiadores = factor(Potencial_Radiadores, levels = Potencial_Radiadores))
     
     plot_ly(
       datos_matriz,
-      labels = ~Potencial_Radiadores,
-      values = ~cantidad,
-      type = "pie",
-      marker = list(colors = ~color_categoria),
-      textinfo = "label+percent",
+      x = ~cantidad,
+      y = ~Potencial_Radiadores,
+      type = "bar",
+      orientation = "h",
+      marker = list(color = ~color_categoria),
+      text = ~paste0(cantidad, " marcas (", porcentaje, "%)"),
+      textposition = "outside",
       hovertemplate = paste0(
-        "<b>%{label}</b><br>",
-        "Marcas: %{value}<br>",
-        "Porcentaje: %{percent}<br>",
+        "<b>%{y}</b><br>",
+        "Marcas: %{x}<br>",
+        "Porcentaje: ", datos_matriz$porcentaje, "%<br>",
         "<extra></extra>"
       )
     ) %>%
       layout(
-        title = "Matriz de Potencial de Radiadores"
+        title = "Matriz de Potencial de Radiadores",
+        xaxis = list(title = "Número de Marcas"),
+        yaxis = list(title = ""),
+        margin = list(l = 180)
       )
   })
+  
+  
   
   # Tabla panorama completo
   output$tabla_panorama_completo <- renderDataTable({
@@ -1729,6 +1784,860 @@ function(input, output, session) {
   
   
   
+  # =============================================================================
+  # TAB: MAPA DE OPORTUNIDADES ESTRATÉGICAS
+  # =============================================================================
+  
+  # -----------------------------------------------------------------------------
+  # DATOS REACTIVOS CON FILTROS AVANZADOS
+  # -----------------------------------------------------------------------------
+  
+  datos_filtrados_oportunidades <- reactive({
+    
+    cat("🔍 Aplicando filtros avanzados de oportunidades...\n")
+    
+    datos <- metricas_global
+    
+    if(is.null(datos) || nrow(datos) == 0) {
+      return(data.frame())
+    }
+    
+    # Aplicar filtros solo si el botón fue presionado
+    if(input$btn_aplicar_filtros_oport > 0) {
+      
+      # Filtro por volumen
+      datos <- datos %>%
+        filter(Volumen_Final >= input$filtro_volumen_min_oport,
+               Volumen_Final <= input$filtro_volumen_max_oport)
+      
+      # Filtro por crecimiento
+      datos <- datos %>%
+        filter(Crecimiento_Relativo >= input$filtro_crecimiento_min_oport,
+               Crecimiento_Relativo <= input$filtro_crecimiento_max_oport)
+      
+      # Filtro por score
+      datos <- datos %>%
+        filter(Score_Oportunidad >= input$filtro_score_min_oport)
+      
+      # Filtro por categorías
+      if(input$filtro_categorias_oport != "todas") {
+        if(input$filtro_categorias_oport == "alto") {
+          datos <- datos %>% filter(Categoria_Volumen == "Alto Volumen (100K+)")
+        } else if(input$filtro_categorias_oport == "medio") {
+          datos <- datos %>% filter(Categoria_Volumen == "Volumen Medio (10K-100K)")
+        } else if(input$filtro_categorias_oport == "bajo_emergente") {
+          datos <- datos %>% filter(Categoria_Volumen %in% c("Volumen Bajo (1K-10K)", "Volumen Mínimo (<1K)"))
+        }
+      }
+      
+      # Filtro por potencial
+      if(!is.null(input$filtro_potencial_oport) && length(input$filtro_potencial_oport) > 0) {
+        potencial_seleccionado <- c()
+        if("alta" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🔴 ALTA PRIORIDAD")
+        if("media" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🟠 MEDIA PRIORIDAD")
+        if("emergente" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🔵 EMERGENTE")
+        if("baja" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "⚫ BAJA PRIORIDAD")
+        
+        datos <- datos %>% filter(Potencial_Radiadores %in% potencial_seleccionado)
+      }
+    }
+    
+    cat("✅ Filtros aplicados:", nrow(datos), "marcas resultantes\n")
+    return(datos)
+  })
+  
+  # Resetear filtros
+  observeEvent(input$btn_resetear_filtros_oport, {
+    updateSliderInput(session, "filtro_volumen_min_oport", value = 1000)
+    updateSliderInput(session, "filtro_volumen_max_oport", value = 500000)
+    updateSliderInput(session, "filtro_crecimiento_min_oport", value = 0)
+    updateSliderInput(session, "filtro_crecimiento_max_oport", value = 200)
+    updateSliderInput(session, "filtro_score_min_oport", value = 40)
+    updateSelectInput(session, "filtro_categorias_oport", selected = "todas")
+    updateCheckboxGroupInput(session, "filtro_potencial_oport", selected = c("alta", "media", "emergente"))
+    
+    showNotification("✅ Filtros reseteados", type = "success", duration = 2)
+  })
+  
+  # -----------------------------------------------------------------------------
+  # VALUE BOXES DINÁMICOS
+  # -----------------------------------------------------------------------------
+  
+  output$vb_marcas_filtradas_oport <- renderValueBox({
+    datos <- datos_filtrados_oportunidades()
+    
+    valueBox(
+      value = nrow(datos),
+      subtitle = "Marcas en Análisis",
+      icon = icon("filter"),
+      color = "blue"
+    )
+  })
+  
+  output$vb_volumen_oportunidad_oport <- renderValueBox({
+    datos <- datos_filtrados_oportunidades()
+    
+    volumen_total <- sum(datos$Volumen_Final, na.rm = TRUE)
+    
+    valueBox(
+      value = formato_numero(volumen_total),
+      subtitle = "Vehículos Totales",
+      icon = icon("car"),
+      color = "red"
+    )
+  })
+  
+  output$vb_score_promedio_oport <- renderValueBox({
+    datos <- datos_filtrados_oportunidades()
+    
+    score_prom <- mean(datos$Score_Oportunidad, na.rm = TRUE)
+    
+    valueBox(
+      value = round(score_prom, 1),
+      subtitle = "Score Promedio",
+      icon = icon("star"),
+      color = "yellow"
+    )
+  })
+  
+  output$vb_potencial_mercado_oport <- renderValueBox({
+    datos <- datos_filtrados_oportunidades()
+    
+    participacion <- sum(datos$Participacion_Mercado, na.rm = TRUE)
+    
+    valueBox(
+      value = paste0(round(participacion, 1), "%"),
+      subtitle = "Participación de Mercado",
+      icon = icon("chart-pie"),
+      color = "green"
+    )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # MAPA ESTRATÉGICO DE BURBUJAS AVANZADO
+  # -----------------------------------------------------------------------------
+  
+  output$mapa_burbujas_avanzado_oport <- renderPlotly({
+    
+    datos <- datos_filtrados_oportunidades()
+    
+    if(is.null(datos) || nrow(datos) == 0) {
+      return(plot_ly() %>% layout(title = "No hay datos con los filtros aplicados"))
+    }
+    
+    # Calcular tamaño de burbujas proporcional al score
+    datos <- datos %>%
+      mutate(
+        tamano_burbuja = pmax(8, pmin(40, Score_Oportunidad / 2.5)),
+        log_volumen = log10(pmax(1, Volumen_Final))
+      )
+    
+    plot_ly(
+      datos,
+      x = ~log_volumen,
+      y = ~Crecimiento_Relativo,
+      size = ~tamano_burbuja,
+      color = ~Potencial_Radiadores,
+      colors = c("🔴 ALTA PRIORIDAD" = "#E31A1C",
+                 "🟠 MEDIA PRIORIDAD" = "#FF7F00",
+                 "🔵 EMERGENTE" = "#1F78B4",
+                 "⚫ BAJA PRIORIDAD" = "#666666"),
+      text = ~paste0("<b>", Marca_Vehiculo, "</b>",
+                     "<br>Volumen: ", format(Volumen_Final, big.mark = ","),
+                     "<br>Crecimiento: ", round(Crecimiento_Relativo, 1), "%",
+                     "<br>Score: ", round(Score_Oportunidad, 1),
+                     "<br>Participación: ", round(Participacion_Mercado, 2), "%"),
+      hovertemplate = "%{text}<extra></extra>",
+      type = "scatter",
+      mode = "markers",
+      marker = list(
+        opacity = 0.85,
+        line = list(width = 2, color = "#000000"),
+        sizemode = "diameter"
+      ),
+      sizes = c(8, 40)
+    ) %>%
+      add_annotations(
+        data = datos %>% 
+          filter(str_detect(Potencial_Radiadores, "ALTA|MEDIA"),
+                 Score_Oportunidad >= 60),
+        x = ~log_volumen,
+        y = ~Crecimiento_Relativo + 3,
+        text = ~Marca_Vehiculo,
+        showarrow = FALSE,
+        font = list(size = 9, color = "#000000", family = "Arial", weight = "bold")
+      ) %>%
+      layout(
+        title = list(
+          text = "<b>MAPA ESTRATÉGICO DE OPORTUNIDADES</b><br><sub>Análisis Multidimensional: Volumen • Crecimiento • Score</sub>",
+          font = list(size = 14)
+        ),
+        xaxis = list(
+          title = "Volumen de Vehículos (escala Log10)",
+          showgrid = TRUE,
+          gridcolor = "#E0E0E0"
+        ),
+        yaxis = list(
+          title = "Crecimiento Relativo (%)",
+          showgrid = TRUE,
+          gridcolor = "#E0E0E0",
+          zeroline = TRUE,
+          zerolinewidth = 2,
+          zerolinecolor = "#999999"
+        ),
+        legend = list(
+          title = list(text = "<b>Nivel de Prioridad</b>"),
+          orientation = "v",
+          x = 1.02,
+          y = 0.5
+        ),
+        hovermode = "closest"
+      )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # MATRIZ DE DECISIÓN 2X2
+  # -----------------------------------------------------------------------------
+  
+  # output$matriz_decision_2x2_oport <- renderPlotly({
+  #   
+  #   datos <- datos_filtrados_oportunidades()
+  #   
+  #   if(is.null(datos) || nrow(datos) == 0) {
+  #     return(plot_ly() %>% layout(title = "No hay datos disponibles"))
+  #   }
+  #   
+  #   # Calcular medianas para los ejes
+  #   mediana_volumen <- median(datos$Volumen_Final, na.rm = TRUE)
+  #   mediana_crecimiento <- median(datos$Crecimiento_Relativo, na.rm = TRUE)
+  #   
+  #   # Clasificar en cuadrantes
+  #   datos <- datos %>%
+  #     mutate(
+  #       cuadrante = case_when(
+  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "⭐ Estrellas",
+  #         Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "🚀 Promesas",
+  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "💰 Base Consolidada",
+  #         TRUE ~ "❓ Interrogantes"
+  #       ),
+  #       color_cuadrante = case_when(
+  #         cuadrante == "⭐ Estrellas" ~ "#27ae60",
+  #         cuadrante == "🚀 Promesas" ~ "#3498db",
+  #         cuadrante == "💰 Base Consolidada" ~ "#f39c12",
+  #         TRUE ~ "#95a5a6"
+  #       )
+  #     )
+  #   
+  #   plot_ly(
+  #     datos,
+  #     x = ~Volumen_Final,
+  #     y = ~Crecimiento_Relativo,
+  #     color = ~cuadrante,
+  #     colors = ~unique(color_cuadrante),
+  #     type = "scatter",
+  #     mode = "markers",
+  #     marker = list(size = 10, opacity = 0.7),
+  #     text = ~paste0("<b>", Marca_Vehiculo, "</b><br>Cuadrante: ", cuadrante),
+  #     hovertemplate = "%{text}<extra></extra>"
+  #   ) %>%
+  #     add_segments(
+  #       x = mediana_volumen, xend = mediana_volumen,
+  #       y = min(datos$Crecimiento_Relativo, na.rm = TRUE),
+  #       yend = max(datos$Crecimiento_Relativo, na.rm = TRUE),
+  #       line = list(dash = "dash", color = "#2c3e50", width = 2),
+  #       showlegend = FALSE,
+  #       hoverinfo = "skip"
+  #     ) %>%
+  #     add_segments(
+  #       x = min(datos$Volumen_Final, na.rm = TRUE),
+  #       xend = max(datos$Volumen_Final, na.rm = TRUE),
+  #       y = mediana_crecimiento, yend = mediana_crecimiento,
+  #       line = list(dash = "dash", color = "#2c3e50", width = 2),
+  #       showlegend = FALSE,
+  #       hoverinfo = "skip"
+  #     ) %>%
+  #     layout(
+  #       title = "Matriz 2x2<br><sub>Volumen vs Crecimiento</sub>",
+  #       xaxis = list(title = "Volumen", type = "log"),
+  #       yaxis = list(title = "Crecimiento (%)"),
+  #       legend = list(title = list(text = "<b>Cuadrantes</b>"))
+  #     )
+  # })
+  
+  
+  # MATRIZ DE DECISIÓN 2X2
+  # -----------------------------------------------------------------------------
+  
+  output$matriz_decision_2x2_oport <- renderPlotly({
+    
+    datos <- datos_filtrados_oportunidades()
+    
+    if(is.null(datos) || nrow(datos) == 0) {
+      return(plot_ly() %>% layout(title = "No hay datos disponibles"))
+    }
+    
+    # Calcular medianas para los ejes
+    mediana_volumen <- median(datos$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(datos$Crecimiento_Relativo, na.rm = TRUE)
+    
+    # Clasificar en cuadrantes
+    datos <- datos %>%
+      mutate(
+        cuadrante = case_when(
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "⭐ Estrellas",
+          Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "🚀 Promesas",
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "💰 Base Consolidada",
+          TRUE ~ "❓ Interrogantes"
+        )
+      )
+    
+    # CORREGIDO: Definir el mapeo de colores explícitamente
+    colores_cuadrantes <- c(
+      "⭐ Estrellas" = "#27ae60",
+      "🚀 Promesas" = "#3498db",
+      "💰 Base Consolidada" = "#f39c12",
+      "❓ Interrogantes" = "#95a5a6"
+    )
+    
+    plot_ly(
+      datos,
+      x = ~Volumen_Final,
+      y = ~Crecimiento_Relativo,
+      color = ~cuadrante,
+      colors = colores_cuadrantes,  # CORREGIDO: Usar el vector nombrado estático
+      type = "scatter",
+      mode = "markers",
+      marker = list(size = 10, opacity = 0.7),
+      text = ~paste0("<b>", Marca_Vehiculo, "</b><br>Cuadrante: ", cuadrante),
+      hovertemplate = "%{text}<extra></extra>"
+    ) %>%
+      add_segments(
+        x = mediana_volumen, xend = mediana_volumen,
+        y = min(datos$Crecimiento_Relativo, na.rm = TRUE),
+        yend = max(datos$Crecimiento_Relativo, na.rm = TRUE),
+        line = list(dash = "dash", color = "#2c3e50", width = 2),
+        showlegend = FALSE,
+        hoverinfo = "skip"
+      ) %>%
+      add_segments(
+        x = min(datos$Volumen_Final, na.rm = TRUE),
+        xend = max(datos$Volumen_Final, na.rm = TRUE),
+        y = mediana_crecimiento, yend = mediana_crecimiento,
+        line = list(dash = "dash", color = "#2c3e50", width = 2),
+        showlegend = FALSE,
+        hoverinfo = "skip"
+      ) %>%
+      layout(
+        title = "Matriz 2x2<br><sub>Volumen vs Crecimiento</sub>",
+        xaxis = list(title = "Volumen", type = "log"),
+        yaxis = list(title = "Crecimiento (%)"),
+        legend = list(title = list(text = "<b>Cuadrantes</b>"))
+      )
+  })
+  
+  
+  # -----------------------------------------------------------------------------
+  # TABLAS POR CUADRANTES
+  # -----------------------------------------------------------------------------
+  
+  # Función auxiliar para clasificar cuadrantes
+  clasificar_cuadrantes <- function(datos) {
+    if(nrow(datos) == 0) return(datos)
+    
+    mediana_volumen <- median(datos$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(datos$Crecimiento_Relativo, na.rm = TRUE)
+    
+    datos %>%
+      mutate(
+        cuadrante = case_when(
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "estrellas",
+          Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "promesas",
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "consolidada",
+          TRUE ~ "interrogantes"
+        )
+      )
+  }
+  
+  output$tabla_cuadrante_estrellas_oport <- renderDataTable({
+    datos <- datos_filtrados_oportunidades() %>%
+      clasificar_cuadrantes() %>%
+      filter(cuadrante == "estrellas") %>%
+      arrange(desc(Score_Oportunidad)) %>%
+      select(Marca = Marca_Vehiculo, Volumen = Volumen_Final, 
+             `Crecimiento %` = Crecimiento_Relativo, Score = Score_Oportunidad) %>%
+      mutate(Volumen = format(Volumen, big.mark = ","),
+             `Crecimiento %` = round(`Crecimiento %`, 1),
+             Score = round(Score, 1))
+    
+    datatable(datos, options = list(pageLength = 10, dom = 't'), rownames = FALSE)
+  })
+  
+  output$tabla_cuadrante_promesas_oport <- renderDataTable({
+    datos <- datos_filtrados_oportunidades() %>%
+      clasificar_cuadrantes() %>%
+      filter(cuadrante == "promesas") %>%
+      arrange(desc(Crecimiento_Relativo)) %>%
+      select(Marca = Marca_Vehiculo, Volumen = Volumen_Final, 
+             `Crecimiento %` = Crecimiento_Relativo, Score = Score_Oportunidad) %>%
+      mutate(Volumen = format(Volumen, big.mark = ","),
+             `Crecimiento %` = round(`Crecimiento %`, 1),
+             Score = round(Score, 1))
+    
+    datatable(datos, options = list(pageLength = 10, dom = 't'), rownames = FALSE)
+  })
+  
+  output$tabla_cuadrante_base_consolidada_oport <- renderDataTable({
+    datos <- datos_filtrados_oportunidades() %>%
+      clasificar_cuadrantes() %>%
+      filter(cuadrante == "base_consolidada") %>%
+      arrange(desc(Volumen_Final)) %>%
+      select(Marca = Marca_Vehiculo, Volumen = Volumen_Final, 
+             `Crecimiento %` = Crecimiento_Relativo, Score = Score_Oportunidad) %>%
+      mutate(Volumen = format(Volumen, big.mark = ","),
+             `Crecimiento %` = round(`Crecimiento %`, 1),
+             Score = round(Score, 1))
+    
+    datatable(datos, options = list(pageLength = 10, dom = 't'), rownames = FALSE)
+  })
+  
+  output$tabla_cuadrante_interrogantes_oport <- renderDataTable({
+    datos <- datos_filtrados_oportunidades() %>%
+      clasificar_cuadrantes() %>%
+      filter(cuadrante == "interrogantes") %>%
+      arrange(desc(Score_Oportunidad)) %>%
+      select(Marca = Marca_Vehiculo, Volumen = Volumen_Final, 
+             `Crecimiento %` = Crecimiento_Relativo, Score = Score_Oportunidad) %>%
+      mutate(Volumen = format(Volumen, big.mark = ","),
+             `Crecimiento %` = round(`Crecimiento %`, 1),
+             Score = round(Score, 1))
+    
+    datatable(datos, options = list(pageLength = 10, dom = 't'), rownames = FALSE)
+  })
+  
+  # -----------------------------------------------------------------------------
+  # DISTRIBUCIONES Y ANÁLISIS ESTADÍSTICO
+  # -----------------------------------------------------------------------------
+  
+  output$hist_distribucion_score_oport <- renderPlotly({
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) return(plot_ly() %>% layout(title = "Sin datos"))
+    
+    plot_ly(datos, x = ~Score_Oportunidad, type = "histogram",
+            marker = list(color = "#c41e3a", opacity = 0.7),
+            nbinsx = 20) %>%
+      layout(
+        title = "Distribución de Score",
+        xaxis = list(title = "Score de Oportunidad"),
+        yaxis = list(title = "Frecuencia")
+      )
+  })
+  
+  output$curva_lorenz_oport <- renderPlotly({
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) return(plot_ly() %>% layout(title = "Sin datos"))
+    
+    # Calcular curva de Lorenz
+    datos_lorenz <- datos %>%
+      arrange(Volumen_Final) %>%
+      mutate(
+        pct_marcas = (1:n()) / n() * 100,
+        volumen_acum = cumsum(Volumen_Final) / sum(Volumen_Final) * 100
+      )
+    
+    plot_ly() %>%
+      add_trace(
+        data = datos_lorenz,
+        x = ~pct_marcas,
+        y = ~volumen_acum,
+        type = "scatter",
+        mode = "lines",
+        name = "Curva de Lorenz",
+        line = list(color = "#e74c3c", width = 3)
+      ) %>%
+      add_trace(
+        x = c(0, 100),
+        y = c(0, 100),
+        type = "scatter",
+        mode = "lines",
+        name = "Línea de Igualdad",
+        line = list(color = "#95a5a6", dash = "dash", width = 2)
+      ) %>%
+      layout(
+        title = "Curva de Lorenz<br><sub>Concentración del Mercado</sub>",
+        xaxis = list(title = "% Acumulado de Marcas"),
+        yaxis = list(title = "% Acumulado de Volumen")
+      )
+  })
+  
+  output$boxplot_comparativo_oport <- renderPlotly({
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) return(plot_ly() %>% layout(title = "Sin datos"))
+    
+    plot_ly(datos, y = ~Score_Oportunidad, color = ~Potencial_Radiadores,
+            type = "box",
+            colors = c("🔴 ALTA PRIORIDAD" = "#E31A1C",
+                       "🟠 MEDIA PRIORIDAD" = "#FF7F00",
+                       "🔵 EMERGENTE" = "#1F78B4",
+                       "⚫ BAJA PRIORIDAD" = "#666666")) %>%
+      layout(
+        title = "Box Plot por Prioridad",
+        yaxis = list(title = "Score de Oportunidad"),
+        showlegend = FALSE
+      )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # EVOLUCIÓN TEMPORAL DE TOP OPORTUNIDADES
+  # -----------------------------------------------------------------------------
+  
+  output$grafico_evolucion_top_oport <- renderPlotly({
+    
+    req(input$btn_actualizar_temporal_oport)
+    
+    datos_filtrados <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos_filtrados) == 0 || is.null(datos_long_global)) {
+      return(plot_ly() %>% layout(title = "No hay datos temporales disponibles"))
+    }
+    
+    # Seleccionar top N según criterio
+    top_n <- as.numeric(input$top_n_temporal_oport)
+    
+    if(input$criterio_temporal_oport == "score") {
+      top_marcas <- datos_filtrados %>%
+        arrange(desc(Score_Oportunidad)) %>%
+        head(top_n) %>%
+        pull(Marca_Vehiculo)
+    } else if(input$criterio_temporal_oport == "volumen") {
+      top_marcas <- datos_filtrados %>%
+        arrange(desc(Volumen_Final)) %>%
+        head(top_n) %>%
+        pull(Marca_Vehiculo)
+    } else {
+      top_marcas <- datos_filtrados %>%
+        arrange(desc(Crecimiento_Relativo)) %>%
+        head(top_n) %>%
+        pull(Marca_Vehiculo)
+    }
+    
+    # Filtrar datos temporales
+    datos_temp <- datos_long_global %>%
+      filter(Marca_Vehiculo %in% top_marcas)
+    
+    if(nrow(datos_temp) == 0) {
+      return(plot_ly() %>% layout(title = "No hay datos temporales para las marcas seleccionadas"))
+    }
+    
+    # Normalizar si se solicita
+    if(input$normalizar_temporal_oport) {
+      datos_temp <- datos_temp %>%
+        group_by(Marca_Vehiculo) %>%
+        mutate(
+          valor_min = min(Vehiculos_Registrados, na.rm = TRUE),
+          valor_max = max(Vehiculos_Registrados, na.rm = TRUE),
+          Vehiculos_Registrados = ifelse(valor_max - valor_min > 0,
+                                         (Vehiculos_Registrados - valor_min) / (valor_max - valor_min) * 100,
+                                         50)
+        ) %>%
+        ungroup()
+    }
+    
+    # Crear gráfico
+    fig <- plot_ly()
+    
+    for(marca in top_marcas) {
+      datos_marca <- datos_temp %>% filter(Marca_Vehiculo == marca)
+      
+      fig <- fig %>%
+        add_trace(
+          data = datos_marca,
+          x = ~Fecha,
+          y = ~Vehiculos_Registrados,
+          type = "scatter",
+          mode = "lines+markers",
+          name = marca,
+          line = list(width = 2.5),
+          marker = list(size = 6)
+        )
+    }
+    
+    fig %>%
+      layout(
+        title = paste("Evolución Temporal - Top", top_n, "por", 
+                      ifelse(input$criterio_temporal_oport == "score", "Score",
+                             ifelse(input$criterio_temporal_oport == "volumen", "Volumen", "Crecimiento"))),
+        xaxis = list(title = "Período"),
+        yaxis = list(title = ifelse(input$normalizar_temporal_oport, "Valor Normalizado (0-100)", "Vehículos Registrados")),
+        hovermode = "x unified"
+      )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # PANEL DE RECOMENDACIONES INTELIGENTES
+  # -----------------------------------------------------------------------------
+  
+  output$panel_recomendaciones_inteligentes_oport <- renderUI({
+    
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) {
+      return(p("No hay suficientes datos para generar recomendaciones", style = "color: #6c757d;"))
+    }
+    
+    # Análisis de cuadrantes
+    datos_cuadrantes <- clasificar_cuadrantes(datos)
+    
+    n_estrellas <- sum(datos_cuadrantes$cuadrante == "estrellas", na.rm = TRUE)
+    n_promesas <- sum(datos_cuadrantes$cuadrante == "promesas", na.rm = TRUE)
+    n_base_consolidada <- sum(datos_cuadrantes$cuadrante == "base_consolidada", na.rm = TRUE)
+    n_interrogantes <- sum(datos_cuadrantes$cuadrante == "interrogantes", na.rm = TRUE)
+    
+    # Top 3 recomendaciones
+    top_3 <- datos %>%
+      arrange(desc(Score_Oportunidad)) %>%
+      head(3)
+    
+    # Generar recomendaciones
+    tagList(
+      div(
+        style = "background: linear-gradient(135deg, #fff3cd, #ffe8a1); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #f39c12;",
+        h4("🎯 RECOMENDACIONES PRIORITARIAS", style = "color: #856404; margin-bottom: 15px;"),
+        
+        if(n_estrellas > 0) {
+          p(paste0("⭐ ", n_estrellas, " marcas ESTRELLAS detectadas: Invertir en mantener liderazgo y participación de mercado."),
+            style = "margin: 8px 0; font-size: 14px; color: #856404;")
+        },
+        
+        if(n_promesas >= 3) {
+          p(paste0("🚀 ", n_promesas, " marcas PROMESAS con alto potencial: Considerar inversión temprana para ganar participación."),
+            style = "margin: 8px 0; font-size: 14px; color: #856404;")
+        },
+        
+        if(n_base_consolidada > 0) {
+          p(paste0("💰 ", n_base_consolidada, " marcas BASE CONSOLIDADA: Mantener presencia con bajo costo, son generadoras de flujo estable."),
+            style = "margin: 8px 0; font-size: 14px; color: #856404;")
+        },
+        
+        if(n_interrogantes > 5) {
+          p(paste0("❓ ", n_interrogantes, " marcas INTERROGANTES: Monitorear evolución antes de comprometer recursos."),
+            style = "margin: 8px 0; font-size: 14px; color: #856404;")
+        }
+      ),
+      
+      div(
+        style = "background: linear-gradient(135deg, #d4edda, #c3e6cb); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #27ae60;",
+        h4("🏆 TOP 3 OPORTUNIDADES INMEDIATAS", style = "color: #155724; margin-bottom: 15px;"),
+        
+        lapply(1:min(3, nrow(top_3)), function(i) {
+          marca <- top_3[i, ]
+          div(
+            style = "background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);",
+            p(paste0(i, ". ", marca$Marca_Vehiculo),
+              style = "margin: 0; font-weight: bold; color: #2c3e50; font-size: 15px;"),
+            p(paste0("Score: ", round(marca$Score_Oportunidad, 1), " | ",
+                     "Volumen: ", format(marca$Volumen_Final, big.mark = ","), " | ",
+                     "Crecimiento: ", round(marca$Crecimiento_Relativo, 1), "%"),
+              style = "margin: 5px 0 0 0; font-size: 13px; color: #6c757d;")
+          )
+        })
+      ),
+      
+      div(
+        style = "background: linear-gradient(135deg, #d1ecf1, #bee5eb); padding: 20px; border-radius: 10px; border-left: 5px solid #17a2b8;",
+        h4("💡 INSIGHTS ESTRATÉGICOS", style = "color: #0c5460; margin-bottom: 15px;"),
+        
+        p(paste0("📊 Concentración del mercado: ", 
+                 ifelse(sum(head(datos$Participacion_Mercado, 5), na.rm = TRUE) > 60,
+                        "ALTA - Los top 5 controlan más del 60% del mercado",
+                        "MODERADA - Mercado fragmentado con múltiples jugadores")),
+          style = "margin: 8px 0; font-size: 14px; color: #0c5460;"),
+        
+        p(paste0("📈 Tendencia general: ",
+                 ifelse(mean(datos$Crecimiento_Relativo, na.rm = TRUE) > 10,
+                        "EXPANSIÓN - Mercado en crecimiento sostenido",
+                        ifelse(mean(datos$Crecimiento_Relativo, na.rm = TRUE) > 0,
+                               "ESTABLE - Crecimiento moderado",
+                               "CONTRACCIÓN - Mercado en declive"))),
+          style = "margin: 8px 0; font-size: 14px; color: #0c5460;"),
+        
+        p(paste0("🎯 Estrategia sugerida: ",
+                 ifelse(n_estrellas >= 3, "Consolidar posición en líderes y explorar nichos emergentes",
+                        ifelse(n_promesas >= 5, "Inversión agresiva en marcas prometedoras",
+                               "Diversificar portfolio con análisis marca por marca"))),
+          style = "margin: 8px 0; font-size: 14px; color: #0c5460;")
+      )
+    )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # PANEL DE MÉTRICAS DE RIESGO
+  # -----------------------------------------------------------------------------
+  
+  output$panel_metricas_riesgo_oport <- renderUI({
+    
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) {
+      return(p("Sin datos", style = "color: #6c757d;"))
+    }
+    
+    # Calcular HHI
+    hhi <- sum((datos$Participacion_Mercado)^2, na.rm = TRUE)
+    
+    # Nivel de concentración
+    nivel_concentracion <- ifelse(hhi < 1500, "Baja",
+                                  ifelse(hhi < 2500, "Moderada", "Alta"))
+    color_hhi <- ifelse(hhi < 1500, "#27ae60",
+                        ifelse(hhi < 2500, "#f39c12", "#e74c3c"))
+    
+    # Volatilidad promedio
+    volatilidad <- mean(datos$Coef_Variacion, na.rm = TRUE) * 100
+    
+    # Marcas en riesgo (declive)
+    marcas_riesgo <- sum(datos$Crecimiento_Relativo < -10, na.rm = TRUE)
+    
+    tagList(
+      div(
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e74c3c;",
+        h5("📊 Índice HHI", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        h3(round(hhi, 0), style = paste0("margin: 0; color: ", color_hhi, ";")),
+        p(nivel_concentracion, style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
+      ),
+      
+      div(
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #f39c12;",
+        h5("📉 Volatilidad Promedio", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        h3(paste0(round(volatilidad, 1), "%"), style = "margin: 0; color: #f39c12;"),
+        p("Coef. Variación", style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
+      ),
+      
+      div(
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e74c3c;",
+        h5("⚠️ Marcas en Riesgo", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        h3(marcas_riesgo, style = "margin: 0; color: #e74c3c;"),
+        p("Declive > -10%", style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
+      ),
+      
+      div(
+        style = "background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;",
+        h5("💡 Interpretación", style = "margin: 0 0 10px 0; color: #856404;"),
+        p(
+          ifelse(hhi > 2500,
+                 "Mercado altamente concentrado. Evaluar estrategias de diferenciación.",
+                 ifelse(hhi > 1500,
+                        "Concentración moderada. Balance entre líderes y competidores.",
+                        "Mercado fragmentado. Múltiples oportunidades de crecimiento.")),
+          style = "margin: 0; font-size: 12px; color: #856404; line-height: 1.5;"
+        )
+      )
+    )
+  })
+  
+  # -----------------------------------------------------------------------------
+  # TABLA MAESTRA DE OPORTUNIDADES
+  # -----------------------------------------------------------------------------
+  
+  output$tabla_maestra_oportunidades_oport <- renderDataTable({
+    
+    datos <- datos_filtrados_oportunidades()
+    
+    if(nrow(datos) == 0) {
+      return(data.frame(Mensaje = "No hay datos con los filtros aplicados"))
+    }
+    
+    # Preparar tabla exportable
+    tabla_maestra <- datos %>%
+      arrange(desc(Score_Oportunidad)) %>%
+      mutate(
+        Ranking = 1:n()
+      ) %>%
+      select(
+        Ranking,
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crecimiento %` = Crecimiento_Relativo,
+        Score = Score_Oportunidad,
+        `Participación %` = Participacion_Mercado,
+        Categoría = Categoria_Volumen,
+        Potencial = Potencial_Radiadores,
+        `Volatilidad %` = Coef_Variacion
+      ) %>%
+      mutate(
+        Volumen = format(Volumen, big.mark = ","),
+        `Crecimiento %` = round(`Crecimiento %`, 1),
+        Score = round(Score, 1),
+        `Participación %` = round(`Participación %`, 2),
+        `Volatilidad %` = round(`Volatilidad %` * 100, 1)
+      )
+    
+    datatable(
+      tabla_maestra,
+      options = list(
+        pageLength = 25,
+        scrollX = TRUE,
+        dom = 'Bfrtip',
+        buttons = list(
+          list(extend = 'copy', text = '📋 Copiar'),
+          list(extend = 'csv', text = '📄 CSV'),
+          list(extend = 'excel', text = '📊 Excel')
+        ),
+        columnDefs = list(
+          list(targets = 0, className = "dt-center", width = "8%"),
+          list(targets = c(2:5, 8), className = "dt-right")
+        )
+      ),
+      rownames = FALSE,
+      class = "compact stripe hover",
+      extensions = 'Buttons'
+    ) %>%
+      formatStyle(
+        "Ranking",
+        backgroundColor = styleInterval(c(1, 2, 3), c("#FFD700", "#C0C0C0", "#CD7F32", "#f8f9fa")),
+        fontWeight = "bold"
+      ) %>%
+      formatStyle(
+        "Score",
+        backgroundColor = styleInterval(c(40, 60, 80), c("#f8f9fa", "#fff3cd", "#d1ecf1", "#d4edda")),
+        color = styleInterval(c(40, 60, 80), c("#6c757d", "#856404", "#0c5460", "#155724"))
+      )
+    
+  }, server = FALSE)
+  
+  # -----------------------------------------------------------------------------
+  # FUNCIONES DE EXPORTACIÓN
+  # -----------------------------------------------------------------------------
+  
+  output$btn_exportar_oportunidades_excel <- downloadHandler(
+    filename = function() {
+      paste0("Oportunidades_RLT_", format(Sys.Date(), "%Y%m%d"), ".xlsx")
+    },
+    content = function(file) {
+      datos <- datos_filtrados_oportunidades()
+      
+      if(nrow(datos) > 0) {
+        wb <- createWorkbook()
+        addWorksheet(wb, "Oportunidades")
+        writeData(wb, "Oportunidades", datos)
+        saveWorkbook(wb, file, overwrite = TRUE)
+      }
+    }
+  )
+  
+  output$btn_exportar_oportunidades_csv <- downloadHandler(
+    filename = function() {
+      paste0("Oportunidades_RLT_", format(Sys.Date(), "%Y%m%d"), ".csv")
+    },
+    content = function(file) {
+      datos <- datos_filtrados_oportunidades()
+      
+      if(nrow(datos) > 0) {
+        write_csv(datos, file)
+      }
+    }
+  )
   
   
   # =============================================================================

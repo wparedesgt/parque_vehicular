@@ -170,26 +170,26 @@ lateral <- dashboardSidebar(
       'Oportunidades Estratégicas',
       icon = icon('bullseye', lib = 'font-awesome'),
       startExpanded = FALSE,
-      menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades'),
-      menuSubItem('Marcas Emergentes', tabName = 'marcas_emergentes'),
-      menuSubItem('Análisis Competitivo', tabName = 'competitivo_marcas')
+      menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades')#,
+      #menuSubItem('Marcas Emergentes', tabName = 'marcas_emergentes'),
+      #menuSubItem('Análisis Competitivo', tabName = 'competitivo_marcas')
     ),
     
-    menuItem(
-      'Proyecciones y Predicciones',
-      icon = icon('crystal-ball', lib = 'font-awesome'),
-      startExpanded = FALSE,
-      menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_rlt'),
-      menuSubItem('Escenarios Futuros', tabName = 'escenarios_futuros')
-    ),
+    # menuItem(
+    #   'Proyecciones y Predicciones',
+    #   icon = icon('crystal-ball', lib = 'font-awesome'),
+    #   startExpanded = FALSE,
+    #   menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_rlt'),
+    #   menuSubItem('Escenarios Futuros', tabName = 'escenarios_futuros')
+    # ),
     
-    menuItem(
-      'Inteligencia de Mercado',
-      icon = icon('brain', lib = 'font-awesome'),
-      startExpanded = FALSE,
-      menuSubItem('Alertas Automáticas', tabName = 'alertas_automaticas'),
-      menuSubItem('Segmentación Avanzada', tabName = 'segmentacion_avanzada')
-    ),
+    # menuItem(
+    #   'Inteligencia de Mercado',
+    #   icon = icon('brain', lib = 'font-awesome'),
+    #   startExpanded = FALSE,
+    #   menuSubItem('Alertas Automáticas', tabName = 'alertas_automaticas'),
+    #   menuSubItem('Segmentación Avanzada', tabName = 'segmentacion_avanzada')
+    # ),
     
     menuItem(
       'Configuración',
@@ -950,6 +950,357 @@ cuerpo <- dashboardBody(
         )
       )
     ),
+    
+    # =============================================================================
+    # TAB: MAPA DE OPORTUNIDADES ESTRATÉGICAS
+    # =============================================================================
+    tabItem(
+      tabName = "mapa_oportunidades",
+      
+      # Encabezado estratégico
+      fluidRow(
+        box(
+          title = "🗺️ MAPA ESTRATÉGICO DE OPORTUNIDADES - NIVEL EJECUTIVO",
+          status = "danger",
+          solidHeader = TRUE,
+          width = 12,
+          height = 140,
+          
+          div(
+            style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0;",
+            div(
+              h4("Sistema de Identificación y Priorización de Oportunidades", 
+                 style = "margin: 0; color: #c41e3a; font-weight: 600;"),
+              p("Análisis Multidimensional • Segmentación Inteligente • Recomendaciones Accionables", 
+                style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
+            ),
+            div(
+              style = "text-align: right;",
+              h5("🎯 STRATEGIC VIEW", 
+                 style = "margin: 0; color: #e74c3c; font-weight: 600;"),
+              p("Nivel: Gerencia General", 
+                style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
+            )
+          )
+        )
+      ),
+      
+      # Panel de control avanzado
+      fluidRow(
+        box(
+          title = "⚙️ CENTRO DE CONTROL ESTRATÉGICO",
+          status = "primary",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
+          width = 12,
+          
+          fluidRow(
+            # Columna 1: Filtros de Volumen y Crecimiento
+            column(3,
+                   h5("📊 Dimensión: Volumen", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   sliderInput(
+                     "filtro_volumen_min_oport",
+                     "Volumen Mínimo:",
+                     min = 0,
+                     max = 500000,
+                     value = 1000,
+                     step = 1000,
+                     post = " veh."
+                   ),
+                   sliderInput(
+                     "filtro_volumen_max_oport",
+                     "Volumen Máximo:",
+                     min = 0,
+                     max = 500000,
+                     value = 500000,
+                     step = 1000,
+                     post = " veh."
+                   )
+            ),
+            
+            # Columna 2: Filtros de Crecimiento
+            column(3,
+                   h5("📈 Dimensión: Crecimiento", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   sliderInput(
+                     "filtro_crecimiento_min_oport",
+                     "Crecimiento Mínimo:",
+                     min = -50,
+                     max = 200,
+                     value = 0,
+                     step = 5,
+                     post = "%"
+                   ),
+                   sliderInput(
+                     "filtro_crecimiento_max_oport",
+                     "Crecimiento Máximo:",
+                     min = -50,
+                     max = 200,
+                     value = 200,
+                     step = 5,
+                     post = "%"
+                   )
+            ),
+            
+            # Columna 3: Filtros de Score y Categorías
+            column(3,
+                   h5("⭐ Dimensión: Score", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   sliderInput(
+                     "filtro_score_min_oport",
+                     "Score Mínimo:",
+                     min = 0,
+                     max = 100,
+                     value = 40,
+                     step = 5,
+                     post = " pts"
+                   ),
+                   selectInput(
+                     "filtro_categorias_oport",
+                     "Categorías:",
+                     choices = list(
+                       "Todas" = "todas",
+                       "Alto Volumen" = "alto",
+                       "Volumen Medio" = "medio",
+                       "Volumen Bajo + Emergente" = "bajo_emergente"
+                     ),
+                     selected = "todas"
+                   )
+            ),
+            
+            # Columna 4: Filtros de Potencial y Acciones
+            column(3,
+                   h5("🎯 Dimensión: Potencial", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   checkboxGroupInput(
+                     "filtro_potencial_oport",
+                     "Niveles de Prioridad:",
+                     choices = list(
+                       "🔴 Alta Prioridad" = "alta",
+                       "🟠 Media Prioridad" = "media",
+                       "🔵 Emergente" = "emergente",
+                       "⚫ Baja Prioridad" = "baja"
+                     ),
+                     selected = c("alta", "media", "emergente")
+                   ),
+                   br(),
+                   actionButton(
+                     "btn_aplicar_filtros_oport",
+                     "🔍 Aplicar Filtros",
+                     class = "btn-danger btn-block",
+                     style = "font-weight: 600;"
+                   ),
+                   actionButton(
+                     "btn_resetear_filtros_oport",
+                     "↺ Resetear",
+                     class = "btn-default btn-block",
+                     style = "margin-top: 5px;"
+                   )
+            )
+          )
+        )
+      ),
+      
+      # KPIs Dinámicos del Filtrado
+      fluidRow(
+        valueBoxOutput("vb_marcas_filtradas_oport", width = 3),
+        valueBoxOutput("vb_volumen_oportunidad_oport", width = 3),
+        valueBoxOutput("vb_score_promedio_oport", width = 3),
+        valueBoxOutput("vb_potencial_mercado_oport", width = 3)
+      ),
+      
+      # Mapa estratégico principal + matriz de decisión
+      fluidRow(
+        # Mapa de burbujas avanzado
+        box(
+          title = "🗺️ MAPA ESTRATÉGICO INTERACTIVO: Volumen vs Crecimiento vs Score",
+          status = "danger",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 8,
+          height = 600,
+          footer = HTML(paste0(
+            "<b>Eje X:</b> Volumen de Vehículos (escala logarítmica) | ",
+            "<b>Eje Y:</b> Crecimiento Relativo (%) | ",
+            "<b>Tamaño burbuja:</b> Score de Oportunidad | ",
+            "<b>Color:</b> Nivel de Prioridad"
+          )),
+          
+          div(
+            style = "height: 510px;",
+            plotlyOutput("mapa_burbujas_avanzado_oport", height = "100%")
+          )
+        ),
+        
+        # Matriz de decisión estratégica
+        box(
+          title = "📊 MATRIZ DE DECISIÓN 2x2",
+          status = "warning",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 4,
+          height = 600,
+          
+          div(
+            style = "height: 510px;",
+            plotlyOutput("matriz_decision_2x2_oport", height = "100%")
+          )
+        )
+      ),
+      
+      # Análisis por cuadrantes + distribuciones
+      fluidRow(
+        # Tabla de cuadrantes estratégicos
+        box(
+          title = "🎯 SEGMENTACIÓN POR CUADRANTES ESTRATÉGICOS",
+          status = "info",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 6,
+          
+          tabBox(
+            width = 12,
+            tabPanel("⭐ Estrellas (Alto Vol + Alto Crec)", 
+                     div(style = "max-height: 320px; overflow-y: auto;",
+                         dataTableOutput("tabla_cuadrante_estrellas_oport"))),
+            tabPanel("🚀 Promesas (Bajo Vol + Alto Crec)", 
+                     div(style = "max-height: 320px; overflow-y: auto;",
+                         dataTableOutput("tabla_cuadrante_promesas_oport"))),
+            tabPanel("💰 Base Consolidada (Alto Vol + Bajo Crec)", 
+                     div(style = "max-height: 320px; overflow-y: auto;",
+                         dataTableOutput("tabla_cuadrante_base_consolidada_oport"))),
+            tabPanel("❓ Interrogantes (Bajo Vol + Bajo Crec)", 
+                     div(style = "max-height: 320px; overflow-y: auto;",
+                         dataTableOutput("tabla_cuadrante_interrogantes_oport")))
+          )
+        ),
+        
+        # Distribuciones y concentración
+        box(
+          title = "📈 ANÁLISIS DE DISTRIBUCIÓN",
+          status = "success",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 6,
+          
+          tabBox(
+            width = 12,
+            tabPanel("Score Distribution", 
+                     plotlyOutput("hist_distribucion_score_oport", height = "300px")),
+            tabPanel("Curva de Lorenz", 
+                     plotlyOutput("curva_lorenz_oport", height = "300px")),
+            tabPanel("Box Plot Comparativo", 
+                     plotlyOutput("boxplot_comparativo_oport", height = "300px"))
+          )
+        )
+      ),
+      
+      # Análisis temporal de oportunidades
+      fluidRow(
+        box(
+          title = "📅 EVOLUCIÓN TEMPORAL DE OPORTUNIDADES CLAVE",
+          status = "primary",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 12,
+          height = 500,
+          
+          fluidRow(
+            column(3,
+                   selectInput(
+                     "top_n_temporal_oport",
+                     "Mostrar Top:",
+                     choices = list("5 marcas" = 5, "10 marcas" = 10, "15 marcas" = 15, "20 marcas" = 20),
+                     selected = 10
+                   )
+            ),
+            column(3,
+                   selectInput(
+                     "criterio_temporal_oport",
+                     "Criterio de Selección:",
+                     choices = list(
+                       "Por Score" = "score",
+                       "Por Volumen" = "volumen",
+                       "Por Crecimiento" = "crecimiento"
+                     ),
+                     selected = "score"
+                   )
+            ),
+            column(3,
+                   checkboxInput(
+                     "normalizar_temporal_oport",
+                     "Normalizar valores (0-100)",
+                     value = FALSE
+                   )
+            ),
+            column(3,
+                   br(),
+                   actionButton(
+                     "btn_actualizar_temporal_oport",
+                     "🔄 Actualizar",
+                     class = "btn-primary btn-block"
+                   )
+            )
+          ),
+          
+          div(
+            style = "height: 370px; margin-top: 15px;",
+            plotlyOutput("grafico_evolucion_top_oport", height = "100%")
+          )
+        )
+      ),
+      
+      # Panel de recomendaciones inteligentes
+      fluidRow(
+        box(
+          title = "🎯 RECOMENDACIONES ESTRATÉGICAS AUTOMÁTICAS",
+          status = "warning",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 8,
+          
+          div(
+            style = "padding: 20px;",
+            uiOutput("panel_recomendaciones_inteligentes_oport")
+          )
+        ),
+        
+        # Métricas de concentración y riesgo
+        box(
+          title = "⚠️ ANÁLISIS DE RIESGO Y CONCENTRACIÓN",
+          status = "danger",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 4,
+          
+          div(
+            style = "padding: 15px;",
+            uiOutput("panel_metricas_riesgo_oport")
+          )
+        )
+      ),
+      
+      # Tabla maestra de oportunidades
+      fluidRow(
+        box(
+          title = "📋 TABLA MAESTRA DE OPORTUNIDADES - EXPORTABLE",
+          status = "primary",
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          width = 12,
+          
+          div(
+            style = "margin-bottom: 15px;",
+            downloadButton("btn_exportar_oportunidades_excel", "📊 Exportar a Excel", class = "btn-success"),
+            downloadButton("btn_exportar_oportunidades_csv", "📄 Exportar a CSV", class = "btn-info", style = "margin-left: 10px;")
+          ),
+          
+          div(
+            style = "max-height: 500px; overflow-y: auto;",
+            dataTableOutput("tabla_maestra_oportunidades_oport")
+          )
+        )
+      )
+    ),
+    
     
     # =============================================================================
     # TAB 6: CONFIGURACIÓN

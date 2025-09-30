@@ -230,6 +230,75 @@ calcular_metricas_marcas <- function(datos_long) {
 
 
 # Función para crear gráfico de top marcas 
+# crear_top_marcas <- function(metricas_marcas, tipo = "volumen", n = 15) {
+#   tryCatch({
+#     if(is.null(metricas_marcas) || nrow(metricas_marcas) == 0) {
+#       return(plot_ly() %>% layout(title = "Sin datos disponibles"))
+#     }
+#     
+#     if(tipo == "volumen") {
+#       datos_grafico <- metricas_marcas %>%
+#         arrange(desc(Volumen_Final)) %>%
+#         head(n) %>%
+#         mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Volumen_Final))
+#       
+#       titulo <- "Top Marcas por Volumen de Vehículos"
+#       y_var <- "Volumen_Final"
+#       y_label <- "Vehículos Registrados"
+#       
+#     } else if(tipo == "crecimiento") {
+#       datos_grafico <- metricas_marcas %>%
+#         filter(Volumen_Final >= 100) %>%
+#         arrange(desc(Crecimiento_Relativo)) %>%
+#         head(n) %>%
+#         mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Crecimiento_Relativo))
+#       
+#       titulo <- "Top Marcas por Crecimiento"
+#       y_var <- "Crecimiento_Relativo"
+#       y_label <- "Crecimiento (%)"
+#     }
+#     
+#     if(nrow(datos_grafico) == 0) {
+#       return(plot_ly() %>% layout(title = "No hay datos suficientes para mostrar"))
+#     }
+#     
+#     fig <- plot_ly(
+#       data = datos_grafico,
+#       x = ~get(y_var),
+#       y = ~Marca_Vehiculo,
+#       type = 'bar',
+#       orientation = 'h',
+#       marker = list(color = "#2c3e50", opacity = 0.8),
+#       text = ~paste0(ifelse(tipo == "volumen", 
+#                             format(get(y_var), big.mark = ","), 
+#                             paste0(round(get(y_var), 1), "%"))),
+#       textposition = 'outside',
+#       hovertemplate = paste0(
+#         "<b>%{y}</b><br>",
+#         y_label, ": %{x}<br>",
+#         "<extra></extra>"
+#       )
+#     ) %>%
+#       layout(
+#         title = list(
+#           text = titulo,
+#           font = list(size = 14, color = "#2c3e50")
+#         ),
+#         xaxis = list(title = y_label),
+#         yaxis = list(title = ""),
+#         margin = list(l = 120)
+#       )
+#     
+#     return(fig)
+#     
+#   }, error = function(e) {
+#     cat("❌ Error creando gráfico top marcas:", e$message, "\n")
+#     return(plot_ly() %>% layout(title = "Error al cargar el gráfico"))
+#   })
+# }
+
+
+# Función para crear gráfico de top marcas 
 crear_top_marcas <- function(metricas_marcas, tipo = "volumen", n = 15) {
   tryCatch({
     if(is.null(metricas_marcas) || nrow(metricas_marcas) == 0) {
@@ -240,7 +309,10 @@ crear_top_marcas <- function(metricas_marcas, tipo = "volumen", n = 15) {
       datos_grafico <- metricas_marcas %>%
         arrange(desc(Volumen_Final)) %>%
         head(n) %>%
-        mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Volumen_Final))
+        mutate(
+          Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Volumen_Final),
+          texto_label = format(Volumen_Final, big.mark = ",")  # CORREGIDO: Calcular texto aquí
+        )
       
       titulo <- "Top Marcas por Volumen de Vehículos"
       y_var <- "Volumen_Final"
@@ -251,7 +323,10 @@ crear_top_marcas <- function(metricas_marcas, tipo = "volumen", n = 15) {
         filter(Volumen_Final >= 100) %>%
         arrange(desc(Crecimiento_Relativo)) %>%
         head(n) %>%
-        mutate(Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Crecimiento_Relativo))
+        mutate(
+          Marca_Vehiculo = fct_reorder(Marca_Vehiculo, Crecimiento_Relativo),
+          texto_label = paste0(round(Crecimiento_Relativo, 1), "%")  # CORREGIDO: Calcular texto aquí
+        )
       
       titulo <- "Top Marcas por Crecimiento"
       y_var <- "Crecimiento_Relativo"
@@ -269,9 +344,7 @@ crear_top_marcas <- function(metricas_marcas, tipo = "volumen", n = 15) {
       type = 'bar',
       orientation = 'h',
       marker = list(color = "#2c3e50", opacity = 0.8),
-      text = ~paste0(ifelse(tipo == "volumen", 
-                            format(get(y_var), big.mark = ","), 
-                            paste0(round(get(y_var), 1), "%"))),
+      text = ~texto_label,  # CORREGIDO: Usar la columna pre-calculada
       textposition = 'outside',
       hovertemplate = paste0(
         "<b>%{y}</b><br>",
