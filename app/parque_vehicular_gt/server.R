@@ -1550,44 +1550,7 @@ function(input, output, session) {
   })
   
   # Matriz de potencial
-  # output$grafico_matriz_potencial <- renderPlotly({
-  #   
-  #   if(is.null(metricas_global) || nrow(metricas_global) == 0) {
-  #     return(plot_ly() %>% layout(title = "Sin datos disponibles"))
-  #   }
-  #   
-  #   datos_matriz <- metricas_global %>%
-  #     count(Potencial_Radiadores, name = "cantidad") %>%
-  #     mutate(
-  #       color_categoria = case_when(
-  #         str_detect(Potencial_Radiadores, "ALTA") ~ "#E31A1C",
-  #         str_detect(Potencial_Radiadores, "MEDIA") ~ "#FF7F00", 
-  #         str_detect(Potencial_Radiadores, "EMERGENTE") ~ "#1F78B4",
-  #         TRUE ~ "#666666"
-  #       )
-  #     )
-  #   
-  #   plot_ly(
-  #     datos_matriz,
-  #     labels = ~Potencial_Radiadores,
-  #     values = ~cantidad,
-  #     type = "pie",
-  #     marker = list(colors = ~color_categoria),
-  #     textinfo = "label+percent",
-  #     hovertemplate = paste0(
-  #       "<b>%{label}</b><br>",
-  #       "Marcas: %{value}<br>",
-  #       "Porcentaje: %{percent}<br>",
-  #       "<extra></extra>"
-  #     )
-  #   ) %>%
-  #     layout(
-  #       title = "Matriz de Potencial de Radiadores"
-  #     )
-  # })
   
-  
-  # Matriz de potencial
   output$grafico_matriz_potencial <- renderPlotly({
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
@@ -1638,8 +1601,6 @@ function(input, output, session) {
         margin = list(l = 180)
       )
   })
-  
-  
   
   # Tabla panorama completo
   output$tabla_panorama_completo <- renderDataTable({
@@ -2072,6 +2033,8 @@ function(input, output, session) {
     
     datos <- datos_filtrados_oportunidades()
     
+    #datos <- metricas_global  ## Previo
+    
     if(is.null(datos) || nrow(datos) == 0) {
       return(plot_ly() %>% layout(title = "No hay datos disponibles"))
     }
@@ -2084,20 +2047,21 @@ function(input, output, session) {
     datos <- datos %>%
       mutate(
         cuadrante = case_when(
-          Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "⭐ Estrellas",
-          Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "🚀 Promesas",
-          Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "💰 Base Consolidada",
-          TRUE ~ "❓ Interrogantes"
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "Estrellas",
+          Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "Promesas",
+          Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "Base Consolidada",
+          TRUE ~ "Interrogantes"
         )
       )
-    
-    # CORREGIDO: Definir el mapeo de colores explícitamente
+
     colores_cuadrantes <- c(
-      "⭐ Estrellas" = "#27ae60",
-      "🚀 Promesas" = "#3498db",
-      "💰 Base Consolidada" = "#f39c12",
-      "❓ Interrogantes" = "#95a5a6"
+      "Estrellas" = "#27ae60",
+      "Promesas" = "#3498db",
+      "Base Consolidada" = "#f39c12",
+      "Interrogantes" = "#95a5a6"
     )
+    
+    #datos <- datos %>% filter(Marca_Vehiculo != 'THOMAS')
     
     plot_ly(
       datos,
