@@ -1,7 +1,7 @@
 ### carga de datos parque vehicular
 
-remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/Estretegia_Comercial"
-oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/Forecast_Inventario_RealCaruz/02_Estrategia_Comercial'
+remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular"
+oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular'
 casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
 
 setwd(oficina)
@@ -74,7 +74,11 @@ return(Marcas)
 # carpeta <- '2024-01'
 # ruta <- paste0('C:/Registro_Fiscal_Vehiculos', '/', carpeta, '/', archivo) 
 
-base_dir <- 'C:/Registro_Fiscal_Vehiculos'
+#base_dir <- 'C:/Registro_Fiscal_Vehiculos'
+
+base_dir <- '/run/media/wparedes/wparedesBD/Registro_Fiscal_Vehiculos/'
+archivo <- 'INE_PARQUE_VEHICULAR.txt'
+
 
 # Mes más reciente a considerar: SIEMPRE el mes anterior al actual
 ultimo_mes_disponible <- floor_date(Sys.Date(), "month") - months(1)

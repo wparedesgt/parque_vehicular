@@ -1011,8 +1011,8 @@ cuerpo <- dashboardBody(
                    sliderInput(
                      "filtro_volumen_max_oport",
                      "Volumen Máximo:",
-                     min = 0,
-                     max = 500000,
+                     min = 1000,
+                     max = 1500000,
                      value = 500000,
                      step = 1000,
                      post = " veh."
