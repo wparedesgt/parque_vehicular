@@ -11,7 +11,7 @@ function(input, output, session) {
     marca_seleccionada = NULL,
     alertas_nuevas = 0,
     logs_sistema = c(
-      paste("[", Sys.time(), "] Sistema RLT iniciado correctamente"),
+      paste("[", Sys.time(), "] Sistema DS Conexión iniciado correctamente"),
       paste("[", Sys.time(), "] Datos del parque vehicular cargados:", nrow(metricas_global), "marcas"),
       paste("[", Sys.time(), "] Dashboard ejecutivo activado")
     )
@@ -19,17 +19,17 @@ function(input, output, session) {
   
   # Datos filtrados reactivos
   datos_filtrados <- reactive({
-    cat("🔄 Aplicando filtros al dataset...\n")
+    cat("ðŸ”„ Aplicando filtros al dataset...\n")
     
     datos <- metricas_global
     
-    # Filtro por categoría de volumen
+    # Filtro por categorÃ­a de volumen
     if (!is.null(input$filtro_categoria_volumen) && input$filtro_categoria_volumen != "todas") {
       categoria_map <- list(
         "alto" = "Alto Volumen (100K+)",
         "medio" = "Volumen Medio (10K-100K)",
         "bajo" = "Volumen Bajo (1K-10K)",
-        "minimo" = "Volumen Mínimo (<1K)"
+        "minimo" = "Volumen MÃ­nimo (<1K)"
       )
       datos <- datos %>% 
         filter(Categoria_Volumen == categoria_map[[input$filtro_categoria_volumen]])
@@ -38,21 +38,21 @@ function(input, output, session) {
     # Filtro por potencial
     if (!is.null(input$filtro_potencial) && input$filtro_potencial != "todos") {
       potencial_map <- list(
-        "alta" = "🔴 ALTA PRIORIDAD",
-        "media" = "🟠 MEDIA PRIORIDAD",
-        "emergente" = "🔵 EMERGENTE",
-        "baja" = "⚫ BAJA PRIORIDAD"
+        "alta" = "ðŸ”´ ALTA PRIORIDAD",
+        "media" = "ðŸŸ  MEDIA PRIORIDAD",
+        "emergente" = "ðŸ”µ EMERGENTE",
+        "baja" = "âš« BAJA PRIORIDAD"
       )
       datos <- datos %>% 
-        filter(Potencial_Radiadores == potencial_map[[input$filtro_potencial]])
+        filter(Potencial_Analytics == potencial_map[[input$filtro_potencial]])
     }
     
-    # Filtro por volumen mínimo
+    # Filtro por volumen mÃ­nimo
     if (!is.null(input$min_vehiculos) && input$min_vehiculos > 0) {
       datos <- datos %>% filter(Volumen_Final >= input$min_vehiculos)
     }
     
-    cat("✅ Filtros aplicados, registros resultantes:", nrow(datos), "\n")
+    cat("âœ… Filtros aplicados, registros resultantes:", nrow(datos), "\n")
     return(datos)
   })
   
@@ -60,14 +60,14 @@ function(input, output, session) {
   # 2. DASHBOARD EJECUTIVO - VALUE BOXES
   # =============================================================================
   
-  # Value Box: Total Vehículos 
+  # Value Box: Total VehÃ­culos 
   
   output$vb_total_vehiculos <- renderValueBox({
     
     valor <- prettyNum(kpis_global$total_vehiculos, big.mark = ',')
     valueBox(
       value = valor, 
-      subtitle = "Total Vehículos Calculados", 
+      subtitle = "Total VehÃ­culos Calculados", 
       icon = icon("car"),
       color = "red"
     )
@@ -76,69 +76,69 @@ function(input, output, session) {
   # Value Box: Marcas Alta Prioridad 
   output$vb_marcas_alta_prioridad <- renderValueBox({
     
-      valor <-  kpis_global$marcas_alta_prioridad
-      valueBox(
-        value = valor,
-        subtitle = "Marcas Alta Prioridad",
-        icon = icon("bullseye"),
-        color = "orange"
-      )
+    valor <-  kpis_global$marcas_alta_prioridad
+    valueBox(
+      value = valor,
+      subtitle = "Marcas Alta Prioridad",
+      icon = icon("bullseye"),
+      color = "orange"
+    )
   })
   
   # Value Box: Crecimiento Promedio del Mercado 
   output$vb_crecimiento_mercado <- renderValueBox({
     
-  valor <- kpis_global$crecimiento_promedio
-      
-  valueBox(
-        value = paste0(round(valor, 1), "%"),
-        subtitle = "Crecimiento Prom. Marcas Veh.",
-        icon = icon("chart-line"),
-        color = "green"
-      )
+    valor <- kpis_global$crecimiento_promedio
+    
+    valueBox(
+      value = paste0(round(valor, 1), "%"),
+      subtitle = "Crecimiento Prom. Marcas Veh.",
+      icon = icon("chart-line"),
+      color = "green"
+    )
   })
   
   # Value Box: Score Promedio de Oportunidad 
   output$vb_score_oportunidad <- renderValueBox({
     
-      valor <- kpis_global$score_promedio
+    valor <- kpis_global$score_promedio
     
-        valueBox(
-        value = round(valor, 1),
-        subtitle = "Score Promedio (0-100)",
-        icon = icon("star"),
-        color = "blue"
-      )
+    valueBox(
+      value = round(valor, 1),
+      subtitle = "Score Promedio (0-100)",
+      icon = icon("star"),
+      color = "blue"
+    )
   })
   
   
   # =============================================================================
-  # 3. GRÁFICOS PRINCIPALES - DASHBOARD EJECUTIVO
+  # 3. GRÃFICOS PRINCIPALES - DASHBOARD EJECUTIVO
   # =============================================================================
   
-  # Mapa Estratégico Principal - CORRECCIÓN
+  # Mapa EstratÃ©gico Principal - CORRECCIÃ“N
   output$mapa_estrategico_principal <- renderPlotly({
     
     metricas_global %>% 
       filter(Volumen_Final >= 1000) %>%
       mutate(
-        # Crear una escala de tamaño controlada entre 8 y 25
+        # Crear una escala de tamaÃ±o controlada entre 8 y 25
         tamano_punto = pmax(8, pmin(25, sqrt(Volumen_Final/5000) * 10))
       ) %>%
       plot_ly(
         x = ~log10(Volumen_Final), 
         y = ~Crecimiento_Relativo,
         size = ~tamano_punto,
-        color = ~Potencial_Radiadores,
-        # CORRECCIÓN: Los colores deben coincidir exactamente con los valores de global.R
-        colors = c("🔴 ALTA PRIORIDAD" = "#E31A1C", 
-                   "🟠 MEDIA PRIORIDAD" = "#FF7F00",
-                   "🔵 EMERGENTE" = "#1F78B4",
-                   "⚫ BAJA PRIORIDAD" = "#666666"),
+        color = ~Potencial_Analytics,
+        # CORRECCIÃ“N: Los colores deben coincidir exactamente con los valores de global.R
+        colors = c("ðŸ”´ ALTA PRIORIDAD" = "#ef4444", 
+                   "ðŸŸ  MEDIA PRIORIDAD" = "#f59e0b",
+                   "ðŸ”µ EMERGENTE" = "#3b82f6",
+                   "âš« BAJA PRIORIDAD" = "#64748b"),
         text = ~paste0("Marca: ", Marca_Vehiculo,
                        "<br>Volumen: ", format(Volumen_Final, big.mark = ","),
                        "<br>Crecimiento: ", round(Crecimiento_Relativo, 1), "%",
-                       "<br>Potencial: ", Potencial_Radiadores),
+                       "<br>Potencial: ", Potencial_Analytics),
         hovertemplate = "%{text}<extra></extra>",
         type = "scatter",
         mode = "markers",
@@ -151,7 +151,7 @@ function(input, output, session) {
       ) %>%
       add_annotations(
         data = metricas_global %>% 
-          filter(Potencial_Radiadores %in% c("🔴 ALTA PRIORIDAD", "🟠 MEDIA PRIORIDAD"),
+          filter(Potencial_Analytics %in% c("ðŸ”´ ALTA PRIORIDAD", "ðŸŸ  MEDIA PRIORIDAD"),
                  Volumen_Final >= 1000),
         x = ~log10(Volumen_Final),
         y = ~Crecimiento_Relativo + 3,
@@ -161,11 +161,11 @@ function(input, output, session) {
       ) %>%
       layout(
         title = list(
-          text = "<b>MAPA ESTRATÉGICO: Volumen vs Crecimiento</b><br><sub>Identificación de oportunidades para radiadores</sub>",
+          text = "<b>MAPA ESTRATÃ‰GICO: Volumen vs Crecimiento</b><br><sub>IdentificaciÃ³n de oportunidades para análisis predictivo</sub>",
           font = list(size = 16, color = "#000000", family = "Arial")
         ),
         xaxis = list(
-          title = "Volumen de Vehículos (Log10)",
+          title = "Volumen de VehÃ­culos (Log10)",
           showgrid = TRUE,
           gridcolor = "#E0E0E0",
           titlefont = list(color = "#000000", size = 14),
@@ -179,7 +179,7 @@ function(input, output, session) {
           tickfont = list(color = "#000000", size = 12)
         ),
         legend = list(
-          title = list(text = "<b>Potencial para Radiadores</b>"),
+          title = list(text = "<b>Potencial para Analytics</b>"),
           orientation = "h",
           x = 0.5,
           xanchor = "center",
@@ -214,15 +214,15 @@ function(input, output, session) {
         
         if(!is.null(texto_alerta) && texto_alerta != "") {
           
-          # Determinar el estilo según el tipo de alerta
+          # Determinar el estilo segÃºn el tipo de alerta
           if(nombre_alerta == "oportunidad") {
             clase_alerta <- "alert-success"
             icono <- "rocket"
-            color_borde <- "#27ae60"
+            color_borde <- "#10b981"
           } else if(nombre_alerta == "riesgo") {
             clase_alerta <- "alert-danger" 
             icono <- "exclamation-triangle"
-            color_borde <- "#e74c3c"
+            color_borde <- "#06b6d4"
           } else {
             clase_alerta <- "alert-info"
             icono <- "info-circle"
@@ -259,7 +259,7 @@ function(input, output, session) {
               )
             ),
             
-            # Timestamp pequeño
+            # Timestamp pequeÃ±o
             div(
               style = "text-align: right; margin-top: 8px; font-size: 10px; color: #6c757d;",
               format(Sys.time(), "%H:%M")
@@ -271,10 +271,10 @@ function(input, output, session) {
       }
     }
     
-    # Si no hay alertas específicas, mostrar métricas importantes
+    # Si no hay alertas especÃ­ficas, mostrar mÃ©tricas importantes
     if(length(elementos_alertas) == 0) {
       
-      # Calcular algunas métricas para mostrar
+      # Calcular algunas mÃ©tricas para mostrar
       if(!is.null(metricas_global) && nrow(metricas_global) > 0) {
         
         # Top 3 marcas por score
@@ -302,22 +302,22 @@ function(input, output, session) {
               strong("Resumen del Mercado", style = "color: #2c3e50;")
             ),
             
-            p(paste0("📊 ", total_marcas, " marcas analizadas"), 
+            p(paste0("ðŸ“Š ", total_marcas, " marcas analizadas"), 
               style = "margin: 5px 0; font-size: 12px;"),
-            p(paste0("🚀 ", alto_crecimiento, " marcas con alto crecimiento"), 
+            p(paste0("ðŸš€ ", alto_crecimiento, " marcas con alto crecimiento"), 
               style = "margin: 5px 0; font-size: 12px;"),
-            p(paste0("⭐ Score promedio: ", round(mean(metricas_global$Score_Oportunidad, na.rm = TRUE), 1)), 
+            p(paste0("â­ Score promedio: ", round(mean(metricas_global$Score_Oportunidad, na.rm = TRUE), 1)), 
               style = "margin: 5px 0; font-size: 12px;")
           ),
           
           # Top performers
           div(
             class = "alert alert-success",
-            style = "margin-bottom: 15px; border-left: 4px solid #27ae60; border-radius: 8px; padding: 15px; background: white;",
+            style = "margin-bottom: 15px; border-left: 4px solid #10b981; border-radius: 8px; padding: 15px; background: white;",
             
             div(
               style = "display: flex; align-items: center; gap: 10px; margin-bottom: 10px;",
-              icon("trophy", style = "color: #27ae60; font-size: 18px;"),
+              icon("trophy", style = "color: #10b981; font-size: 18px;"),
               strong("Top 3 Oportunidades", style = "color: #2c3e50;")
             ),
             
@@ -330,16 +330,16 @@ function(input, output, session) {
             })
           ),
           
-          # Actualización
+          # ActualizaciÃ³n
           div(
             class = "alert alert-warning",
-            style = "margin-bottom: 15px; border-left: 4px solid #f39c12; border-radius: 8px; padding: 15px; background: white;",
+            style = "margin-bottom: 15px; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 15px; background: white;",
             
             div(
               style = "display: flex; align-items: center; gap: 10px;",
-              icon("clock", style = "color: #f39c12; font-size: 16px;"),
+              icon("clock", style = "color: #f59e0b; font-size: 16px;"),
               div(
-                strong("Última actualización", style = "color: #2c3e50; font-size: 12px;"),
+                strong("Ãšltima actualizaciÃ³n", style = "color: #2c3e50; font-size: 12px;"),
                 br(),
                 span(format(Sys.time(), "%d/%m/%Y %H:%M"), style = "font-size: 11px; color: #6c757d;")
               )
@@ -357,17 +357,17 @@ function(input, output, session) {
   # RESUMEN EJECUTIVO DEL MERCADO - TABLAS
   # =============================================================================
   
-  # Tabla de Métricas de Crecimiento
+  # Tabla de MÃ©tricas de Crecimiento
   output$tabla_metricas_crecimiento <- renderTable({
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
       return(data.frame(
-        Métrica = "Sin datos disponibles",
+        MÃ©trica = "Sin datos disponibles",
         Valor = "N/A"
       ))
     }
     
-    # Calcular métricas de crecimiento
+    # Calcular mÃ©tricas de crecimiento
     marcas_creciendo <- sum(metricas_global$Crecimiento_Relativo > 0, na.rm = TRUE)
     marcas_declinando <- sum(metricas_global$Crecimiento_Relativo < 0, na.rm = TRUE)
     marcas_estables <- sum(metricas_global$Crecimiento_Relativo == 0, na.rm = TRUE)
@@ -388,14 +388,14 @@ function(input, output, session) {
     
     # Crear tabla
     data.frame(
-      Métrica = c(
-        "📈 Crecimiento Promedio",
-        "📊 Crecimiento Mediano", 
-        "🚀 Marcas en Crecimiento",
-        "📉 Marcas en Declive",
-        "⚖️ Marcas Estables",
-        "🏆 Mayor Crecimiento",
-        "📊 Volatilidad Promedio"
+      MÃ©trica = c(
+        "ðŸ“ˆ Crecimiento Promedio",
+        "ðŸ“Š Crecimiento Mediano", 
+        "ðŸš€ Marcas en Crecimiento",
+        "ðŸ“‰ Marcas en Declive",
+        "âš–ï¸ Marcas Estables",
+        "ðŸ† Mayor Crecimiento",
+        "ðŸ“Š Volatilidad Promedio"
       ),
       Valor = c(
         paste0(round(crecimiento_promedio, 1), "%"),
@@ -411,17 +411,17 @@ function(input, output, session) {
   }, bordered = TRUE, striped = TRUE, hover = TRUE, spacing = "s",
   width = "100%", align = "lr")
   
-  # Tabla de Concentración del Mercado  
+  # Tabla de ConcentraciÃ³n del Mercado  
   output$tabla_concentracion_mercado <- renderTable({
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
       return(data.frame(
-        Métrica = "Sin datos disponibles",
+        MÃ©trica = "Sin datos disponibles",
         Valor = "N/A"
       ))
     }
     
-    # Calcular métricas de concentración
+    # Calcular mÃ©tricas de concentraciÃ³n
     total_vehiculos <- sum(metricas_global$Volumen_Final, na.rm = TRUE)
     
     # Top 5 marcas por volumen
@@ -430,24 +430,24 @@ function(input, output, session) {
     # Top 10 marcas
     top_10_vol <- sum(head(metricas_global$Participacion_Mercado, 10), na.rm = TRUE)
     
-    # Índice Herfindahl-Hirschman (HHI)
+    # Ãndice Herfindahl-Hirschman (HHI)
     hhi <- sum((metricas_global$Participacion_Mercado)^2, na.rm = TRUE)
     
-    # Interpretación del HHI
+    # InterpretaciÃ³n del HHI
     if(hhi < 1500) {
-      interpretacion_hhi <- "Baja concentración"
+      interpretacion_hhi <- "Baja concentraciÃ³n"
     } else if(hhi < 2500) {
-      interpretacion_hhi <- "Concentración moderada"  
+      interpretacion_hhi <- "ConcentraciÃ³n moderada"  
     } else {
-      interpretacion_hhi <- "Alta concentración"
+      interpretacion_hhi <- "Alta concentraciÃ³n"
     }
     
-    # Líder del mercado
+    # LÃ­der del mercado
     lider_mercado <- metricas_global %>%
       arrange(desc(Volumen_Final)) %>%
       slice(1)
     
-    # Distribución por categorías
+    # DistribuciÃ³n por categorÃ­as
     dist_categorias <- metricas_global %>%
       count(Categoria_Volumen, name = "cantidad") %>%
       arrange(desc(cantidad))
@@ -456,14 +456,14 @@ function(input, output, session) {
     
     # Crear tabla
     data.frame(
-      Métrica = c(
-        "🥇 Líder del Mercado",
-        "🏆 Top 5 Concentración", 
-        "📊 Top 10 Concentración",
-        "📈 Índice HHI",
-        "🎯 Nivel de Competencia",
-        "📋 Total de Marcas",
-        "🏷️ Categoría Dominante"
+      MÃ©trica = c(
+        "ðŸ¥‡ LÃ­der del Mercado",
+        "ðŸ† Top 5 ConcentraciÃ³n", 
+        "ðŸ“Š Top 10 ConcentraciÃ³n",
+        "ðŸ“ˆ Ãndice HHI",
+        "ðŸŽ¯ Nivel de Competencia",
+        "ðŸ“‹ Total de Marcas",
+        "ðŸ·ï¸ CategorÃ­a Dominante"
       ),
       Valor = c(
         paste0(lider_mercado$Marca_Vehiculo, " (", round(lider_mercado$Participacion_Mercado, 1), "%)"),
@@ -478,10 +478,10 @@ function(input, output, session) {
     
   }, bordered = TRUE, striped = TRUE, hover = TRUE, spacing = "s", 
   width = "100%", align = "lr")
-
+  
   
   # =============================================================================
-  # TOP PERFORMERS - TABLAS DINÁMICAS
+  # TOP PERFORMERS - TABLAS DINÃMICAS
   # =============================================================================
   
   # Top por Volumen
@@ -491,8 +491,8 @@ function(input, output, session) {
       return(data.frame(
         Ranking = "Sin datos",
         Marca = "N/A", 
-        Vehículos = "N/A",
-        Participación = "N/A"
+        VehÃ­culos = "N/A",
+        ParticipaciÃ³n = "N/A"
       ))
     }
     
@@ -502,16 +502,16 @@ function(input, output, session) {
       mutate(
         Ranking = 1:n(),
         Marca = Marca_Vehiculo,
-        Vehículos = format(Volumen_Final, big.mark = ","),
-        `Participación %` = paste0(round(Participacion_Mercado, 1), "%"),
+        VehÃ­culos = format(Volumen_Final, big.mark = ","),
+        `ParticipaciÃ³n %` = paste0(round(Participacion_Mercado, 1), "%"),
         Potencial = case_when(
-          str_detect(Potencial_Radiadores, "ALTA") ~ "🔴 Alta",
-          str_detect(Potencial_Radiadores, "MEDIA") ~ "🟠 Media", 
-          str_detect(Potencial_Radiadores, "EMERGENTE") ~ "🔵 Emergente",
-          TRUE ~ "⚫ Baja"
+          str_detect(Potencial_Analytics, "ALTA") ~ "ðŸ”´ Alta",
+          str_detect(Potencial_Analytics, "MEDIA") ~ "ðŸŸ  Media", 
+          str_detect(Potencial_Analytics, "EMERGENTE") ~ "ðŸ”µ Emergente",
+          TRUE ~ "âš« Baja"
         )
       ) %>%
-      select(Ranking, Marca, Vehículos, `Participación %`, Potencial)
+      select(Ranking, Marca, VehÃ­culos, `ParticipaciÃ³n %`, Potencial)
     
     datatable(
       tabla_volumen,
@@ -553,7 +553,7 @@ function(input, output, session) {
     }
     
     tabla_crecimiento <- metricas_global %>%
-      filter(Volumen_Final >= 100) %>%  # Solo marcas con volumen mínimo
+      filter(Volumen_Final >= 100) %>%  # Solo marcas con volumen mÃ­nimo
       arrange(desc(Crecimiento_Relativo)) %>%
       head(10) %>%
       mutate(
@@ -562,11 +562,11 @@ function(input, output, session) {
         `Crecimiento %` = paste0(round(Crecimiento_Relativo, 1), "%"),
         Volumen = format(Volumen_Final, big.mark = ","),
         Tendencia = case_when(
-          Crecimiento_Relativo >= 50 ~ "🚀 Explosivo",
-          Crecimiento_Relativo >= 20 ~ "📈 Alto",
-          Crecimiento_Relativo >= 10 ~ "📊 Moderado", 
-          Crecimiento_Relativo >= 0 ~ "🔄 Estable",
-          TRUE ~ "📉 Declive"
+          Crecimiento_Relativo >= 50 ~ "ðŸš€ Explosivo",
+          Crecimiento_Relativo >= 20 ~ "ðŸ“ˆ Alto",
+          Crecimiento_Relativo >= 10 ~ "ðŸ“Š Moderado", 
+          Crecimiento_Relativo >= 0 ~ "ðŸ”„ Estable",
+          TRUE ~ "ðŸ“‰ Declive"
         )
       ) %>%
       select(Ranking, Marca, `Crecimiento %`, Volumen, Tendencia)
@@ -606,7 +606,7 @@ function(input, output, session) {
         Ranking = "Sin datos",
         Marca = "N/A",
         Score = "N/A",
-        Clasificación = "N/A"
+        ClasificaciÃ³n = "N/A"
       ))
     }
     
@@ -618,30 +618,30 @@ function(input, output, session) {
         Marca = Marca_Vehiculo,
         Score = round(Score_Oportunidad, 1),
         Volumen = format(Volumen_Final, big.mark = ","),
-        Clasificación = case_when(
-          Score_Oportunidad >= 80 ~ "⭐⭐⭐ Excelente",
-          Score_Oportunidad >= 60 ~ "⭐⭐ Muy Buena",
-          Score_Oportunidad >= 40 ~ "⭐ Buena",
-          TRUE ~ "💡 Potencial"
+        ClasificaciÃ³n = case_when(
+          Score_Oportunidad >= 80 ~ "â­â­â­ Excelente",
+          Score_Oportunidad >= 60 ~ "â­â­ Muy Buena",
+          Score_Oportunidad >= 40 ~ "â­ Buena",
+          TRUE ~ "ðŸ’¡ Potencial"
         ),
         Potencial = case_when(
-          str_detect(Potencial_Radiadores, "ALTA") ~ "🔴",
-          str_detect(Potencial_Radiadores, "MEDIA") ~ "🟠",
-          str_detect(Potencial_Radiadores, "EMERGENTE") ~ "🔵", 
-          TRUE ~ "⚫"
+          str_detect(Potencial_Analytics, "ALTA") ~ "ðŸ”´",
+          str_detect(Potencial_Analytics, "MEDIA") ~ "ðŸŸ ",
+          str_detect(Potencial_Analytics, "EMERGENTE") ~ "ðŸ”µ", 
+          TRUE ~ "âš«"
         )
       ) %>%
-      select(Ranking, Marca, Score, Volumen, Clasificación, Potencial)
+      select(Ranking, Marca, Score, Volumen, ClasificaciÃ³n, Potencial)
     
     datatable(
       tabla_score,
       caption = htmltools::tags$caption(
         style = "caption-side: bottom; text-align: left; padding-top: 15px; font-size: 11px; color: #6c757d; line-height: 1.4;",
         htmltools::HTML(
-          "<strong>📊 Cálculo del Score de Oportunidad (0-100 puntos):</strong><br>
-        • <strong>Componente Volumen (0-45 pts):</strong> Log₁₀(Volumen + 1) × 15<br>
-        • <strong>Componente Crecimiento (0-40 pts):</strong> % Crecimiento × 0.8 (máx 50%)<br>
-        • <strong>Componente Estabilidad (0-15 pts):</strong> (25 - Coef. Variación × 100) × 0.6<br>
+          "<strong>ðŸ“Š CÃ¡lculo del Score de Oportunidad (0-100 puntos):</strong><br>
+        â€¢ <strong>Componente Volumen (0-45 pts):</strong> Logâ‚â‚€(Volumen + 1) Ã— 15<br>
+        â€¢ <strong>Componente Crecimiento (0-40 pts):</strong> % Crecimiento Ã— 0.8 (mÃ¡x 50%)<br>
+        â€¢ <strong>Componente Estabilidad (0-15 pts):</strong> (25 - Coef. VariaciÃ³n Ã— 100) Ã— 0.6<br>
         <em>Score = Volumen + Crecimiento + Estabilidad | Valores normalizados entre 0-100</em>"
         )
       ),
@@ -702,7 +702,7 @@ function(input, output, session) {
     }
   })
   
-  # Gráfico de tendencias temporales
+  # GrÃ¡fico de tendencias temporales
   output$grafico_tendencias_temporal <- renderPlotly({
     
     req(input$marcas_seleccionadas)
@@ -720,7 +720,7 @@ function(input, output, session) {
       return(plot_ly() %>% layout(title = "No hay datos para las marcas seleccionadas"))
     }
     
-    # Crear gráfico base
+    # Crear grÃ¡fico base
     fig <- plot_ly()
     
     if(input$tipo_visualizacion == "lineas") {
@@ -741,13 +741,13 @@ function(input, output, session) {
             hovertemplate = paste0(
               "<b>%{fullData.name}</b><br>",
               "Fecha: %{x}<br>",
-              "Vehículos: %{y:,.0f}<br>",
+              "VehÃ­culos: %{y:,.0f}<br>",
               "<extra></extra>"
             )
           )
       }
       
-      # Agregar líneas de tendencia si se solicita
+      # Agregar lÃ­neas de tendencia si se solicita
       if(input$mostrar_tendencia) {
         for(marca in input$marcas_seleccionadas) {
           datos_marca <- datos_tendencias %>% 
@@ -776,7 +776,7 @@ function(input, output, session) {
       
     } else if(input$tipo_visualizacion == "area") {
       
-      # Gráfico de área apilada
+      # GrÃ¡fico de Ã¡rea apilada
       for(marca in input$marcas_seleccionadas) {
         datos_marca <- datos_tendencias %>% filter(Marca_Vehiculo == marca)
         
@@ -793,7 +793,7 @@ function(input, output, session) {
             hovertemplate = paste0(
               "<b>%{fullData.name}</b><br>",
               "Fecha: %{x}<br>",
-              "Vehículos: %{y:,.0f}<br>",
+              "VehÃ­culos: %{y:,.0f}<br>",
               "<extra></extra>"
             )
           )
@@ -822,14 +822,14 @@ function(input, output, session) {
     
     fig %>%
       layout(
-        title = "Evolución Temporal del Parque Vehicular",
-        xaxis = list(title = "Período"),
-        yaxis = list(title = "Vehículos Registrados"),
+        title = "EvoluciÃ³n Temporal del Parque Vehicular",
+        xaxis = list(title = "PerÃ­odo"),
+        yaxis = list(title = "VehÃ­culos Registrados"),
         hovermode = "x unified"
       )
   })
   
-  # Estadísticas de tendencias
+  # EstadÃ­sticas de tendencias
   output$tabla_estadisticas_tendencias <- renderDataTable({
     
     req(input$marcas_seleccionadas)
@@ -842,11 +842,11 @@ function(input, output, session) {
       filter(Marca_Vehiculo %in% input$marcas_seleccionadas) %>%
       group_by(Marca_Vehiculo) %>%
       summarise(
-        Períodos = n(),
+        PerÃ­odos = n(),
         Promedio = round(mean(Vehiculos_Registrados, na.rm = TRUE), 0),
         Mediana = round(median(Vehiculos_Registrados, na.rm = TRUE), 0),
-        Mínimo = min(Vehiculos_Registrados, na.rm = TRUE),
-        Máximo = max(Vehiculos_Registrados, na.rm = TRUE),
+        MÃ­nimo = min(Vehiculos_Registrados, na.rm = TRUE),
+        MÃ¡ximo = max(Vehiculos_Registrados, na.rm = TRUE),
         `Desv. Est.` = round(sd(Vehiculos_Registrados, na.rm = TRUE), 0),
         `Coef. Var.` = round(sd(Vehiculos_Registrados, na.rm = TRUE) / mean(Vehiculos_Registrados, na.rm = TRUE) * 100, 1),
         .groups = "drop"
@@ -863,11 +863,11 @@ function(input, output, session) {
       rownames = FALSE,
       class = "compact stripe hover"
     ) %>%
-      formatCurrency(c("Promedio", "Mediana", "Mínimo", "Máximo", "Desv. Est."), "", digits = 0)
+      formatCurrency(c("Promedio", "Mediana", "MÃ­nimo", "MÃ¡ximo", "Desv. Est."), "", digits = 0)
     
   }, server = FALSE)
   
-  # Panel de métricas de tendencia
+  # Panel de mÃ©tricas de tendencia
   output$panel_metricas_tendencia <- renderUI({
     
     req(input$marcas_seleccionadas)
@@ -883,7 +883,7 @@ function(input, output, session) {
       return(p("No hay datos para mostrar", style = "color: #6c757d;"))
     }
     
-    # Calcular métricas
+    # Calcular mÃ©tricas
     total_periodos <- length(unique(datos_filtrados_trend$Fecha))
     promedio_general <- mean(datos_filtrados_trend$Vehiculos_Registrados, na.rm = TRUE)
     tendencia_general <- ifelse(
@@ -898,31 +898,31 @@ function(input, output, session) {
     tagList(
       div(
         style = "background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;",
-        h5("📊 Resumen General", style = "color: #2c3e50; margin-bottom: 10px;"),
-        p(paste("Períodos analizados:", total_periodos), style = "margin: 5px 0;"),
+        h5("ðŸ“Š Resumen General", style = "color: #2c3e50; margin-bottom: 10px;"),
+        p(paste("PerÃ­odos analizados:", total_periodos), style = "margin: 5px 0;"),
         p(paste("Promedio general:", format(round(promedio_general), big.mark = ",")), style = "margin: 5px 0;"),
         p(paste("Tendencia:", tendencia_general), style = "margin: 5px 0;")
       ),
       
       div(
         style = "background: #e3f2fd; padding: 15px; border-radius: 8px;",
-        h5("🎯 Recomendaciones", style = "color: #1565c0; margin-bottom: 10px;"),
+        h5("ðŸŽ¯ Recomendaciones", style = "color: #1565c0; margin-bottom: 10px;"),
         if(tendencia_general == "Creciente") {
-          p("📈 Mercado en expansión - Oportunidad de crecimiento", style = "color: #27ae60; margin: 0;")
+          p("ðŸ“ˆ Mercado en expansiÃ³n - Oportunidad de crecimiento", style = "color: #10b981; margin: 0;")
         } else if(tendencia_general == "Decreciente") {
-          p("📉 Mercado en contracción - Revisar estrategia", style = "color: #e74c3c; margin: 0;")
+          p("ðŸ“‰ Mercado en contracciÃ³n - Revisar estrategia", style = "color: #06b6d4; margin: 0;")
         } else {
-          p("⚖️ Mercado estable - Monitorear cambios", style = "color: #f39c12; margin: 0;")
+          p("âš–ï¸ Mercado estable - Monitorear cambios", style = "color: #f59e0b; margin: 0;")
         }
       )
     )
   })
   
   # =============================================================================
-  # ANÁLISIS DETALLADO
+  # ANÃLISIS DETALLADO
   # =============================================================================
   
-  # Actualizar opciones para análisis detallado
+  # Actualizar opciones para anÃ¡lisis detallado
   observe({
     if(!is.null(metricas_global) && nrow(metricas_global) > 0) {
       opciones_detalle <- setNames(
@@ -939,7 +939,7 @@ function(input, output, session) {
     }
   })
   
-  # Panel de métricas de marca individual
+  # Panel de mÃ©tricas de marca individual
   output$panel_metricas_marca <- renderUI({
     
     req(input$marca_detalle)
@@ -958,58 +958,58 @@ function(input, output, session) {
     marca_info <- marca_data[1, ]
     
     tagList(
-      h4(marca_info$Marca_Vehiculo, style = "color: #c41e3a; text-align: center; margin-bottom: 20px;"),
+      h4(marca_info$Marca_Vehiculo, style = "color: #1a365d; text-align: center; margin-bottom: 20px;"),
       
       div(
         style = "background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 15px; border-radius: 10px; margin-bottom: 15px;",
         
         div(style = "text-align: center; margin-bottom: 15px;",
             h3(format(marca_info$Volumen_Final, big.mark = ","), style = "color: #2c3e50; margin: 0;"),
-            p("Vehículos Totales", style = "color: #6c757d; margin: 0; font-size: 12px;")
+            p("VehÃ­culos Totales", style = "color: #6c757d; margin: 0; font-size: 12px;")
         ),
         
         hr(style = "margin: 15px 0;"),
         
         div(style = "display: flex; justify-content: space-between; margin-bottom: 10px;",
-            span("🏆 Ranking Score:", style = "color: #495057; font-size: 13px;"),
+            span("ðŸ† Ranking Score:", style = "color: #495057; font-size: 13px;"),
             strong(paste("#", which(metricas_global$Marca_Vehiculo[order(-metricas_global$Score_Oportunidad)] == input$marca_detalle)), 
-                   style = "color: #c41e3a; font-size: 13px;")
+                   style = "color: #1a365d; font-size: 13px;")
         ),
         
         div(style = "display: flex; justify-content: space-between; margin-bottom: 10px;",
-            span("📈 Crecimiento:", style = "color: #495057; font-size: 13px;"),
+            span("ðŸ“ˆ Crecimiento:", style = "color: #495057; font-size: 13px;"),
             strong(paste0(round(marca_info$Crecimiento_Relativo, 1), "%"), 
-                   style = paste0("color: ", ifelse(marca_info$Crecimiento_Relativo >= 0, "#27ae60", "#e74c3c"), "; font-size: 13px;"))
+                   style = paste0("color: ", ifelse(marca_info$Crecimiento_Relativo >= 0, "#10b981", "#06b6d4"), "; font-size: 13px;"))
         ),
         
         div(style = "display: flex; justify-content: space-between; margin-bottom: 10px;",
-            span("⭐ Score:", style = "color: #495057; font-size: 13px;"),
+            span("â­ Score:", style = "color: #495057; font-size: 13px;"),
             strong(paste0(round(marca_info$Score_Oportunidad, 1), "/100"), style = "color: #3498db; font-size: 13px;")
         ),
         
         div(style = "display: flex; justify-content: space-between; margin-bottom: 10px;",
-            span("📊 Participación:", style = "color: #495057; font-size: 13px;"),
-            strong(paste0(round(marca_info$Participacion_Mercado, 2), "%"), style = "color: #f39c12; font-size: 13px;")
+            span("ðŸ“Š ParticipaciÃ³n:", style = "color: #495057; font-size: 13px;"),
+            strong(paste0(round(marca_info$Participacion_Mercado, 2), "%"), style = "color: #f59e0b; font-size: 13px;")
         ),
         
         hr(style = "margin: 15px 0;"),
         
         div(
           style = "text-align: center; padding: 10px; background: white; border-radius: 8px;",
-          strong(marca_info$Potencial_Radiadores, style = "font-size: 11px;")
+          strong(marca_info$Potencial_Analytics, style = "font-size: 11px;")
         )
       ),
       
       div(
-        style = "background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;",
-        h6("💡 Análisis Rápido", style = "color: #856404; margin-bottom: 8px;"),
+        style = "background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;",
+        h6("ðŸ’¡ AnÃ¡lisis RÃ¡pido", style = "color: #856404; margin-bottom: 8px;"),
         p(
           if(marca_info$Score_Oportunidad >= 70) {
-            "Excelente oportunidad para radiadores. Alta prioridad comercial."
+            "Excelente oportunidad para análisis predictivo. Alta prioridad comercial."
           } else if(marca_info$Score_Oportunidad >= 50) {
             "Buena oportunidad. Considerar para estrategia de mediano plazo."
           } else {
-            "Oportunidad emergente. Monitorear evolución del mercado."
+            "Oportunidad emergente. Monitorear evoluciÃ³n del mercado."
           },
           style = "color: #856404; font-size: 12px; margin: 0; line-height: 1.4;"
         )
@@ -1017,7 +1017,7 @@ function(input, output, session) {
     )
   })
   
-  # Gráfico de evolución individual
+  # GrÃ¡fico de evoluciÃ³n individual
   output$grafico_evolucion_individual <- renderPlotly({
     
     req(input$marca_detalle)
@@ -1034,7 +1034,7 @@ function(input, output, session) {
       return(plot_ly() %>% layout(title = "Sin datos para la marca seleccionada"))
     }
     
-    # Crear gráfico con línea y área
+    # Crear grÃ¡fico con lÃ­nea y Ã¡rea
     fig <- plot_ly() %>%
       add_trace(
         data = datos_marca,
@@ -1044,18 +1044,18 @@ function(input, output, session) {
         mode = "lines+markers",
         fill = "tozeroy",
         fillcolor = "rgba(231, 76, 60, 0.2)",
-        line = list(color = "#e74c3c", width = 3),
-        marker = list(color = "#c41e3a", size = 8),
+        line = list(color = "#06b6d4", width = 3),
+        marker = list(color = "#1a365d", size = 8),
         name = input$marca_detalle,
         hovertemplate = paste0(
           "<b>", input$marca_detalle, "</b><br>",
           "Fecha: %{x}<br>",
-          "Vehículos: %{y:,.0f}<br>",
+          "VehÃ­culos: %{y:,.0f}<br>",
           "<extra></extra>"
         )
       )
     
-    # Agregar línea de tendencia
+    # Agregar lÃ­nea de tendencia
     if(nrow(datos_marca) > 2) {
       datos_modelo <- datos_marca %>%
         mutate(x_num = as.numeric(Fecha))
@@ -1078,39 +1078,39 @@ function(input, output, session) {
     
     fig %>%
       layout(
-        title = paste("Evolución de", input$marca_detalle),
-        xaxis = list(title = "Período"),
-        yaxis = list(title = "Vehículos Registrados"),
+        title = paste("EvoluciÃ³n de", input$marca_detalle),
+        xaxis = list(title = "PerÃ­odo"),
+        yaxis = list(title = "VehÃ­culos Registrados"),
         showlegend = TRUE
       )
   })
   
   # =============================================================================
-  # CONFIGURACIÓN - INFORMACIÓN DEL SISTEMA
+  # CONFIGURACIÃ“N - INFORMACIÃ“N DEL SISTEMA
   # =============================================================================
   
-  # Información del sistema
-  output$info_sistema_rlt <- renderText({
+  # InformaciÃ³n del sistema
+  output$info_sistema_ds <- renderText({
     
     info_texto <- paste0(
-      "Sistema: Estrategia RLT v2.1.0\n",
-      "Estado: Activo ✓\n",
+      "Sistema: Estrategia DS Conexión v2.1.0\n",
+      "Estado: Activo âœ“\n",
       "Datos cargados: ", ifelse(is.null(metricas_global), 0, nrow(metricas_global)), " marcas\n",
-      "Última actualización: ", format(Sys.time(), "%d/%m/%Y %H:%M"), "\n",
+      "Ãšltima actualizaciÃ³n: ", format(Sys.time(), "%d/%m/%Y %H:%M"), "\n",
       "Memoria utilizada: ", round(object.size(metricas_global) / 1024^2, 2), " MB\n",
-      "Sesión iniciada: ", format(timestamp_app, "%H:%M")
+      "SesiÃ³n iniciada: ", format(timestamp_app, "%H:%M")
     )
     
     return(info_texto)
   })
   
-  # Estadísticas de uso
-  output$tabla_estadisticas_uso_rlt <- renderTable({
+  # EstadÃ­sticas de uso
+  output$tabla_estadisticas_uso_ds <- renderTable({
     
     data.frame(
-      Métrica = c(
+      MÃ©trica = c(
         "Total Marcas Analizadas",
-        "Períodos Temporales", 
+        "PerÃ­odos Temporales", 
         "Marcas Alta Prioridad",
         "Score Promedio",
         "Tiempo de Procesamiento"
@@ -1127,18 +1127,18 @@ function(input, output, session) {
   }, bordered = TRUE, striped = TRUE, spacing = "s")
   
   # Log del sistema
-  output$log_sistema_rlt <- renderText({
+  output$log_sistema_ds <- renderText({
     
     log_entries <- c(
-      paste("[", format(timestamp_app, "%H:%M:%S"), "] ✓ Sistema RLT iniciado correctamente"),
-      paste("[", format(timestamp_app + 1, "%H:%M:%S"), "] ✓ Datos del parque vehicular cargados:", ifelse(is.null(metricas_global), 0, nrow(metricas_global)), "marcas"),
-      paste("[", format(timestamp_app + 2, "%H:%M:%S"), "] ✓ Métricas calculadas exitosamente"),
-      paste("[", format(timestamp_app + 3, "%H:%M:%S"), "] ✓ Dashboard ejecutivo activado"),
-      paste("[", format(Sys.time(), "%H:%M:%S"), "] ✓ Interface de usuario lista"),
+      paste("[", format(timestamp_app, "%H:%M:%S"), "] âœ“ Sistema DS Conexión iniciado correctamente"),
+      paste("[", format(timestamp_app + 1, "%H:%M:%S"), "] âœ“ Datos del parque vehicular cargados:", ifelse(is.null(metricas_global), 0, nrow(metricas_global)), "marcas"),
+      paste("[", format(timestamp_app + 2, "%H:%M:%S"), "] âœ“ MÃ©tricas calculadas exitosamente"),
+      paste("[", format(timestamp_app + 3, "%H:%M:%S"), "] âœ“ Dashboard ejecutivo activado"),
+      paste("[", format(Sys.time(), "%H:%M:%S"), "] âœ“ Interface de usuario lista"),
       "",
-      "═══════════════════════════════════════",
+      "â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•",
       "SISTEMA FUNCIONANDO CORRECTAMENTE",
-      "═══════════════════════════════════════"
+      "â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•"
     )
     
     paste(log_entries, collapse = "\n")
@@ -1150,18 +1150,18 @@ function(input, output, session) {
   # ELEMENTOS REACTIVOS Y OBSERVADORES
   # =============================================================================
   
-  # Observador para actualización automática de datos
+  # Observador para actualizaciÃ³n automÃ¡tica de datos
   observeEvent(input$btn_actualizar_datos, {
     
     # Mostrar mensaje de carga
     showModal(modalDialog(
-      title = "🔄 Actualizando Datos del Parque Vehicular",
-      "Procesando información más reciente del SAT...",
+      title = "ðŸ”„ Actualizando Datos del Parque Vehicular",
+      "Procesando informaciÃ³n mÃ¡s reciente del SAT...",
       easyClose = FALSE,
       footer = NULL
     ))
     
-    # Simular actualización (en producción aquí se cargarían datos reales)
+    # Simular actualizaciÃ³n (en producciÃ³n aquÃ­ se cargarÃ­an datos reales)
     Sys.sleep(2)
     
     # Actualizar timestamp
@@ -1170,15 +1170,15 @@ function(input, output, session) {
     # Agregar entrada al log
     nuevos_logs <- c(
       valores_reactivos$logs_sistema,
-      paste("[", format(Sys.time(), "%H:%M:%S"), "] 🔄 Datos actualizados manualmente por el usuario")
+      paste("[", format(Sys.time(), "%H:%M:%S"), "] ðŸ”„ Datos actualizados manualmente por el usuario")
     )
-    valores_reactivos$logs_sistema <- tail(nuevos_logs, 20)  # Mantener últimas 20 entradas
+    valores_reactivos$logs_sistema <- tail(nuevos_logs, 20)  # Mantener Ãºltimas 20 entradas
     
     removeModal()
     
-    # Mostrar notificación de éxito
+    # Mostrar notificaciÃ³n de Ã©xito
     showNotification(
-      "✅ Datos del parque vehicular actualizados correctamente",
+      "âœ… Datos del parque vehicular actualizados correctamente",
       type = "success",
       duration = 3
     )
@@ -1189,13 +1189,13 @@ function(input, output, session) {
     valores_reactivos$filtros_aplicados <- !valores_reactivos$filtros_aplicados
     
     showNotification(
-      "🔍 Filtros aplicados correctamente",
+      "ðŸ” Filtros aplicados correctamente",
       type = "default",
       duration = 2
     )
   })
   
-  # Observador para generar análisis detallado
+  # Observador para generar anÃ¡lisis detallado
   observeEvent(input$btn_generar_detalle, {
     
     req(input$marca_detalle)
@@ -1203,20 +1203,20 @@ function(input, output, session) {
     valores_reactivos$marca_seleccionada <- input$marca_detalle
     
     showNotification(
-      paste("📊 Análisis detallado generado para", input$marca_detalle),
+      paste("ðŸ“Š AnÃ¡lisis detallado generado para", input$marca_detalle),
       type = "success",
       duration = 3
     )
   })
   
-  # Observador para botones de configuración
-  observeEvent(input$limpiar_cache_rlt, {
+  # Observador para botones de configuraciÃ³n
+  observeEvent(input$limpiar_cache_ds, {
     
     showModal(modalDialog(
-      title = "⚠️ Confirmar Acción",
-      "¿Está seguro de que desea limpiar el cache del sistema?",
+      title = "âš ï¸ Confirmar AcciÃ³n",
+      "Â¿EstÃ¡ seguro de que desea limpiar el cache del sistema?",
       footer = tagList(
-        actionButton("confirmar_limpiar", "Sí, Limpiar", class = "btn-warning"),
+        actionButton("confirmar_limpiar", "SÃ­, Limpiar", class = "btn-warning"),
         modalButton("Cancelar")
       )
     ))
@@ -1232,36 +1232,36 @@ function(input, output, session) {
     # Agregar al log
     valores_reactivos$logs_sistema <- c(
       valores_reactivos$logs_sistema,
-      paste("[", format(Sys.time(), "%H:%M:%S"), "] 🗑️ Cache del sistema limpiado")
+      paste("[", format(Sys.time(), "%H:%M:%S"), "] ðŸ—‘ï¸ Cache del sistema limpiado")
     )
     
     showNotification(
-      "🗑️ Cache limpiado correctamente",
+      "ðŸ—‘ï¸ Cache limpiado correctamente",
       type = "warning",
       duration = 3
     )
   })
   
-  observeEvent(input$exportar_datos_rlt, {
+  observeEvent(input$exportar_datos_ds, {
     
     showNotification(
-      "📤 Exportación iniciada. Preparando archivo Excel...",
+      "ðŸ“¤ ExportaciÃ³n iniciada. Preparando archivo Excel...",
       type = "default",
       duration = 3
     )
     
-    # En producción aquí se ejecutaría la exportación real
+    # En producciÃ³n aquÃ­ se ejecutarÃ­a la exportaciÃ³n real
     valores_reactivos$logs_sistema <- c(
       valores_reactivos$logs_sistema,
-      paste("[", format(Sys.time(), "%H:%M:%S"), "] 📤 Datos exportados a Excel")
+      paste("[", format(Sys.time(), "%H:%M:%S"), "] ðŸ“¤ Datos exportados a Excel")
     )
   })
   
-  observeEvent(input$reiniciar_app_rlt, {
+  observeEvent(input$reiniciar_app_ds, {
     
     showModal(modalDialog(
-      title = "🔄 Reiniciar Aplicación",
-      "⚠️ Esta acción reiniciará completamente la aplicación. ¿Continuar?",
+      title = "ðŸ”„ Reiniciar AplicaciÃ³n",
+      "âš ï¸ Esta acciÃ³n reiniciarÃ¡ completamente la aplicaciÃ³n. Â¿Continuar?",
       footer = tagList(
         actionButton("confirmar_reiniciar", "Reiniciar", class = "btn-danger"),
         modalButton("Cancelar")
@@ -1274,12 +1274,12 @@ function(input, output, session) {
     removeModal()
     
     showNotification(
-      "🔄 Reiniciando aplicación...",
+      "ðŸ”„ Reiniciando aplicaciÃ³n...",
       type = "error",
       duration = 3
     )
     
-    # En producción esto podría reiniciar la sesión de Shiny
+    # En producciÃ³n esto podrÃ­a reiniciar la sesiÃ³n de Shiny
     session$reload()
   })
   
@@ -1287,7 +1287,7 @@ function(input, output, session) {
   observeEvent(input$test_carga_datos, {
     
     showModal(modalDialog(
-      title = "🧪 Probando Carga de Datos",
+      title = "ðŸ§ª Probando Carga de Datos",
       div(
         id = "test-progress",
         "Verificando integridad de datos...",
@@ -1309,13 +1309,13 @@ function(input, output, session) {
     
     resultado_test <- ifelse(
       !is.null(metricas_global) && nrow(metricas_global) > 0,
-      "✅ Datos cargados correctamente",
-      "❌ Error en la carga de datos"
+      "âœ… Datos cargados correctamente",
+      "âŒ Error en la carga de datos"
     )
     
     showNotification(
       resultado_test,
-      type = ifelse(str_detect(resultado_test, "✅"), "success", "error"),
+      type = ifelse(str_detect(resultado_test, "âœ…"), "success", "error"),
       duration = 4
     )
   })
@@ -1323,15 +1323,15 @@ function(input, output, session) {
   # Observador para auto-refresh
   observe({
     
-    # Auto-refresh cada 30 minutos si está activado
-    if(!is.null(input$auto_refresh_rlt) && input$auto_refresh_rlt) {
+    # Auto-refresh cada 30 minutos si estÃ¡ activado
+    if(!is.null(input$auto_refresh_ds) && input$auto_refresh_ds) {
       
       invalidateLater(1800000)  # 30 minutos en milisegundos
       
       # Agregar al log
       valores_reactivos$logs_sistema <- c(
         valores_reactivos$logs_sistema,
-        paste("[", format(Sys.time(), "%H:%M:%S"), "] 🔄 Auto-actualización ejecutada")
+        paste("[", format(Sys.time(), "%H:%M:%S"), "] ðŸ”„ Auto-actualizaciÃ³n ejecutada")
       )
       
       valores_reactivos$datos_actualizados <- Sys.time()
@@ -1341,16 +1341,16 @@ function(input, output, session) {
   # Observador para modo debug
   observe({
     
-    if(!is.null(input$modo_debug_rlt) && input$modo_debug_rlt) {
+    if(!is.null(input$modo_debug_ds) && input$modo_debug_ds) {
       
-      # En modo debug, mostrar información adicional
+      # En modo debug, mostrar informaciÃ³n adicional
       valores_reactivos$logs_sistema <- c(
         valores_reactivos$logs_sistema,
-        paste("[", format(Sys.time(), "%H:%M:%S"), "] 🐛 Modo debug activado")
+        paste("[", format(Sys.time(), "%H:%M:%S"), "] ðŸ› Modo debug activado")
       )
       
       showNotification(
-        "🐛 Modo debug activado - Información detallada disponible",
+        "ðŸ› Modo debug activado - InformaciÃ³n detallada disponible",
         type = "default",
         duration = 5
       )
@@ -1361,7 +1361,7 @@ function(input, output, session) {
   # FUNCIONES AUXILIARES Y OUTPUTS ADICIONALES  
   # =============================================================================
   
-  # Gráfico de comparación con competencia (análisis detallado)
+  # GrÃ¡fico de comparaciÃ³n con competencia (anÃ¡lisis detallado)
   output$grafico_comparacion_competencia <- renderPlotly({
     
     req(input$marca_detalle)
@@ -1388,7 +1388,7 @@ function(input, output, session) {
       bind_rows(marca_seleccionada) %>%
       mutate(
         es_seleccionada = Marca_Vehiculo == input$marca_detalle,
-        color_barra = ifelse(es_seleccionada, "#e74c3c", "#95a5a6")
+        color_barra = ifelse(es_seleccionada, "#06b6d4", "#95a5a6")
       )
     
     plot_ly(
@@ -1407,7 +1407,7 @@ function(input, output, session) {
       )
     ) %>%
       layout(
-        title = paste("Comparación con Competencia Directa -", input$marca_detalle),
+        title = paste("ComparaciÃ³n con Competencia Directa -", input$marca_detalle),
         xaxis = list(title = ""),
         yaxis = list(title = "Score de Oportunidad"),
         showlegend = FALSE
@@ -1434,22 +1434,22 @@ function(input, output, session) {
     volumen_ref <- marca_data$Volumen_Final
     
     reporte_detallado <- metricas_global %>%
-      filter(abs(Volumen_Final - volumen_ref) <= volumen_ref * 0.5) %>%  # ±50% del volumen
+      filter(abs(Volumen_Final - volumen_ref) <= volumen_ref * 0.5) %>%  # Â±50% del volumen
       arrange(desc(Score_Oportunidad)) %>%
       select(
         Marca = Marca_Vehiculo,
         Volumen = Volumen_Final,
         `Crecimiento %` = Crecimiento_Relativo,
         Score = Score_Oportunidad,
-        `Participación %` = Participacion_Mercado,
-        Categoría = Categoria_Volumen,
-        Potencial = Potencial_Radiadores
+        `ParticipaciÃ³n %` = Participacion_Mercado,
+        CategorÃ­a = Categoria_Volumen,
+        Potencial = Potencial_Analytics
       ) %>%
       mutate(
         Volumen = format(Volumen, big.mark = ","),
         `Crecimiento %` = round(`Crecimiento %`, 1),
         Score = round(Score, 1),
-        `Participación %` = round(`Participación %`, 2),
+        `ParticipaciÃ³n %` = round(`ParticipaciÃ³n %`, 2),
         `Es Seleccionada` = Marca == input$marca_detalle
       )
     
@@ -1484,21 +1484,21 @@ function(input, output, session) {
   # Actualizar timestamp en tiempo real
   observe({
     invalidateLater(60000)  # Actualizar cada minuto
-    output$ultima_actualizacion_rlt <- renderText({
+    output$ultima_actualizacion_ds <- renderText({
       paste("Actualizado:", format(Sys.time(), "%H:%M"))
     })
   })
   
   # Output para el log en tiempo real
   observe({
-    output$log_sistema_rlt <- renderText({
+    output$log_sistema_ds <- renderText({
       if(length(valores_reactivos$logs_sistema) > 0) {
         paste(tail(valores_reactivos$logs_sistema, 15), collapse = "\n")
       } else {
         paste(
-          paste("[", format(Sys.time(), "%H:%M:%S"), "] ✓ Sistema iniciado correctamente"),
-          paste("[", format(Sys.time(), "%H:%M:%S"), "] ✓ Datos cargados exitosamente"),
-          "═══════════════════════════════════════",
+          paste("[", format(Sys.time(), "%H:%M:%S"), "] âœ“ Sistema iniciado correctamente"),
+          paste("[", format(Sys.time(), "%H:%M:%S"), "] âœ“ Datos cargados exitosamente"),
+          "â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•",
           "SISTEMA FUNCIONANDO CORRECTAMENTE",
           sep = "\n"
         )
@@ -1511,7 +1511,7 @@ function(input, output, session) {
   # OUTPUTS FALTANTES PARA PANORAMA GENERAL
   # =============================================================================
   
-  # Gráfico de distribución por categorías
+  # GrÃ¡fico de distribuciÃ³n por categorÃ­as
   output$grafico_distribucion_categorias <- renderPlotly({
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
@@ -1531,7 +1531,7 @@ function(input, output, session) {
       y = ~Categoria_Volumen,
       type = "bar",
       orientation = "h",
-      marker = list(color = "#c41e3a", opacity = 0.8),
+      marker = list(color = "#1a365d", opacity = 0.8),
       text = ~paste0(cantidad, " marcas (", porcentaje, "%)"),
       textposition = "outside",
       hovertemplate = paste0(
@@ -1542,8 +1542,8 @@ function(input, output, session) {
       )
     ) %>%
       layout(
-        title = "Distribución del Parque Vehicular por Categoría",
-        xaxis = list(title = "Número de Marcas"),
+        title = "DistribuciÃ³n del Parque Vehicular por CategorÃ­a",
+        xaxis = list(title = "NÃºmero de Marcas"),
         yaxis = list(title = ""),
         margin = list(l = 150)
       )
@@ -1558,30 +1558,30 @@ function(input, output, session) {
     }
     
     datos_matriz <- metricas_global %>%
-      count(Potencial_Radiadores, name = "cantidad") %>%
+      count(Potencial_Analytics, name = "cantidad") %>%
       mutate(
         porcentaje = round(cantidad / sum(cantidad) * 100, 1),
         color_categoria = case_when(
-          str_detect(Potencial_Radiadores, "ALTA") ~ "#E31A1C",
-          str_detect(Potencial_Radiadores, "MEDIA") ~ "#FF7F00", 
-          str_detect(Potencial_Radiadores, "EMERGENTE") ~ "#1F78B4",
-          TRUE ~ "#666666"
+          str_detect(Potencial_Analytics, "ALTA") ~ "#ef4444",
+          str_detect(Potencial_Analytics, "MEDIA") ~ "#f59e0b", 
+          str_detect(Potencial_Analytics, "EMERGENTE") ~ "#3b82f6",
+          TRUE ~ "#64748b"
         ),
         # Ordenar por prioridad
         orden = case_when(
-          str_detect(Potencial_Radiadores, "ALTA") ~ 1,
-          str_detect(Potencial_Radiadores, "MEDIA") ~ 2,
-          str_detect(Potencial_Radiadores, "EMERGENTE") ~ 3,
+          str_detect(Potencial_Analytics, "ALTA") ~ 1,
+          str_detect(Potencial_Analytics, "MEDIA") ~ 2,
+          str_detect(Potencial_Analytics, "EMERGENTE") ~ 3,
           TRUE ~ 4
         )
       ) %>%
       arrange(orden) %>%
-      mutate(Potencial_Radiadores = factor(Potencial_Radiadores, levels = Potencial_Radiadores))
+      mutate(Potencial_Analytics = factor(Potencial_Analytics, levels = Potencial_Analytics))
     
     plot_ly(
       datos_matriz,
       x = ~cantidad,
-      y = ~Potencial_Radiadores,
+      y = ~Potencial_Analytics,
       type = "bar",
       orientation = "h",
       marker = list(color = ~color_categoria),
@@ -1595,8 +1595,8 @@ function(input, output, session) {
       )
     ) %>%
       layout(
-        title = "Matriz de Potencial de Radiadores",
-        xaxis = list(title = "Número de Marcas"),
+        title = "Matriz de Potencial de Analytics",
+        xaxis = list(title = "NÃºmero de Marcas"),
         yaxis = list(title = ""),
         margin = list(l = 180)
       )
@@ -1615,15 +1615,15 @@ function(input, output, session) {
         Volumen = Volumen_Final,
         `Crecimiento %` = Crecimiento_Relativo,
         Score = Score_Oportunidad,
-        `Participación %` = Participacion_Mercado,
-        Categoría = Categoria_Volumen,
-        Potencial = Potencial_Radiadores
+        `ParticipaciÃ³n %` = Participacion_Mercado,
+        CategorÃ­a = Categoria_Volumen,
+        Potencial = Potencial_Analytics
       ) %>%
       mutate(
         Volumen = format(Volumen, big.mark = ","),
         `Crecimiento %` = round(`Crecimiento %`, 1),
         Score = round(Score, 1),
-        `Participación %` = round(`Participación %`, 2)
+        `ParticipaciÃ³n %` = round(`ParticipaciÃ³n %`, 2)
       ) %>%
       arrange(desc(Score))
     
@@ -1746,7 +1746,7 @@ function(input, output, session) {
   
   
   # =============================================================================
-  # TAB: MAPA DE OPORTUNIDADES ESTRATÉGICAS
+  # TAB: MAPA DE OPORTUNIDADES ESTRATÃ‰GICAS
   # =============================================================================
   
   # -----------------------------------------------------------------------------
@@ -1755,7 +1755,7 @@ function(input, output, session) {
   
   datos_filtrados_oportunidades <- reactive({
     
-    cat("🔍 Aplicando filtros avanzados de oportunidades...\n")
+    cat("ðŸ” Aplicando filtros avanzados de oportunidades...\n")
     
     datos <- metricas_global
     
@@ -1763,7 +1763,7 @@ function(input, output, session) {
       return(data.frame())
     }
     
-    # Aplicar filtros solo si el botón fue presionado
+    # Aplicar filtros solo si el botÃ³n fue presionado
     if(input$btn_aplicar_filtros_oport > 0) {
       
       # Filtro por volumen
@@ -1780,30 +1780,30 @@ function(input, output, session) {
       datos <- datos %>%
         filter(Score_Oportunidad >= input$filtro_score_min_oport)
       
-      # Filtro por categorías
+      # Filtro por categorÃ­as
       if(input$filtro_categorias_oport != "todas") {
         if(input$filtro_categorias_oport == "alto") {
           datos <- datos %>% filter(Categoria_Volumen == "Alto Volumen (100K+)")
         } else if(input$filtro_categorias_oport == "medio") {
           datos <- datos %>% filter(Categoria_Volumen == "Volumen Medio (10K-100K)")
         } else if(input$filtro_categorias_oport == "bajo_emergente") {
-          datos <- datos %>% filter(Categoria_Volumen %in% c("Volumen Bajo (1K-10K)", "Volumen Mínimo (<1K)"))
+          datos <- datos %>% filter(Categoria_Volumen %in% c("Volumen Bajo (1K-10K)", "Volumen MÃ­nimo (<1K)"))
         }
       }
       
       # Filtro por potencial
       if(!is.null(input$filtro_potencial_oport) && length(input$filtro_potencial_oport) > 0) {
         potencial_seleccionado <- c()
-        if("alta" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🔴 ALTA PRIORIDAD")
-        if("media" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🟠 MEDIA PRIORIDAD")
-        if("emergente" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "🔵 EMERGENTE")
-        if("baja" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "⚫ BAJA PRIORIDAD")
+        if("alta" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "ðŸ”´ ALTA PRIORIDAD")
+        if("media" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "ðŸŸ  MEDIA PRIORIDAD")
+        if("emergente" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "ðŸ”µ EMERGENTE")
+        if("baja" %in% input$filtro_potencial_oport) potencial_seleccionado <- c(potencial_seleccionado, "âš« BAJA PRIORIDAD")
         
-        datos <- datos %>% filter(Potencial_Radiadores %in% potencial_seleccionado)
+        datos <- datos %>% filter(Potencial_Analytics %in% potencial_seleccionado)
       }
     }
     
-    cat("✅ Filtros aplicados:", nrow(datos), "marcas resultantes\n")
+    cat("âœ… Filtros aplicados:", nrow(datos), "marcas resultantes\n")
     return(datos)
   })
   
@@ -1817,11 +1817,11 @@ function(input, output, session) {
     updateSelectInput(session, "filtro_categorias_oport", selected = "todas")
     updateCheckboxGroupInput(session, "filtro_potencial_oport", selected = c("alta", "media", "emergente"))
     
-    showNotification("✅ Filtros reseteados", type = "success", duration = 2)
+    showNotification("âœ… Filtros reseteados", type = "success", duration = 2)
   })
   
   # -----------------------------------------------------------------------------
-  # VALUE BOXES DINÁMICOS
+  # VALUE BOXES DINÃMICOS
   # -----------------------------------------------------------------------------
   
   output$vb_marcas_filtradas_oport <- renderValueBox({
@@ -1829,7 +1829,7 @@ function(input, output, session) {
     
     valueBox(
       value = nrow(datos),
-      subtitle = "Marcas en Análisis",
+      subtitle = "Marcas en AnÃ¡lisis",
       icon = icon("filter"),
       color = "blue"
     )
@@ -1842,7 +1842,7 @@ function(input, output, session) {
     
     valueBox(
       value = formato_numero(volumen_total),
-      subtitle = "Vehículos Totales",
+      subtitle = "VehÃ­culos Totales",
       icon = icon("car"),
       color = "red"
     )
@@ -1868,14 +1868,14 @@ function(input, output, session) {
     
     valueBox(
       value = paste0(round(participacion, 1), "%"),
-      subtitle = "Participación de Mercado",
+      subtitle = "ParticipaciÃ³n de Mercado",
       icon = icon("chart-pie"),
       color = "green"
     )
   })
   
   # -----------------------------------------------------------------------------
-  # MAPA ESTRATÉGICO DE BURBUJAS AVANZADO
+  # MAPA ESTRATÃ‰GICO DE BURBUJAS AVANZADO
   # -----------------------------------------------------------------------------
   
   output$mapa_burbujas_avanzado_oport <- renderPlotly({
@@ -1886,7 +1886,7 @@ function(input, output, session) {
       return(plot_ly() %>% layout(title = "No hay datos con los filtros aplicados"))
     }
     
-    # Calcular tamaño de burbujas proporcional al score
+    # Calcular tamaÃ±o de burbujas proporcional al score
     datos <- datos %>%
       mutate(
         tamano_burbuja = pmax(8, pmin(40, Score_Oportunidad / 2.5)),
@@ -1898,16 +1898,16 @@ function(input, output, session) {
       x = ~log_volumen,
       y = ~Crecimiento_Relativo,
       size = ~tamano_burbuja,
-      color = ~Potencial_Radiadores,
-      colors = c("🔴 ALTA PRIORIDAD" = "#E31A1C",
-                 "🟠 MEDIA PRIORIDAD" = "#FF7F00",
-                 "🔵 EMERGENTE" = "#1F78B4",
-                 "⚫ BAJA PRIORIDAD" = "#666666"),
+      color = ~Potencial_Analytics,
+      colors = c("ðŸ”´ ALTA PRIORIDAD" = "#ef4444",
+                 "ðŸŸ  MEDIA PRIORIDAD" = "#f59e0b",
+                 "ðŸ”µ EMERGENTE" = "#3b82f6",
+                 "âš« BAJA PRIORIDAD" = "#64748b"),
       text = ~paste0("<b>", Marca_Vehiculo, "</b>",
                      "<br>Volumen: ", format(Volumen_Final, big.mark = ","),
                      "<br>Crecimiento: ", round(Crecimiento_Relativo, 1), "%",
                      "<br>Score: ", round(Score_Oportunidad, 1),
-                     "<br>Participación: ", round(Participacion_Mercado, 2), "%"),
+                     "<br>ParticipaciÃ³n: ", round(Participacion_Mercado, 2), "%"),
       hovertemplate = "%{text}<extra></extra>",
       type = "scatter",
       mode = "markers",
@@ -1920,7 +1920,7 @@ function(input, output, session) {
     ) %>%
       add_annotations(
         data = datos %>% 
-          filter(str_detect(Potencial_Radiadores, "ALTA|MEDIA"),
+          filter(str_detect(Potencial_Analytics, "ALTA|MEDIA"),
                  Score_Oportunidad >= 60),
         x = ~log_volumen,
         y = ~Crecimiento_Relativo + 3,
@@ -1930,11 +1930,11 @@ function(input, output, session) {
       ) %>%
       layout(
         title = list(
-          text = "<b>MAPA ESTRATÉGICO DE OPORTUNIDADES</b><br><sub>Análisis Multidimensional: Volumen • Crecimiento • Score</sub>",
+          text = "<b>MAPA ESTRATÃ‰GICO DE OPORTUNIDADES</b><br><sub>AnÃ¡lisis Multidimensional: Volumen â€¢ Crecimiento â€¢ Score</sub>",
           font = list(size = 14)
         ),
         xaxis = list(
-          title = "Volumen de Vehículos (escala Log10)",
+          title = "Volumen de VehÃ­culos (escala Log10)",
           showgrid = TRUE,
           gridcolor = "#E0E0E0"
         ),
@@ -1957,7 +1957,7 @@ function(input, output, session) {
   })
   
   # -----------------------------------------------------------------------------
-  # MATRIZ DE DECISIÓN 2X2
+  # MATRIZ DE DECISIÃ“N 2X2
   # -----------------------------------------------------------------------------
   
   # output$matriz_decision_2x2_oport <- renderPlotly({
@@ -1976,15 +1976,15 @@ function(input, output, session) {
   #   datos <- datos %>%
   #     mutate(
   #       cuadrante = case_when(
-  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "⭐ Estrellas",
-  #         Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "🚀 Promesas",
-  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "💰 Base Consolidada",
-  #         TRUE ~ "❓ Interrogantes"
+  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "â­ Estrellas",
+  #         Volumen_Final < mediana_volumen & Crecimiento_Relativo >= mediana_crecimiento ~ "ðŸš€ Promesas",
+  #         Volumen_Final >= mediana_volumen & Crecimiento_Relativo < mediana_crecimiento ~ "ðŸ’° Base Consolidada",
+  #         TRUE ~ "â“ Interrogantes"
   #       ),
   #       color_cuadrante = case_when(
-  #         cuadrante == "⭐ Estrellas" ~ "#27ae60",
-  #         cuadrante == "🚀 Promesas" ~ "#3498db",
-  #         cuadrante == "💰 Base Consolidada" ~ "#f39c12",
+  #         cuadrante == "â­ Estrellas" ~ "#10b981",
+  #         cuadrante == "ðŸš€ Promesas" ~ "#3498db",
+  #         cuadrante == "ðŸ’° Base Consolidada" ~ "#f59e0b",
   #         TRUE ~ "#95a5a6"
   #       )
   #     )
@@ -2026,7 +2026,7 @@ function(input, output, session) {
   # })
   
   
-  # MATRIZ DE DECISIÓN 2X2
+  # MATRIZ DE DECISIÃ“N 2X2
   # -----------------------------------------------------------------------------
   
   output$matriz_decision_2x2_oport <- renderPlotly({
@@ -2053,11 +2053,11 @@ function(input, output, session) {
           TRUE ~ "Interrogantes"
         )
       )
-
+    
     colores_cuadrantes <- c(
-      "Estrellas" = "#27ae60",
+      "Estrellas" = "#10b981",
       "Promesas" = "#3498db",
-      "Base Consolidada" = "#f39c12",
+      "Base Consolidada" = "#f59e0b",
       "Interrogantes" = "#95a5a6"
     )
     
@@ -2068,7 +2068,7 @@ function(input, output, session) {
       x = ~Volumen_Final,
       y = ~Crecimiento_Relativo,
       color = ~cuadrante,
-      colors = colores_cuadrantes,  # CORREGIDO: Usar el vector nombrado estático
+      colors = colores_cuadrantes,  # CORREGIDO: Usar el vector nombrado estÃ¡tico
       type = "scatter",
       mode = "markers",
       marker = list(size = 10, opacity = 0.7),
@@ -2104,7 +2104,7 @@ function(input, output, session) {
   # TABLAS POR CUADRANTES
   # -----------------------------------------------------------------------------
   
-  # Función auxiliar para clasificar cuadrantes
+  # FunciÃ³n auxiliar para clasificar cuadrantes
   clasificar_cuadrantes <- function(datos) {
     if(nrow(datos) == 0) return(datos)
     
@@ -2179,7 +2179,7 @@ function(input, output, session) {
   })
   
   # -----------------------------------------------------------------------------
-  # DISTRIBUCIONES Y ANÁLISIS ESTADÍSTICO
+  # DISTRIBUCIONES Y ANÃLISIS ESTADÃSTICO
   # -----------------------------------------------------------------------------
   
   output$hist_distribucion_score_oport <- renderPlotly({
@@ -2188,10 +2188,10 @@ function(input, output, session) {
     if(nrow(datos) == 0) return(plot_ly() %>% layout(title = "Sin datos"))
     
     plot_ly(datos, x = ~Score_Oportunidad, type = "histogram",
-            marker = list(color = "#c41e3a", opacity = 0.7),
+            marker = list(color = "#1a365d", opacity = 0.7),
             nbinsx = 20) %>%
       layout(
-        title = "Distribución de Score",
+        title = "DistribuciÃ³n de Score",
         xaxis = list(title = "Score de Oportunidad"),
         yaxis = list(title = "Frecuencia")
       )
@@ -2218,18 +2218,18 @@ function(input, output, session) {
         type = "scatter",
         mode = "lines",
         name = "Curva de Lorenz",
-        line = list(color = "#e74c3c", width = 3)
+        line = list(color = "#06b6d4", width = 3)
       ) %>%
       add_trace(
         x = c(0, 100),
         y = c(0, 100),
         type = "scatter",
         mode = "lines",
-        name = "Línea de Igualdad",
+        name = "LÃ­nea de Igualdad",
         line = list(color = "#95a5a6", dash = "dash", width = 2)
       ) %>%
       layout(
-        title = "Curva de Lorenz<br><sub>Concentración del Mercado</sub>",
+        title = "Curva de Lorenz<br><sub>ConcentraciÃ³n del Mercado</sub>",
         xaxis = list(title = "% Acumulado de Marcas"),
         yaxis = list(title = "% Acumulado de Volumen")
       )
@@ -2240,12 +2240,12 @@ function(input, output, session) {
     
     if(nrow(datos) == 0) return(plot_ly() %>% layout(title = "Sin datos"))
     
-    plot_ly(datos, y = ~Score_Oportunidad, color = ~Potencial_Radiadores,
+    plot_ly(datos, y = ~Score_Oportunidad, color = ~Potencial_Analytics,
             type = "box",
-            colors = c("🔴 ALTA PRIORIDAD" = "#E31A1C",
-                       "🟠 MEDIA PRIORIDAD" = "#FF7F00",
-                       "🔵 EMERGENTE" = "#1F78B4",
-                       "⚫ BAJA PRIORIDAD" = "#666666")) %>%
+            colors = c("ðŸ”´ ALTA PRIORIDAD" = "#ef4444",
+                       "ðŸŸ  MEDIA PRIORIDAD" = "#f59e0b",
+                       "ðŸ”µ EMERGENTE" = "#3b82f6",
+                       "âš« BAJA PRIORIDAD" = "#64748b")) %>%
       layout(
         title = "Box Plot por Prioridad",
         yaxis = list(title = "Score de Oportunidad"),
@@ -2254,7 +2254,7 @@ function(input, output, session) {
   })
   
   # -----------------------------------------------------------------------------
-  # EVOLUCIÓN TEMPORAL DE TOP OPORTUNIDADES
+  # EVOLUCIÃ“N TEMPORAL DE TOP OPORTUNIDADES
   # -----------------------------------------------------------------------------
   
   output$grafico_evolucion_top_oport <- renderPlotly({
@@ -2267,7 +2267,7 @@ function(input, output, session) {
       return(plot_ly() %>% layout(title = "No hay datos temporales disponibles"))
     }
     
-    # Seleccionar top N según criterio
+    # Seleccionar top N segÃºn criterio
     top_n <- as.numeric(input$top_n_temporal_oport)
     
     if(input$criterio_temporal_oport == "score") {
@@ -2309,7 +2309,7 @@ function(input, output, session) {
         ungroup()
     }
     
-    # Crear gráfico
+    # Crear grÃ¡fico
     fig <- plot_ly()
     
     for(marca in top_marcas) {
@@ -2330,11 +2330,11 @@ function(input, output, session) {
     
     fig %>%
       layout(
-        title = paste("Evolución Temporal - Top", top_n, "por", 
+        title = paste("EvoluciÃ³n Temporal - Top", top_n, "por", 
                       ifelse(input$criterio_temporal_oport == "score", "Score",
                              ifelse(input$criterio_temporal_oport == "volumen", "Volumen", "Crecimiento"))),
-        xaxis = list(title = "Período"),
-        yaxis = list(title = ifelse(input$normalizar_temporal_oport, "Valor Normalizado (0-100)", "Vehículos Registrados")),
+        xaxis = list(title = "PerÃ­odo"),
+        yaxis = list(title = ifelse(input$normalizar_temporal_oport, "Valor Normalizado (0-100)", "VehÃ­culos Registrados")),
         hovermode = "x unified"
       )
   })
@@ -2351,7 +2351,7 @@ function(input, output, session) {
       return(p("No hay suficientes datos para generar recomendaciones", style = "color: #6c757d;"))
     }
     
-    # Análisis de cuadrantes
+    # AnÃ¡lisis de cuadrantes
     datos_cuadrantes <- clasificar_cuadrantes(datos)
     
     n_estrellas <- sum(datos_cuadrantes$cuadrante == "estrellas", na.rm = TRUE)
@@ -2367,33 +2367,33 @@ function(input, output, session) {
     # Generar recomendaciones
     tagList(
       div(
-        style = "background: linear-gradient(135deg, #fff3cd, #ffe8a1); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #f39c12;",
-        h4("🎯 RECOMENDACIONES PRIORITARIAS", style = "color: #856404; margin-bottom: 15px;"),
+        style = "background: linear-gradient(135deg, #fff3cd, #ffe8a1); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #f59e0b;",
+        h4("ðŸŽ¯ RECOMENDACIONES PRIORITARIAS", style = "color: #856404; margin-bottom: 15px;"),
         
         if(n_estrellas > 0) {
-          p(paste0("⭐ ", n_estrellas, " marcas ESTRELLAS detectadas: Invertir en mantener liderazgo y participación de mercado."),
+          p(paste0("â­ ", n_estrellas, " marcas ESTRELLAS detectadas: Invertir en mantener liderazgo y participaciÃ³n de mercado."),
             style = "margin: 8px 0; font-size: 14px; color: #856404;")
         },
         
         if(n_promesas >= 3) {
-          p(paste0("🚀 ", n_promesas, " marcas PROMESAS con alto potencial: Considerar inversión temprana para ganar participación."),
+          p(paste0("ðŸš€ ", n_promesas, " marcas PROMESAS con alto potencial: Considerar inversiÃ³n temprana para ganar participaciÃ³n."),
             style = "margin: 8px 0; font-size: 14px; color: #856404;")
         },
         
         if(n_base_consolidada > 0) {
-          p(paste0("💰 ", n_base_consolidada, " marcas BASE CONSOLIDADA: Mantener presencia con bajo costo, son generadoras de flujo estable."),
+          p(paste0("ðŸ’° ", n_base_consolidada, " marcas BASE CONSOLIDADA: Mantener presencia con bajo costo, son generadoras de flujo estable."),
             style = "margin: 8px 0; font-size: 14px; color: #856404;")
         },
         
         if(n_interrogantes > 5) {
-          p(paste0("❓ ", n_interrogantes, " marcas INTERROGANTES: Monitorear evolución antes de comprometer recursos."),
+          p(paste0("â“ ", n_interrogantes, " marcas INTERROGANTES: Monitorear evoluciÃ³n antes de comprometer recursos."),
             style = "margin: 8px 0; font-size: 14px; color: #856404;")
         }
       ),
       
       div(
-        style = "background: linear-gradient(135deg, #d4edda, #c3e6cb); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #27ae60;",
-        h4("🏆 TOP 3 OPORTUNIDADES INMEDIATAS", style = "color: #155724; margin-bottom: 15px;"),
+        style = "background: linear-gradient(135deg, #d4edda, #c3e6cb); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #10b981;",
+        h4("ðŸ† TOP 3 OPORTUNIDADES INMEDIATAS", style = "color: #155724; margin-bottom: 15px;"),
         
         lapply(1:min(3, nrow(top_3)), function(i) {
           marca <- top_3[i, ]
@@ -2411,33 +2411,33 @@ function(input, output, session) {
       
       div(
         style = "background: linear-gradient(135deg, #d1ecf1, #bee5eb); padding: 20px; border-radius: 10px; border-left: 5px solid #17a2b8;",
-        h4("💡 INSIGHTS ESTRATÉGICOS", style = "color: #0c5460; margin-bottom: 15px;"),
+        h4("ðŸ’¡ INSIGHTS ESTRATÃ‰GICOS", style = "color: #0c5460; margin-bottom: 15px;"),
         
-        p(paste0("📊 Concentración del mercado: ", 
+        p(paste0("ðŸ“Š ConcentraciÃ³n del mercado: ", 
                  ifelse(sum(head(datos$Participacion_Mercado, 5), na.rm = TRUE) > 60,
-                        "ALTA - Los top 5 controlan más del 60% del mercado",
-                        "MODERADA - Mercado fragmentado con múltiples jugadores")),
+                        "ALTA - Los top 5 controlan mÃ¡s del 60% del mercado",
+                        "MODERADA - Mercado fragmentado con mÃºltiples jugadores")),
           style = "margin: 8px 0; font-size: 14px; color: #0c5460;"),
         
-        p(paste0("📈 Tendencia general: ",
+        p(paste0("ðŸ“ˆ Tendencia general: ",
                  ifelse(mean(datos$Crecimiento_Relativo, na.rm = TRUE) > 10,
-                        "EXPANSIÓN - Mercado en crecimiento sostenido",
+                        "EXPANSIÃ“N - Mercado en crecimiento sostenido",
                         ifelse(mean(datos$Crecimiento_Relativo, na.rm = TRUE) > 0,
                                "ESTABLE - Crecimiento moderado",
-                               "CONTRACCIÓN - Mercado en declive"))),
+                               "CONTRACCIÃ“N - Mercado en declive"))),
           style = "margin: 8px 0; font-size: 14px; color: #0c5460;"),
         
-        p(paste0("🎯 Estrategia sugerida: ",
-                 ifelse(n_estrellas >= 3, "Consolidar posición en líderes y explorar nichos emergentes",
-                        ifelse(n_promesas >= 5, "Inversión agresiva en marcas prometedoras",
-                               "Diversificar portfolio con análisis marca por marca"))),
+        p(paste0("ðŸŽ¯ Estrategia sugerida: ",
+                 ifelse(n_estrellas >= 3, "Consolidar posiciÃ³n en lÃ­deres y explorar nichos emergentes",
+                        ifelse(n_promesas >= 5, "InversiÃ³n agresiva en marcas prometedoras",
+                               "Diversificar portfolio con anÃ¡lisis marca por marca"))),
           style = "margin: 8px 0; font-size: 14px; color: #0c5460;")
       )
     )
   })
   
   # -----------------------------------------------------------------------------
-  # PANEL DE MÉTRICAS DE RIESGO
+  # PANEL DE MÃ‰TRICAS DE RIESGO
   # -----------------------------------------------------------------------------
   
   output$panel_metricas_riesgo_oport <- renderUI({
@@ -2451,11 +2451,11 @@ function(input, output, session) {
     # Calcular HHI
     hhi <- sum((datos$Participacion_Mercado)^2, na.rm = TRUE)
     
-    # Nivel de concentración
+    # Nivel de concentraciÃ³n
     nivel_concentracion <- ifelse(hhi < 1500, "Baja",
                                   ifelse(hhi < 2500, "Moderada", "Alta"))
-    color_hhi <- ifelse(hhi < 1500, "#27ae60",
-                        ifelse(hhi < 2500, "#f39c12", "#e74c3c"))
+    color_hhi <- ifelse(hhi < 1500, "#10b981",
+                        ifelse(hhi < 2500, "#f59e0b", "#06b6d4"))
     
     # Volatilidad promedio
     volatilidad <- mean(datos$Coef_Variacion, na.rm = TRUE) * 100
@@ -2465,35 +2465,35 @@ function(input, output, session) {
     
     tagList(
       div(
-        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e74c3c;",
-        h5("📊 Índice HHI", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #06b6d4;",
+        h5("ðŸ“Š Ãndice HHI", style = "margin: 0 0 8px 0; color: #2c3e50;"),
         h3(round(hhi, 0), style = paste0("margin: 0; color: ", color_hhi, ";")),
         p(nivel_concentracion, style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
       ),
       
       div(
-        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #f39c12;",
-        h5("📉 Volatilidad Promedio", style = "margin: 0 0 8px 0; color: #2c3e50;"),
-        h3(paste0(round(volatilidad, 1), "%"), style = "margin: 0; color: #f39c12;"),
-        p("Coef. Variación", style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #f59e0b;",
+        h5("ðŸ“‰ Volatilidad Promedio", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        h3(paste0(round(volatilidad, 1), "%"), style = "margin: 0; color: #f59e0b;"),
+        p("Coef. VariaciÃ³n", style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
       ),
       
       div(
-        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e74c3c;",
-        h5("⚠️ Marcas en Riesgo", style = "margin: 0 0 8px 0; color: #2c3e50;"),
-        h3(marcas_riesgo, style = "margin: 0; color: #e74c3c;"),
+        style = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #06b6d4;",
+        h5("âš ï¸ Marcas en Riesgo", style = "margin: 0 0 8px 0; color: #2c3e50;"),
+        h3(marcas_riesgo, style = "margin: 0; color: #06b6d4;"),
         p("Declive > -10%", style = "margin: 5px 0 0 0; font-size: 12px; color: #6c757d;")
       ),
       
       div(
-        style = "background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;",
-        h5("💡 Interpretación", style = "margin: 0 0 10px 0; color: #856404;"),
+        style = "background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;",
+        h5("ðŸ’¡ InterpretaciÃ³n", style = "margin: 0 0 10px 0; color: #856404;"),
         p(
           ifelse(hhi > 2500,
-                 "Mercado altamente concentrado. Evaluar estrategias de diferenciación.",
+                 "Mercado altamente concentrado. Evaluar estrategias de diferenciaciÃ³n.",
                  ifelse(hhi > 1500,
-                        "Concentración moderada. Balance entre líderes y competidores.",
-                        "Mercado fragmentado. Múltiples oportunidades de crecimiento.")),
+                        "ConcentraciÃ³n moderada. Balance entre lÃ­deres y competidores.",
+                        "Mercado fragmentado. MÃºltiples oportunidades de crecimiento.")),
           style = "margin: 0; font-size: 12px; color: #856404; line-height: 1.5;"
         )
       )
@@ -2524,16 +2524,16 @@ function(input, output, session) {
         Volumen = Volumen_Final,
         `Crecimiento %` = Crecimiento_Relativo,
         Score = Score_Oportunidad,
-        `Participación %` = Participacion_Mercado,
-        Categoría = Categoria_Volumen,
-        Potencial = Potencial_Radiadores,
+        `ParticipaciÃ³n %` = Participacion_Mercado,
+        CategorÃ­a = Categoria_Volumen,
+        Potencial = Potencial_Analytics,
         `Volatilidad %` = Coef_Variacion
       ) %>%
       mutate(
         Volumen = format(Volumen, big.mark = ","),
         `Crecimiento %` = round(`Crecimiento %`, 1),
         Score = round(Score, 1),
-        `Participación %` = round(`Participación %`, 2),
+        `ParticipaciÃ³n %` = round(`ParticipaciÃ³n %`, 2),
         `Volatilidad %` = round(`Volatilidad %` * 100, 1)
       )
     
@@ -2544,9 +2544,9 @@ function(input, output, session) {
         scrollX = TRUE,
         dom = 'Bfrtip',
         buttons = list(
-          list(extend = 'copy', text = '📋 Copiar'),
-          list(extend = 'csv', text = '📄 CSV'),
-          list(extend = 'excel', text = '📊 Excel')
+          list(extend = 'copy', text = 'ðŸ“‹ Copiar'),
+          list(extend = 'csv', text = 'ðŸ“„ CSV'),
+          list(extend = 'excel', text = 'ðŸ“Š Excel')
         ),
         columnDefs = list(
           list(targets = 0, className = "dt-center", width = "8%"),
@@ -2571,12 +2571,12 @@ function(input, output, session) {
   }, server = FALSE)
   
   # -----------------------------------------------------------------------------
-  # FUNCIONES DE EXPORTACIÓN
+  # FUNCIONES DE EXPORTACIÃ“N
   # -----------------------------------------------------------------------------
   
   output$btn_exportar_oportunidades_excel <- downloadHandler(
     filename = function() {
-      paste0("Oportunidades_RLT_", format(Sys.Date(), "%Y%m%d"), ".xlsx")
+      paste0("Oportunidades_DS Conexión_", format(Sys.Date(), "%Y%m%d"), ".xlsx")
     },
     content = function(file) {
       datos <- datos_filtrados_oportunidades()
@@ -2592,7 +2592,7 @@ function(input, output, session) {
   
   output$btn_exportar_oportunidades_csv <- downloadHandler(
     filename = function() {
-      paste0("Oportunidades_RLT_", format(Sys.Date(), "%Y%m%d"), ".csv")
+      paste0("Oportunidades_DS Conexión_", format(Sys.Date(), "%Y%m%d"), ".csv")
     },
     content = function(file) {
       datos <- datos_filtrados_oportunidades()
@@ -2605,17 +2605,17 @@ function(input, output, session) {
   
   
   # =============================================================================
-  # MENSAJE DE FINALIZACIÓN DEL SERVIDOR
+  # MENSAJE DE FINALIZACIÃ“N DEL SERVIDOR
   # =============================================================================
   
   # Log de inicio del servidor
-  cat("\n🚀 SERVIDOR RLT INICIADO CORRECTAMENTE\n")
-  cat("📊 Dashboard ejecutivo: ACTIVO\n")
-  cat("🔍 Análisis de oportunidades: DISPONIBLE\n") 
-  cat("⚡ Sistema responsivo: CONFIGURADO\n")
-  cat("✅ Listo para recibir usuarios\n")
+  cat("\nðŸš€ SERVIDOR DS Conexión INICIADO CORRECTAMENTE\n")
+  cat("ðŸ“Š Dashboard ejecutivo: ACTIVO\n")
+  cat("ðŸ” AnÃ¡lisis de oportunidades: DISPONIBLE\n") 
+  cat("âš¡ Sistema responsivo: CONFIGURADO\n")
+  cat("âœ… Listo para recibir usuarios\n")
   cat(paste(rep("=", 50), collapse = ""), "\n")
   
-
+  
   
 }

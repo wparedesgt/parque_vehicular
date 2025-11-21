@@ -1,6 +1,6 @@
 # =============================================================================
-# UI.R - ESTRATEGIA RLT: ANÁLISIS PARQUE VEHICULAR
-# Sistema de Análisis de Oportunidades para Radiadores y Sistemas de Refrigeración
+# UI.R - DS CONEXIÓN: ANALISIS PARQUE VEHICULAR
+# Sistema de Business Analytics & Predictive Modeling para Analytics y Sistemas de RefrigeraciÃ³n
 # =============================================================================
 
 # =============================================================================
@@ -8,16 +8,16 @@
 # =============================================================================
 
 encabezado <- dashboardHeader(
-  title = "Estrategia RLT - Análisis Parque Vehicular",
+  title = "DS Conexión - AnÃ¡lisis Parque Vehicular",
   titleWidth = 450,
-  dropdownMenuOutput("menu_notificaciones_rlt")
+  dropdownMenuOutput("menu_notificaciones_ds")
 )
 
-# Logo corporativo RLT en el encabezado
+# Logo corporativo DS_Conexion en el encabezado
 encabezado$children[[2]]$children <- tags$a(
-  href = 'https://radiadoreslatorre.com/',
+  href = 'https://dsconexion.com/',
   tags$img(
-    src = 'https://radiadoreslatorre.com/wp-content/uploads/thegem-logos/logo_e5a4204d9a7275357eb41561b84c0969_1x.webp',
+    src = 'https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png',
     height = '45', 
     width = '200',
     style = "max-height: 45px; object-fit: contain; margin-top: 3px;"
@@ -26,28 +26,28 @@ encabezado$children[[2]]$children <- tags$a(
 )
 
 # =============================================================================
-# 2. SIDEBAR CORPORATIVO RLT
+# 2. SIDEBAR CORPORATIVO DS_Conexion
 # =============================================================================
 
 lateral <- dashboardSidebar(
   width = 300,
   
-  # CSS personalizado RLT
+  # CSS personalizado DS_Conexion
   includeCSS('www/styles.css'),
   
-  # JavaScript para funcionalidades específicas RLT
+  # JavaScript para funcionalidades especÃ­ficas DS_Conexion
   tags$head(
     tags$script(HTML("
-      // Función para actualización de datos del parque vehicular
+      // FunciÃ³n para actualizaciÃ³n de datos del parque vehicular
       Shiny.addCustomMessageHandler('actualizar_parque_vehicular', function(message) {
         $('#btn_actualizar_datos').addClass('loading');
         setTimeout(function() {
           $('#btn_actualizar_datos').removeClass('loading');
-          toastr.success('Datos del parque vehicular actualizados', 'Actualización Completa');
+          toastr.success('Datos del parque vehicular actualizados', 'ActualizaciÃ³n Completa');
         }, 3000);
       });
       
-      // Función para mostrar alertas de oportunidades
+      // FunciÃ³n para mostrar alertas de oportunidades
       Shiny.addCustomMessageHandler('mostrar_alerta_oportunidad', function(message) {
         if(message.tipo === 'alta_prioridad') {
           toastr.error(message.mensaje, 'Alta Prioridad');
@@ -60,20 +60,20 @@ lateral <- dashboardSidebar(
       
       // Auto-refresh para datos del parque vehicular
       setInterval(function() {
-        if($('#auto_refresh_rlt').prop('checked')) {
+        if($('#auto_refresh_ds').prop('checked')) {
           Shiny.onInputChange('trigger_refresh_parque', Math.random());
         }
       }, 1800000); // 30 minutos
     "))
   ),
   
-  # ENCABEZADO PERSONALIZADO RLT
+  # ENCABEZADO PERSONALIZADO DS_Conexion
   div(
     style = "
       text-align: center; 
       padding: 25px 15px; 
-      background: linear-gradient(135deg, #c41e3a 0%, #8b1538 100%);
-      border-bottom: 4px solid #2c3e50;
+      background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%);
+      border-bottom: 4px solid #1e293b;
       margin-bottom: 15px;
       position: relative;
       overflow: hidden;
@@ -91,7 +91,7 @@ lateral <- dashboardSidebar(
     
     # Logo centrado
     tags$img(
-      src = "https://radiadoreslatorre.com/wp-content/uploads/thegem-logos/logo_e5a4204d9a7275357eb41561b84c0969_1x.webp",
+      src = "https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png",
       style = "
         height: 60px; 
         width: auto; 
@@ -102,9 +102,9 @@ lateral <- dashboardSidebar(
       "
     ),
     
-    # Título principal
+    # TÃ­tulo principal
     h3(
-      "ESTRATEGIA RLT",
+      "DS CONEXIÓN",
       style = "
         color: white; 
         margin: 10px 0 6px 0; 
@@ -117,9 +117,9 @@ lateral <- dashboardSidebar(
       "
     ),
     
-    # Subtítulo
+    # SubtÃ­tulo
     p(
-      "Análisis de Oportunidades",
+      "Business Analytics & Predictive Modeling",
       style = "
         color: #f8f9fa; 
         margin: 0 0 4px 0; 
@@ -143,13 +143,13 @@ lateral <- dashboardSidebar(
     )
   ),
   
-  # MENÚ PRINCIPAL DE NAVEGACIÓN RLT
+  # MENÃš PRINCIPAL DE NAVEGACIÃ“N DS_Conexion
   sidebarMenu(
-    id = "menu_principal_rlt",
+    id = "menu_principal_ds",
     
     menuItem(
       'Dashboard Ejecutivo',
-      tabName = 'dashboard_ejecutivo_rlt',
+      tabName = 'dashboard_ejecutivo_ds',
       icon = icon('tachometer-alt', lib = 'font-awesome'),
       badgeLabel = "Principal", 
       badgeColor = "red"
@@ -157,29 +157,29 @@ lateral <- dashboardSidebar(
     
     # CORREGIDO: Eliminado tabName = 'analisis_marcas' que causaba el problema
     menuItem(
-      'Análisis de Marcas',
+      'AnÃ¡lisis de Marcas',
       icon = icon('chart-bar', lib = 'font-awesome'),
       startExpanded = TRUE,
       menuSubItem('Panorama General', tabName = 'panorama_general'),
       menuSubItem('Rankings de Marcas', tabName = 'rankings_marcas'),
       menuSubItem('Tendencias Temporales', tabName = 'tendencias_temporales'),
-      menuSubItem('Análisis Detallado', tabName = 'analisis_detallado')
+      menuSubItem('AnÃ¡lisis Detallado', tabName = 'analisis_detallado')
     ),
     
     menuItem(
-      'Oportunidades Estratégicas',
+      'Oportunidades EstratÃ©gicas',
       icon = icon('bullseye', lib = 'font-awesome'),
       startExpanded = FALSE,
       menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades')#,
       #menuSubItem('Marcas Emergentes', tabName = 'marcas_emergentes'),
-      #menuSubItem('Análisis Competitivo', tabName = 'competitivo_marcas')
+      #menuSubItem('AnÃ¡lisis Competitivo', tabName = 'competitivo_marcas')
     ),
     
     # menuItem(
     #   'Proyecciones y Predicciones',
     #   icon = icon('crystal-ball', lib = 'font-awesome'),
     #   startExpanded = FALSE,
-    #   menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_rlt'),
+    #   menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_ds'),
     #   menuSubItem('Escenarios Futuros', tabName = 'escenarios_futuros')
     # ),
     
@@ -187,13 +187,13 @@ lateral <- dashboardSidebar(
     #   'Inteligencia de Mercado',
     #   icon = icon('brain', lib = 'font-awesome'),
     #   startExpanded = FALSE,
-    #   menuSubItem('Alertas Automáticas', tabName = 'alertas_automaticas'),
-    #   menuSubItem('Segmentación Avanzada', tabName = 'segmentacion_avanzada')
+    #   menuSubItem('Alertas AutomÃ¡ticas', tabName = 'alertas_automaticas'),
+    #   menuSubItem('SegmentaciÃ³n Avanzada', tabName = 'segmentacion_avanzada')
     # ),
     
     menuItem(
-      'Configuración',
-      tabName = 'configuracion_rlt',
+      'ConfiguraciÃ³n',
+      tabName = 'configuracion_ds',
       icon = icon('cogs', lib = 'font-awesome')
     )
   ),
@@ -202,57 +202,57 @@ lateral <- dashboardSidebar(
   hr(style = "border-color: #495057; margin: 20px 0;"),
   div(
     style = "padding: 20px;",
-    h5("📊 Control de Datos", 
+    h5("ðŸ“Š Control de Datos", 
        style = "color: white; margin-bottom: 15px; font-weight: 600;"),
     
     actionButton(
       "btn_actualizar_datos",
-      "🔄 Actualizar Parque Vehicular",
+      "ðŸ”„ Actualizar Parque Vehicular",
       icon = icon("sync-alt"),
       class = "btn-danger btn-block",
       style = "margin-bottom: 12px; font-weight: 500;"
     ),
     
     checkboxInput(
-      "auto_refresh_rlt",
-      "Auto-actualización (30 min)",
+      "auto_refresh_ds",
+      "Auto-actualizaciÃ³n (30 min)",
       value = FALSE
     ),
     
     div(
       style = "margin-top: 10px;",
-      textOutput("ultima_actualizacion_rlt"),
-      tags$style("#ultima_actualizacion_rlt {color: #e9ecef; font-size: 11px;}")
+      textOutput("ultima_actualizacion_ds"),
+      tags$style("#ultima_actualizacion_ds {color: #e9ecef; font-size: 11px;}")
     )
   ),
   
-  # Indicadores de estado específicos RLT
+  # Indicadores de estado especÃ­ficos DS_Conexion
   hr(style = "border-color: #495057; margin: 20px 0;"),
   div(
     style = "padding: 20px;",
-    h5("🎯 Estado del Sistema", 
+    h5("ðŸŽ¯ Estado del Sistema", 
        style = "color: white; margin-bottom: 15px; font-weight: 600;"),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
       span("Datos SAT:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_sat", "●", style = "color: #27ae60; font-size: 16px;")
+      span(id = "status_sat", "â—", style = "color: #10b981; font-size: 16px;")
     ),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
-      span("Análisis ML:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_ml", "●", style = "color: #27ae60; font-size: 16px;")
+      span("AnÃ¡lisis ML:", style = "color: #ced4da; font-size: 12px;"),
+      span(id = "status_ml", "â—", style = "color: #10b981; font-size: 16px;")
     ),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
       span("Alertas:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_alertas", "●", style = "color: #f39c12; font-size: 16px;")
+      span(id = "status_alertas", "â—", style = "color: #f59e0b; font-size: 16px;")
     )
   ),
   
-  # Información del sistema al final
+  # InformaciÃ³n del sistema al final
   div(
     style = "
       position: absolute;
@@ -262,12 +262,12 @@ lateral <- dashboardSidebar(
       background: linear-gradient(to top, rgba(44, 62, 80, 0.4), transparent);
       border-top: 1px solid #495057;
     ",
-    p("Última actualización:", 
+    p("Ãšltima actualizaciÃ³n:", 
       style = "color: #ced4da; font-size: 11px; margin: 0;"),
-    p(textOutput("timestamp_sistema_rlt", inline = TRUE), 
+    p(textOutput("timestamp_sistema_ds", inline = TRUE), 
       style = "color: #f8f9fa; font-size: 10px; margin: 0;"),
     br(),
-    p("DS. William V. Paredes P.", 
+    p("DS. William V. Paredes P. | DS Conexión", 
       style = "color: #adb5bd; font-size: 10px; margin: 0; font-style: italic;")
   )
 )
@@ -281,7 +281,7 @@ cuerpo <- dashboardBody(
   # Usar waitress para loading screens
   useWaitress(),
   
-  # CSS adicional personalizado RLT
+  # CSS adicional personalizado DS_Conexion
   tags$head(
     tags$style(HTML("
       .content-wrapper, .right-side {
@@ -289,62 +289,62 @@ cuerpo <- dashboardBody(
       }
       
       .main-header .navbar {
-        background: linear-gradient(135deg, #c41e3a 0%, #8b1538 100%) !important;
-        border-bottom: 3px solid #2c3e50;
+        background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%) !important;
+        border-bottom: 3px solid #1e293b;
       }
       
       .main-header .logo {
-        background: linear-gradient(135deg, #8b1538 0%, #c41e3a 100%) !important;
+        background: linear-gradient(135deg, #0891b2 0%, #1a365d 100%) !important;
       }
       
       .skin-red .main-sidebar {
-        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        background: linear-gradient(180deg, #1e293b 0%, #34495e 100%);
       }
       
       .box.box-primary {
-        border-top-color: #c41e3a;
+        border-top-color: #1a365d;
         box-shadow: 0 4px 12px rgba(196, 30, 58, 0.15);
       }
       
       .box.box-danger {
-        border-top-color: #e74c3c;
+        border-top-color: #06b6d4;
         box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
       }
       
       .box.box-warning {
-        border-top-color: #f39c12;
+        border-top-color: #f59e0b;
         box-shadow: 0 4px 12px rgba(243, 156, 18, 0.15);
       }
       
       .box.box-success {
-        border-top-color: #27ae60;
+        border-top-color: #10b981;
         box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
       }
       
       .btn-primary {
-        background: linear-gradient(135deg, #c41e3a 0%, #8b1538 100%);
-        border-color: #8b1538;
+        background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%);
+        border-color: #0891b2;
         box-shadow: 0 2px 8px rgba(196, 30, 58, 0.3);
       }
       
       .btn-primary:hover {
-        background: linear-gradient(135deg, #8b1538 0%, #c41e3a 100%);
+        background: linear-gradient(135deg, #0891b2 0%, #1a365d 100%);
         border-color: #6d1129;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
       }
       
       .btn-danger {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        background: linear-gradient(135deg, #06b6d4 0%, #c0392b 100%);
         border-color: #c0392b;
       }
       
       .btn-danger:hover {
-        background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+        background: linear-gradient(135deg, #c0392b 0%, #06b6d4 100%);
         transform: translateY(-1px);
       }
       
-      /* Estilos para value boxes RLT */
+      /* Estilos para value boxes DS_Conexion */
       .small-box {
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.15);
@@ -360,7 +360,7 @@ cuerpo <- dashboardBody(
         left: 0;
         right: 0;
         height: 4px;
-        background: linear-gradient(90deg, #c41e3a, #2c3e50);
+        background: linear-gradient(90deg, #1a365d, #1e293b);
         z-index: 1;
       }
       
@@ -380,13 +380,13 @@ cuerpo <- dashboardBody(
         opacity: 0.15;
       }
       
-      /* Estilos para gráficos */
+      /* Estilos para grÃ¡ficos */
       .plotly-container {
         height: 100% !important;
         border-radius: 8px;
       }
       
-      /* Estilos específicos para tablas RLT */
+      /* Estilos especÃ­ficos para tablas DS_Conexion */
       .dataTables_wrapper {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
@@ -411,7 +411,7 @@ cuerpo <- dashboardBody(
         height: 24px;
         margin: -12px 0 0 -12px;
         border: 3px solid #f3f3f3;
-        border-top: 3px solid #c41e3a;
+        border-top: 3px solid #1a365d;
         border-radius: 50%;
         animation: spin 1.2s linear infinite;
         z-index: 1000;
@@ -431,19 +431,19 @@ cuerpo <- dashboardBody(
     "))
   ),
   
-  # Contenido de las pestañas
+  # Contenido de las pestaÃ±as
   tabItems(
     
     # =============================================================================
-    # TAB 1: DASHBOARD EJECUTIVO PRINCIPAL RLT
+    # TAB 1: DASHBOARD EJECUTIVO PRINCIPAL DS_Conexion
     # =============================================================================
     tabItem(
-      tabName = "dashboard_ejecutivo_rlt",
+      tabName = "dashboard_ejecutivo_ds",
       
-      # Encabezado ejecutivo RLT
+      # Encabezado ejecutivo DS_Conexion
       fluidRow(
         box(
-          title = "🎯 Dashboard Ejecutivo - Estrategia RLT",
+          title = "ðŸŽ¯ Dashboard Ejecutivo - DS Conexión",
           status = "danger",
           solidHeader = TRUE,
           width = 12,
@@ -452,23 +452,23 @@ cuerpo <- dashboardBody(
           div(
             style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0;",
             div(
-              h4("Sistema de Análisis de Oportunidades para Radiadores", 
-                 style = "margin: 0; color: #c41e3a; font-weight: 600;"),
-              p("Parque Vehicular Guatemala • Machine Learning • Análisis Predictivo • SAT Data", 
+              h4("Sistema de Business Analytics & Predictive Modeling para Analytics", 
+                 style = "margin: 0; color: #1a365d; font-weight: 600;"),
+              p("Parque Vehicular Guatemala â€¢ Machine Learning â€¢ AnÃ¡lisis Predictivo â€¢ SAT Data", 
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
             ),
             div(
               style = "text-align: right;",
-              h5("📈 LIVE DATA", 
-                 style = "margin: 0; color: #e74c3c; font-weight: 600;"),
-              p(textOutput("fecha_actual_rlt"), 
+              h5("ðŸ“ˆ LIVE DATA", 
+                 style = "margin: 0; color: #06b6d4; font-weight: 600;"),
+              p(textOutput("fecha_actual_ds"), 
                 style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
             )
           )
         )
       ),
       
-      # KPIs principales RLT
+      # KPIs principales DS_Conexion
       fluidRow(
         valueBoxOutput("vb_total_vehiculos", width = 3),
         valueBoxOutput("vb_marcas_alta_prioridad", width = 3),
@@ -476,22 +476,22 @@ cuerpo <- dashboardBody(
         valueBoxOutput("vb_score_oportunidad", width = 3)
       ),
       
-      # Gráficos principales
+      # GrÃ¡ficos principales
       fluidRow(
         box(
-          title = "🗺️ Mapa Estratégico de Oportunidades",
+          title = "ðŸ—ºï¸ Mapa EstratÃ©gico de Oportunidades",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 9,
           height = 520,
           footer = HTML(paste0(
-            "<b>Interpretación:</b> ",
-            "🔴 Alta Prioridad: >50K vehículos + >10% crecimiento | ",
-            "🟠 Media Prioridad: >10K vehículos + >15% crecimiento | ",
-            "🔵 Emergente: >30% crecimiento + >1K vehículos | ",
-            "⚫ Baja Prioridad: Resto de marcas | ",
-            "Fuente: Superintendencia de Administración Tributaria (SAT)"
+            "<b>InterpretaciÃ³n:</b> ",
+            "ðŸ”´ Alta Prioridad: >50K vehÃ­culos + >10% crecimiento | ",
+            "ðŸŸ  Media Prioridad: >10K vehÃ­culos + >15% crecimiento | ",
+            "ðŸ”µ Emergente: >30% crecimiento + >1K vehÃ­culos | ",
+            "âš« Baja Prioridad: Resto de marcas | ",
+            "Fuente: Superintendencia de AdministraciÃ³n Tributaria (SAT)"
           )),
           
           div(
@@ -501,7 +501,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "🚨 Alertas de Oportunidades",
+          title = "ðŸš¨ Alertas de Oportunidades",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -515,10 +515,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Análisis detallado
+      # AnÃ¡lisis detallado
       fluidRow(
         box(
-          title = "📊 Resumen Ejecutivo del Mercado",
+          title = "ðŸ“Š Resumen Ejecutivo del Mercado",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -529,13 +529,13 @@ cuerpo <- dashboardBody(
             
             fluidRow(
               column(6,
-                     h5("📈 Métricas de Crecimiento", 
-                        style = "color: #c41e3a; margin-bottom: 15px;"),
+                     h5("ðŸ“ˆ MÃ©tricas de Crecimiento", 
+                        style = "color: #1a365d; margin-bottom: 15px;"),
                      tableOutput("tabla_metricas_crecimiento")
               ),
               column(6,
-                     h5("🎯 Concentración del Mercado", 
-                        style = "color: #c41e3a; margin-bottom: 15px;"),
+                     h5("ðŸŽ¯ ConcentraciÃ³n del Mercado", 
+                        style = "color: #1a365d; margin-bottom: 15px;"),
                      tableOutput("tabla_concentracion_mercado")
               )
             )
@@ -543,7 +543,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "🏆 Top Performers",
+          title = "ðŸ† Top Performers",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -552,13 +552,13 @@ cuerpo <- dashboardBody(
           tabBox(
             width = 12,
             height = "400px",
-            tabPanel("🔥 Por Volumen", 
+            tabPanel("ðŸ”¥ Por Volumen", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_volumen"))),
-            tabPanel("📈 Por Crecimiento", 
+            tabPanel("ðŸ“ˆ Por Crecimiento", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_crecimiento"))),
-            tabPanel("⭐ Por Score", 
+            tabPanel("â­ Por Score", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_score")))
           )
@@ -574,7 +574,7 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "⚙️ Configuración de Análisis",
+          title = "âš™ï¸ ConfiguraciÃ³n de AnÃ¡lisis",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -584,13 +584,13 @@ cuerpo <- dashboardBody(
             column(3,
                    selectInput(
                      "filtro_categoria_volumen",
-                     "Categoría por Volumen:",
+                     "CategorÃ­a por Volumen:",
                      choices = list(
-                       "Todas las Categorías" = "todas",
+                       "Todas las CategorÃ­as" = "todas",
                        "Alto Volumen (100K+)" = "alto",
                        "Volumen Medio (10K-100K)" = "medio",
                        "Volumen Bajo (1K-10K)" = "bajo",
-                       "Volumen Mínimo (<1K)" = "minimo"
+                       "Volumen MÃ­nimo (<1K)" = "minimo"
                      ),
                      selected = "todas"
                    )
@@ -601,10 +601,10 @@ cuerpo <- dashboardBody(
                      "Filtrar por Potencial:",
                      choices = list(
                        "Todos los Potenciales" = "todos",
-                       "🔴 Alta Prioridad" = "alta",
-                       "🟠 Media Prioridad" = "media", 
-                       "🔵 Emergente" = "emergente",
-                       "⚫ Baja Prioridad" = "baja"
+                       "ðŸ”´ Alta Prioridad" = "alta",
+                       "ðŸŸ  Media Prioridad" = "media", 
+                       "ðŸ”µ Emergente" = "emergente",
+                       "âš« Baja Prioridad" = "baja"
                      ),
                      selected = "todos"
                    )
@@ -612,7 +612,7 @@ cuerpo <- dashboardBody(
             column(3,
                    numericInput(
                      "min_vehiculos",
-                     "Vehículos Mínimos:",
+                     "VehÃ­culos MÃ­nimos:",
                      value = 0,
                      min = 0,
                      step = 1000
@@ -622,7 +622,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_aplicar_filtros",
-                     "🔍 Aplicar Filtros",
+                     "ðŸ” Aplicar Filtros",
                      class = "btn-primary btn-block"
                    )
             )
@@ -633,7 +633,7 @@ cuerpo <- dashboardBody(
       # Visualizaciones del panorama general
       fluidRow(
         box(
-          title = "📊 Distribución del Parque Vehicular por Categoría",
+          title = "ðŸ“Š DistribuciÃ³n del Parque Vehicular por CategorÃ­a",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -647,7 +647,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "🎯 Matriz de Potencial de Radiadores",
+          title = "ðŸŽ¯ Matriz de Potencial de Analytics",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -664,7 +664,7 @@ cuerpo <- dashboardBody(
       # Tabla resumen panorama
       fluidRow(
         box(
-          title = "📋 Vista Panorámica Completa",
+          title = "ðŸ“‹ Vista PanorÃ¡mica Completa",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -686,13 +686,13 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "🏆 Top 15 Marcas por Volumen de Vehículos",
+          title = "ðŸ† Top 15 Marcas por Volumen de VehÃ­culos",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           height = 550,
-          footer = "Ranking basado en el volumen total de vehículos registrados al último período disponible",
+          footer = "Ranking basado en el volumen total de vehÃ­culos registrados al Ãºltimo perÃ­odo disponible",
           
           div(
             style = "height: 470px;",
@@ -701,13 +701,13 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "📈 Top 15 Marcas por Crecimiento",
+          title = "ðŸ“ˆ Top 15 Marcas por Crecimiento",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           height = 550,
-          footer = "Ranking basado en el crecimiento relativo entre primer y último período registrado",
+          footer = "Ranking basado en el crecimiento relativo entre primer y Ãºltimo perÃ­odo registrado",
           
           div(
             style = "height: 470px;",
@@ -718,7 +718,7 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "⭐ Top 15 Marcas por Score de Oportunidad",
+          title = "â­ Top 15 Marcas por Score de Oportunidad",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -736,7 +736,7 @@ cuerpo <- dashboardBody(
       # Tabla comparativa de rankings
       fluidRow(
         box(
-          title = "📊 Ranking Comparativo Completo",
+          title = "ðŸ“Š Ranking Comparativo Completo",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -756,10 +756,10 @@ cuerpo <- dashboardBody(
     tabItem(
       tabName = "tendencias_temporales",
       
-      # Configuración de tendencias
+      # ConfiguraciÃ³n de tendencias
       fluidRow(
         box(
-          title = "📅 Configuración de Análisis Temporal",
+          title = "ðŸ“… ConfiguraciÃ³n de AnÃ¡lisis Temporal",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -770,7 +770,7 @@ cuerpo <- dashboardBody(
                    selectInput(
                      "marcas_seleccionadas",
                      "Seleccionar Marcas:",
-                     choices = NULL, # Se llenará dinámicamente
+                     choices = NULL, # Se llenarÃ¡ dinÃ¡micamente
                      selected = NULL,
                      multiple = TRUE
                    )
@@ -778,11 +778,11 @@ cuerpo <- dashboardBody(
             column(4,
                    selectInput(
                      "tipo_visualizacion",
-                     "Tipo de Visualización:",
+                     "Tipo de VisualizaciÃ³n:",
                      choices = list(
-                       "Líneas de Tiempo" = "lineas",
-                       "Área Apilada" = "area",
-                       "Barras por Período" = "barras"
+                       "LÃ­neas de Tiempo" = "lineas",
+                       "Ãrea Apilada" = "area",
+                       "Barras por PerÃ­odo" = "barras"
                      ),
                      selected = "lineas"
                    )
@@ -790,7 +790,7 @@ cuerpo <- dashboardBody(
             column(4,
                    checkboxInput(
                      "mostrar_tendencia",
-                     "Mostrar Línea de Tendencia",
+                     "Mostrar LÃ­nea de Tendencia",
                      value = TRUE
                    )
             )
@@ -798,16 +798,16 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Gráfico principal de tendencias
+      # GrÃ¡fico principal de tendencias
       fluidRow(
         box(
-          title = "📈 Evolución Temporal del Parque Vehicular",
+          title = "ðŸ“ˆ EvoluciÃ³n Temporal del Parque Vehicular",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 12,
           height = 600,
-          footer = "Evolución mensual de las marcas seleccionadas • Datos: Enero 2024 - Agosto 2025",
+          footer = "EvoluciÃ³n mensual de las marcas seleccionadas â€¢ Datos: Enero 2024 - Agosto 2025",
           
           div(
             style = "height: 520px;",
@@ -816,10 +816,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Análisis estadístico de tendencias
+      # AnÃ¡lisis estadÃ­stico de tendencias
       fluidRow(
         box(
-          title = "📊 Análisis Estadístico de Tendencias",
+          title = "ðŸ“Š AnÃ¡lisis EstadÃ­stico de Tendencias",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -832,7 +832,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "🎯 Métricas de Tendencia",
+          title = "ðŸŽ¯ MÃ©tricas de Tendencia",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -847,15 +847,15 @@ cuerpo <- dashboardBody(
     ),
     
     # =============================================================================
-    # TAB 5: ANÁLISIS DETALLADO
+    # TAB 5: ANÃLISIS DETALLADO
     # =============================================================================
     tabItem(
       tabName = "analisis_detallado",
       
-      # Selector de marca para análisis detallado
+      # Selector de marca para anÃ¡lisis detallado
       fluidRow(
         box(
-          title = "🔍 Selección para Análisis Detallado",
+          title = "ðŸ” SelecciÃ³n para AnÃ¡lisis Detallado",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -865,8 +865,8 @@ cuerpo <- dashboardBody(
             column(6,
                    selectInput(
                      "marca_detalle",
-                     "Seleccionar Marca para Análisis:",
-                     choices = NULL, # Se llenará dinámicamente
+                     "Seleccionar Marca para AnÃ¡lisis:",
+                     choices = NULL, # Se llenarÃ¡ dinÃ¡micamente
                      selected = NULL,
                      width = "100%"
                    )
@@ -875,7 +875,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_generar_detalle",
-                     "📊 Generar Análisis Detallado",
+                     "ðŸ“Š Generar AnÃ¡lisis Detallado",
                      class = "btn-primary btn-block"
                    )
             )
@@ -883,11 +883,11 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Información detallada de la marca seleccionada
+      # InformaciÃ³n detallada de la marca seleccionada
       fluidRow(
-        # Panel de métricas clave
+        # Panel de mÃ©tricas clave
         box(
-          title = "📈 Métricas Clave de la Marca",
+          title = "ðŸ“ˆ MÃ©tricas Clave de la Marca",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -900,9 +900,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # Gráfico de evolución individual
+        # GrÃ¡fico de evoluciÃ³n individual
         box(
-          title = "📊 Evolución Individual",
+          title = "ðŸ“Š EvoluciÃ³n Individual",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -916,16 +916,16 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Análisis comparativo con competencia
+      # AnÃ¡lisis comparativo con competencia
       fluidRow(
         box(
-          title = "🆚 Comparación con Competencia Directa",
+          title = "ðŸ†š ComparaciÃ³n con Competencia Directa",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 12,
           height = 500,
-          footer = "Comparación con las 5 marcas más similares en volumen y características",
+          footer = "ComparaciÃ³n con las 5 marcas mÃ¡s similares en volumen y caracterÃ­sticas",
           
           div(
             style = "height: 420px;",
@@ -934,10 +934,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Tabla de análisis detallado
+      # Tabla de anÃ¡lisis detallado
       fluidRow(
         box(
-          title = "📋 Reporte Detallado de la Marca",
+          title = "ðŸ“‹ Reporte Detallado de la Marca",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -952,15 +952,15 @@ cuerpo <- dashboardBody(
     ),
     
     # =============================================================================
-    # TAB: MAPA DE OPORTUNIDADES ESTRATÉGICAS
+    # TAB: MAPA DE OPORTUNIDADES ESTRATÃ‰GICAS
     # =============================================================================
     tabItem(
       tabName = "mapa_oportunidades",
       
-      # Encabezado estratégico
+      # Encabezado estratÃ©gico
       fluidRow(
         box(
-          title = "🗺️ MAPA ESTRATÉGICO DE OPORTUNIDADES - NIVEL EJECUTIVO",
+          title = "ðŸ—ºï¸ MAPA ESTRATÃ‰GICO DE OPORTUNIDADES - NIVEL EJECUTIVO",
           status = "danger",
           solidHeader = TRUE,
           width = 12,
@@ -969,15 +969,15 @@ cuerpo <- dashboardBody(
           div(
             style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0;",
             div(
-              h4("Sistema de Identificación y Priorización de Oportunidades", 
-                 style = "margin: 0; color: #c41e3a; font-weight: 600;"),
-              p("Análisis Multidimensional • Segmentación Inteligente • Recomendaciones Accionables", 
+              h4("Sistema de IdentificaciÃ³n y PriorizaciÃ³n de Oportunidades", 
+                 style = "margin: 0; color: #1a365d; font-weight: 600;"),
+              p("AnÃ¡lisis Multidimensional â€¢ SegmentaciÃ³n Inteligente â€¢ Recomendaciones Accionables", 
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
             ),
             div(
               style = "text-align: right;",
-              h5("🎯 STRATEGIC VIEW", 
-                 style = "margin: 0; color: #e74c3c; font-weight: 600;"),
+              h5("ðŸŽ¯ STRATEGIC VIEW", 
+                 style = "margin: 0; color: #06b6d4; font-weight: 600;"),
               p("Nivel: Gerencia General", 
                 style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
             )
@@ -988,7 +988,7 @@ cuerpo <- dashboardBody(
       # Panel de control avanzado
       fluidRow(
         box(
-          title = "⚙️ CENTRO DE CONTROL ESTRATÉGICO",
+          title = "âš™ï¸ CENTRO DE CONTROL ESTRATÃ‰GICO",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -998,10 +998,10 @@ cuerpo <- dashboardBody(
           fluidRow(
             # Columna 1: Filtros de Volumen y Crecimiento
             column(3,
-                   h5("📊 Dimensión: Volumen", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   h5("ðŸ“Š DimensiÃ³n: Volumen", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_volumen_min_oport",
-                     "Volumen Mínimo:",
+                     "Volumen MÃ­nimo:",
                      min = 0,
                      max = 500000,
                      value = 1000,
@@ -1010,7 +1010,7 @@ cuerpo <- dashboardBody(
                    ),
                    sliderInput(
                      "filtro_volumen_max_oport",
-                     "Volumen Máximo:",
+                     "Volumen MÃ¡ximo:",
                      min = 1000,
                      max = 1500000,
                      value = 500000,
@@ -1021,10 +1021,10 @@ cuerpo <- dashboardBody(
             
             # Columna 2: Filtros de Crecimiento
             column(3,
-                   h5("📈 Dimensión: Crecimiento", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   h5("ðŸ“ˆ DimensiÃ³n: Crecimiento", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_crecimiento_min_oport",
-                     "Crecimiento Mínimo:",
+                     "Crecimiento MÃ­nimo:",
                      min = -50,
                      max = 200,
                      value = 0,
@@ -1033,7 +1033,7 @@ cuerpo <- dashboardBody(
                    ),
                    sliderInput(
                      "filtro_crecimiento_max_oport",
-                     "Crecimiento Máximo:",
+                     "Crecimiento MÃ¡ximo:",
                      min = -50,
                      max = 200,
                      value = 200,
@@ -1042,12 +1042,12 @@ cuerpo <- dashboardBody(
                    )
             ),
             
-            # Columna 3: Filtros de Score y Categorías
+            # Columna 3: Filtros de Score y CategorÃ­as
             column(3,
-                   h5("⭐ Dimensión: Score", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   h5("â­ DimensiÃ³n: Score", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_score_min_oport",
-                     "Score Mínimo:",
+                     "Score MÃ­nimo:",
                      min = 0,
                      max = 100,
                      value = 40,
@@ -1056,7 +1056,7 @@ cuerpo <- dashboardBody(
                    ),
                    selectInput(
                      "filtro_categorias_oport",
-                     "Categorías:",
+                     "CategorÃ­as:",
                      choices = list(
                        "Todas" = "todas",
                        "Alto Volumen" = "alto",
@@ -1069,28 +1069,28 @@ cuerpo <- dashboardBody(
             
             # Columna 4: Filtros de Potencial y Acciones
             column(3,
-                   h5("🎯 Dimensión: Potencial", style = "color: #2c3e50; margin-bottom: 10px;"),
+                   h5("ðŸŽ¯ DimensiÃ³n: Potencial", style = "color: #1e293b; margin-bottom: 10px;"),
                    checkboxGroupInput(
                      "filtro_potencial_oport",
                      "Niveles de Prioridad:",
                      choices = list(
-                       "🔴 Alta Prioridad" = "alta",
-                       "🟠 Media Prioridad" = "media",
-                       "🔵 Emergente" = "emergente",
-                       "⚫ Baja Prioridad" = "baja"
+                       "ðŸ”´ Alta Prioridad" = "alta",
+                       "ðŸŸ  Media Prioridad" = "media",
+                       "ðŸ”µ Emergente" = "emergente",
+                       "âš« Baja Prioridad" = "baja"
                      ),
                      selected = c("alta", "media", "emergente")
                    ),
                    br(),
                    actionButton(
                      "btn_aplicar_filtros_oport",
-                     "🔍 Aplicar Filtros",
+                     "ðŸ” Aplicar Filtros",
                      class = "btn-danger btn-block",
                      style = "font-weight: 600;"
                    ),
                    actionButton(
                      "btn_resetear_filtros_oport",
-                     "↺ Resetear",
+                     "â†º Resetear",
                      class = "btn-default btn-block",
                      style = "margin-top: 5px;"
                    )
@@ -1099,7 +1099,7 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # KPIs Dinámicos del Filtrado
+      # KPIs DinÃ¡micos del Filtrado
       fluidRow(
         valueBoxOutput("vb_marcas_filtradas_oport", width = 3),
         valueBoxOutput("vb_volumen_oportunidad_oport", width = 3),
@@ -1107,20 +1107,20 @@ cuerpo <- dashboardBody(
         valueBoxOutput("vb_potencial_mercado_oport", width = 3)
       ),
       
-      # Mapa estratégico principal + matriz de decisión
+      # Mapa estratÃ©gico principal + matriz de decisiÃ³n
       fluidRow(
         # Mapa de burbujas avanzado
         box(
-          title = "🗺️ MAPA ESTRATÉGICO INTERACTIVO: Volumen vs Crecimiento vs Score",
+          title = "ðŸ—ºï¸ MAPA ESTRATÃ‰GICO INTERACTIVO: Volumen vs Crecimiento vs Score",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 8,
           height = 600,
           footer = HTML(paste0(
-            "<b>Eje X:</b> Volumen de Vehículos (escala logarítmica) | ",
+            "<b>Eje X:</b> Volumen de VehÃ­culos (escala logarÃ­tmica) | ",
             "<b>Eje Y:</b> Crecimiento Relativo (%) | ",
-            "<b>Tamaño burbuja:</b> Score de Oportunidad | ",
+            "<b>TamaÃ±o burbuja:</b> Score de Oportunidad | ",
             "<b>Color:</b> Nivel de Prioridad"
           )),
           
@@ -1130,9 +1130,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # Matriz de decisión estratégica
+        # Matriz de decisiÃ³n estratÃ©gica
         box(
-          title = "📊 MATRIZ DE DECISIÓN 2x2",
+          title = "ðŸ“Š MATRIZ DE DECISIÃ“N 2x2",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1146,11 +1146,11 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Análisis por cuadrantes + distribuciones
+      # AnÃ¡lisis por cuadrantes + distribuciones
       fluidRow(
-        # Tabla de cuadrantes estratégicos
+        # Tabla de cuadrantes estratÃ©gicos
         box(
-          title = "🎯 SEGMENTACIÓN POR CUADRANTES ESTRATÉGICOS",
+          title = "ðŸŽ¯ SEGMENTACIÃ“N POR CUADRANTES ESTRATÃ‰GICOS",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1158,24 +1158,24 @@ cuerpo <- dashboardBody(
           
           tabBox(
             width = 12,
-            tabPanel("⭐ Estrellas (Alto Vol + Alto Crec)", 
+            tabPanel("â­ Estrellas (Alto Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_estrellas_oport"))),
-            tabPanel("🚀 Promesas (Bajo Vol + Alto Crec)", 
+            tabPanel("ðŸš€ Promesas (Bajo Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_promesas_oport"))),
-            tabPanel("💰 Base Consolidada (Alto Vol + Bajo Crec)", 
+            tabPanel("ðŸ’° Base Consolidada (Alto Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_base_consolidada_oport"))),
-            tabPanel("❓ Interrogantes (Bajo Vol + Bajo Crec)", 
+            tabPanel("â“ Interrogantes (Bajo Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_interrogantes_oport")))
           )
         ),
         
-        # Distribuciones y concentración
+        # Distribuciones y concentraciÃ³n
         box(
-          title = "📈 ANÁLISIS DE DISTRIBUCIÓN",
+          title = "ðŸ“ˆ ANÃLISIS DE DISTRIBUCIÃ“N",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1193,10 +1193,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Análisis temporal de oportunidades
+      # AnÃ¡lisis temporal de oportunidades
       fluidRow(
         box(
-          title = "📅 EVOLUCIÓN TEMPORAL DE OPORTUNIDADES CLAVE",
+          title = "ðŸ“… EVOLUCIÃ“N TEMPORAL DE OPORTUNIDADES CLAVE",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1215,7 +1215,7 @@ cuerpo <- dashboardBody(
             column(3,
                    selectInput(
                      "criterio_temporal_oport",
-                     "Criterio de Selección:",
+                     "Criterio de SelecciÃ³n:",
                      choices = list(
                        "Por Score" = "score",
                        "Por Volumen" = "volumen",
@@ -1235,7 +1235,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_actualizar_temporal_oport",
-                     "🔄 Actualizar",
+                     "ðŸ”„ Actualizar",
                      class = "btn-primary btn-block"
                    )
             )
@@ -1251,7 +1251,7 @@ cuerpo <- dashboardBody(
       # Panel de recomendaciones inteligentes
       fluidRow(
         box(
-          title = "🎯 RECOMENDACIONES ESTRATÉGICAS AUTOMÁTICAS",
+          title = "ðŸŽ¯ RECOMENDACIONES ESTRATÃ‰GICAS AUTOMÃTICAS",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1263,9 +1263,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # Métricas de concentración y riesgo
+        # MÃ©tricas de concentraciÃ³n y riesgo
         box(
-          title = "⚠️ ANÁLISIS DE RIESGO Y CONCENTRACIÓN",
+          title = "âš ï¸ ANÃLISIS DE RIESGO Y CONCENTRACIÃ“N",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1281,7 +1281,7 @@ cuerpo <- dashboardBody(
       # Tabla maestra de oportunidades
       fluidRow(
         box(
-          title = "📋 TABLA MAESTRA DE OPORTUNIDADES - EXPORTABLE",
+          title = "ðŸ“‹ TABLA MAESTRA DE OPORTUNIDADES - EXPORTABLE",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1289,8 +1289,8 @@ cuerpo <- dashboardBody(
           
           div(
             style = "margin-bottom: 15px;",
-            downloadButton("btn_exportar_oportunidades_excel", "📊 Exportar a Excel", class = "btn-success"),
-            downloadButton("btn_exportar_oportunidades_csv", "📄 Exportar a CSV", class = "btn-info", style = "margin-left: 10px;")
+            downloadButton("btn_exportar_oportunidades_excel", "ðŸ“Š Exportar a Excel", class = "btn-success"),
+            downloadButton("btn_exportar_oportunidades_csv", "ðŸ“„ Exportar a CSV", class = "btn-info", style = "margin-left: 10px;")
           ),
           
           div(
@@ -1303,20 +1303,20 @@ cuerpo <- dashboardBody(
     
     
     # =============================================================================
-    # TAB 6: CONFIGURACIÓN
+    # TAB 6: CONFIGURACIÃ“N
     # =============================================================================
     tabItem(
-      tabName = "configuracion_rlt",
+      tabName = "configuracion_ds",
       
       fluidRow(
         box(
-          title = "⚙️ Configuración del Sistema RLT",
+          title = "âš™ï¸ ConfiguraciÃ³n del Sistema DS_Conexion",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           
-          h4("📁 Gestión de Datos"),
+          h4("ðŸ“ GestiÃ³n de Datos"),
           selectInput(
             "fuente_datos",
             "Fuente de Datos:",
@@ -1329,14 +1329,14 @@ cuerpo <- dashboardBody(
           ),
           
           br(),
-          actionButton("test_carga_datos", "🧪 Probar Carga de Datos", class = "btn-info"),
+          actionButton("test_carga_datos", "ðŸ§ª Probar Carga de Datos", class = "btn-info"),
           
           hr(),
           
-          h4("🔄 Actualización Automática"),
+          h4("ðŸ”„ ActualizaciÃ³n AutomÃ¡tica"),
           selectInput(
-            "frecuencia_actualizacion_rlt",
-            "Frecuencia de Actualización:",
+            "frecuencia_actualizacion_ds",
+            "Frecuencia de ActualizaciÃ³n:",
             choices = list(
               "Manual" = "manual",
               "Cada 30 minutos" = "30min",
@@ -1347,34 +1347,34 @@ cuerpo <- dashboardBody(
           ),
           
           checkboxInput("notificaciones_activas", "Activar Notificaciones", value = TRUE),
-          checkboxInput("modo_debug_rlt", "Modo Debug", value = FALSE)
+          checkboxInput("modo_debug_ds", "Modo Debug", value = FALSE)
         ),
         
         box(
-          title = "📊 Información del Sistema",
+          title = "ðŸ“Š InformaciÃ³n del Sistema",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           
-          h4("🔧 Estado Actual"),
-          verbatimTextOutput("info_sistema_rlt"),
+          h4("ðŸ”§ Estado Actual"),
+          verbatimTextOutput("info_sistema_ds"),
           
           hr(),
           
-          h4("📈 Estadísticas de Uso"),
-          tableOutput("tabla_estadisticas_uso_rlt"),
+          h4("ðŸ“ˆ EstadÃ­sticas de Uso"),
+          tableOutput("tabla_estadisticas_uso_ds"),
           
           hr(),
           
-          h4("💾 Acciones del Sistema"),
+          h4("ðŸ’¾ Acciones del Sistema"),
           div(
             style = "text-align: center;",
-            actionButton("limpiar_cache_rlt", "🗑️ Limpiar Cache", 
+            actionButton("limpiar_cache_ds", "ðŸ—‘ï¸ Limpiar Cache", 
                          class = "btn-warning", style = "margin: 5px;"),
-            actionButton("exportar_datos_rlt", "📤 Exportar Análisis", 
+            actionButton("exportar_datos_ds", "ðŸ“¤ Exportar AnÃ¡lisis", 
                          class = "btn-info", style = "margin: 5px;"),
-            actionButton("reiniciar_app_rlt", "🔄 Reiniciar App", 
+            actionButton("reiniciar_app_ds", "ðŸ”„ Reiniciar App", 
                          class = "btn-danger", style = "margin: 5px;")
           )
         )
@@ -1383,7 +1383,7 @@ cuerpo <- dashboardBody(
       # Log del sistema
       fluidRow(
         box(
-          title = "📋 Log del Sistema RLT",
+          title = "ðŸ“‹ Log del Sistema DS_Conexion",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1391,48 +1391,48 @@ cuerpo <- dashboardBody(
           
           div(
             style = "max-height: 400px; overflow-y: auto; background-color: #1e2124; color: #dcddde; padding: 15px; font-family: 'Courier New', monospace; font-size: 12px; border-radius: 5px;",
-            verbatimTextOutput("log_sistema_rlt")
+            verbatimTextOutput("log_sistema_ds")
           )
         )
       )
     )
     
-    # Aquí se agregarán más tabs según se vayan desarrollando
-    # Los otros menús (Mapa de Oportunidades, Marcas Emergentes, etc.) se implementarán en iteraciones futuras
+    # AquÃ­ se agregarÃ¡n mÃ¡s tabs segÃºn se vayan desarrollando
+    # Los otros menÃºs (Mapa de Oportunidades, Marcas Emergentes, etc.) se implementarÃ¡n en iteraciones futuras
     
   )
 )
 
 # =============================================================================
-# 4. PIE DE PÁGINA RLT
+# 4. PIE DE PÃGINA DS_Conexion
 # =============================================================================
 
-pie_dashboard_rlt <- dashboardFooter(
+pie_dashboard_ds <- dashboardFooter(
   left = div(
     style = "color: #6c757d; font-size: 13px;",
-    "Estrategia RLT • Sistema de Análisis de Oportunidades • Parque Vehicular Guatemala"
+    "DS Conexión â€¢ Sistema de Business Analytics & Predictive Modeling â€¢ Parque Vehicular Guatemala"
   ),
   right = div(
     style = "color: #6c757d; font-size: 13px;",
-    "DS. William V. Paredes P. • ", 
-    textOutput("version_app_rlt", inline = TRUE),
-    " • ",
-    tags$a("Radiadores La Torre", 
-           href = "https://radiadoreslatorre.com/", 
+    "DS. William V. Paredes P. | DS Conexión â€¢ ", 
+    textOutput("version_app_ds", inline = TRUE),
+    " â€¢ ",
+    tags$a("DS Conexión", 
+           href = "https://dsconexion.com/", 
            target = "_blank", 
-           style = "color: #c41e3a; text-decoration: none;")
+           style = "color: #1a365d; text-decoration: none;")
   )
 )
 
 # =============================================================================
-# 5. ESTRUCTURA FINAL DEL UI RLT
+# 5. ESTRUCTURA FINAL DEL UI DS_Conexion
 # =============================================================================
 
 dashboardPage(
   header = encabezado,
   sidebar = lateral,
   body = cuerpo,
-  footer = pie_dashboard_rlt,
-  title = "Estrategia RLT - Análisis Parque Vehicular",
-  skin = "red"
+  footer = pie_dashboard_ds,
+  title = "DS Conexión - AnÃ¡lisis Parque Vehicular",
+  skin = "blue"
 )
