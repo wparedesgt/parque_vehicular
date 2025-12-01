@@ -53,7 +53,7 @@ options(scipen = 9999)
 oficina <- "/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular/app/parque_vehicular_gt"
 servidor <- '/opt/shiny-server/dsconexion_parque_vehicular'
 casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
-setwd(oficina)
+setwd(casa)
 rm(list =ls())
 
 # =============================================================================
