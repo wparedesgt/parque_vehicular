@@ -204,9 +204,23 @@ function(input, output, session) {
     paste("Sesión iniciada:", format(timestamp_app, "%d/%m/%Y %H:%M:%S"))
   })
   
+  # output$fecha_actual_ds <- renderText({
+  #   format(Sys.Date(), "%d/%m/%Y")
+  # })
+  
   output$fecha_actual_ds <- renderText({
-    format(Sys.Date(), "%d/%m/%Y")
+    # Usa la última columna de datos_rfv_global como referencia de actualización
+    if (is.null(datos_rfv_global) || ncol(datos_rfv_global) == 0) {
+      return("Sin datos")
+    }
+    
+    ultima_col <- tail(colnames(datos_rfv_global), 1)
+    # Limpieza sencilla para mostrar “Noviembre 2025” en lugar de “Noviembre_2025”
+    ultima_col_limpia <- gsub("_", " ", ultima_col)
+    
+    ultima_col_limpia
   })
+  
   
   output$version_app_ds <- renderText({
     "Versión del módulo: 1.0.0"

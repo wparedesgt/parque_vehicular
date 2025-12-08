@@ -434,21 +434,36 @@ cuerpo <- dashboardBody(
           
           div(
             style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0;",
+            
+            # Texto principal pensado para potenciales clientes
             div(
-              h4("Sistema de Business Analytics & Predictive Modeling para Analytics", 
-                 style = "margin: 0; color: #1a365d; font-weight: 600;"),
-              p("Parque Vehicular Guatemala | Machine Learning | Analisis Predictivo | SAT Data", 
-                style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
+              h4(
+                "Análisis del parque vehicular en Guatemala para decisiones de negocio",
+                style = "margin: 0; color: #1a365d; font-weight: 600;"
+              ),
+              p(
+                "Parque Vehicular Guatemala | Analítica de datos | Modelos predictivos | Datos SAT",
+                style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;"
+              )
             ),
+            
+            # Lado derecho: última actualización según los datos cargados
             div(
               style = "text-align: right;",
-              h5("LIVE DATA", 
-                 style = "margin: 0; color: #06b6d4; font-weight: 600;"),
-              p(textOutput("fecha_actual_ds"), 
-                style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
+              h5(
+                "Datos actualizados a",
+                style = "margin: 0; color: #06b6d4; font-weight: 600;"
+              ),
+              p(
+                textOutput("fecha_actual_ds"),
+                style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;"
+              )
             )
           )
         )
+        
+        
+        
       ),
       
       # KPIs principales DS_Conexion
