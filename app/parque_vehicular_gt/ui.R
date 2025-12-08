@@ -7,29 +7,6 @@
 # 1. ENCABEZADO DEL DASHBOARD 
 # =============================================================================
 
-# encabezado <- dashboardHeader(
-#   
-#   title = "DS Conexion - Analisis Parque Vehicular",
-#   titleWidth = 450,
-#   dropdownMenuOutput("menu_notificaciones_ds")
-# )
-# 
-# # Logo corporativo DS_Conexion en el encabezado
-# encabezado$children[[2]]$children <- tags$a(
-#   href = 'https://dsconexion.com/',
-#   tags$img(
-#     src = 'https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png',
-#     height = '45', 
-#     width = '200',
-#     style = "max-height: 45px; object-fit: contain; margin-top: 3px;"
-#   ),
-#   target = "_blank"
-# )
-
-# =============================================================================
-# 1. ENCABEZADO DEL DASHBOARD 
-# =============================================================================
-
 encabezado <- dashboardHeader(
   
   title = "DS Conexion - Analisis Parque Vehicular",
@@ -113,20 +90,6 @@ lateral <- dashboardSidebar(
         z-index: 1;
       "
     ),
-    
-    # Logo centrado
-    # tags$img(
-    #   src = "https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png",
-    #   style = "
-    #     height: 60px; 
-    #     width: auto; 
-    #     margin-bottom: 12px;
-    #     filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    #     position: relative;
-    #     z-index: 2;
-    #   "
-    # ),
-    
     # Logo centrado
     tags$img(
       src = "imagenes/logo_dsconexion.png",
@@ -139,8 +102,6 @@ lateral <- dashboardSidebar(
         z-index: 2;
       "
     ),
-    
-    
     
     # Titulo principal
     h3(
