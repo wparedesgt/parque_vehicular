@@ -204,10 +204,7 @@ function(input, output, session) {
     paste("Sesión iniciada:", format(timestamp_app, "%d/%m/%Y %H:%M:%S"))
   })
   
-  # output$fecha_actual_ds <- renderText({
-  #   format(Sys.Date(), "%d/%m/%Y")
-  # })
-  
+ 
   output$fecha_actual_ds <- renderText({
     # Usa la última columna de datos_rfv_global como referencia de actualización
     if (is.null(datos_rfv_global) || ncol(datos_rfv_global) == 0) {
@@ -286,6 +283,102 @@ function(input, output, session) {
   # 5. TABLA DE MÉTRICAS Y CONCENTRACIÓN (TAB VISIÓN EJECUTIVA)
   # ============================================================================
   
+  # Panel de alertas de oportunidades
+  output$panel_alertas_oportunidades <- renderUI({
+    alt <- alertas_react()
+    met <- metricas_react()
+    
+    if(is.null(alt) || is.null(met)) {
+      return(div(
+        style = "padding: 15px; text-align: center; color: #6c757d;",
+        icon("info-circle", class = "fa-2x"),
+        br(), br(),
+        "Cargando alertas..."
+      ))
+    }
+    
+    # Lista de alertas HTML
+    alertas_html <- tagList()
+    
+    # Alertas de OPORTUNIDAD (marcas emergentes)
+    if(!is.null(alt$oportunidad)) {
+      alertas_html <- tagList(
+        alertas_html,
+        div(
+          class = "alert alert-success",
+          style = "margin: 10px 0; padding: 12px; border-left: 4px solid #10b981; background: linear-gradient(135deg, #d1fae5, #ecfdf5);",
+          icon("chart-line", style = "color: #10b981; margin-right: 8px;"),
+          strong("OPORTUNIDAD", style = "color: #065f46;"), br(),
+          tags$span(style = "color: #065f46;", gsub("\\[OPORTUNIDAD\\] ", "", alt$oportunidad))
+        )
+      )
+    }
+    
+    # Alertas de RIESGO (marcas en declive)
+    if(!is.null(alt$riesgo)) {
+      alertas_html <- tagList(
+        alertas_html,
+        div(
+          class = "alert alert-danger",
+          style = "margin: 10px 0; padding: 12px; border-left: 4px solid #ef4444; background: linear-gradient(135deg, #fee2e2, #fef2f2);",
+          icon("exclamation-triangle", style = "color: #ef4444; margin-right: 8px;"),
+          strong("RIESGO", style = "color: #7f1d1d;"), br(),
+          tags$span(style = "color: #7f1d1d;", gsub("\\[RIESGO\\] ", "", alt$riesgo))
+        )
+      )
+    }
+    
+    # Alertas de INFO (mercado estable)
+    if(!is.null(alt$info)) {
+      alertas_html <- tagList(
+        alertas_html,
+        div(
+          class = "alert alert-info",
+          style = "margin: 10px 0; padding: 12px; border-left: 4px solid #3b82f6; background: linear-gradient(135deg, #e0f2fe, #f0f9ff); color: #0c4a6e;",
+          icon("info-circle", style = "color: #3b82f6; margin-right: 8px;"),
+          strong("INFO", style = "color: #0c4a6e;"), br(),
+          gsub("\\[INFO\\] ", "", alt$info)
+        )
+      )
+    }
+    
+    # Agregar marcas de alta prioridad
+    marcas_alta <- met %>%
+      filter(str_detect(Potencial_Analytics, "ALTA PRIORIDAD")) %>%
+      arrange(desc(Score_Oportunidad)) %>%
+      head(5)
+    
+    if(nrow(marcas_alta) > 0) {
+      alertas_html <- tagList(
+        alertas_html,
+        div(
+          style = "margin: 15px 0; padding: 12px; background: #fff3cd; border-left: 4px solid #f59e0b; border-radius: 4px; color: #78350f;",
+          icon("star", style = "color: #f59e0b; margin-right: 8px;"),
+          strong("TOP PRIORIDAD", style = "color: #78350f;"), br(),
+          tags$small(
+            style = "color: #78350f;",
+            paste(marcas_alta$Marca_Vehiculo, collapse = " • ")
+          )
+        )
+        
+        
+      )
+    }
+    
+    # Si no hay alertas
+    if(length(alertas_html) == 0) {
+      return(div(
+        style = "padding: 20px; text-align: center; color: #6c757d;",
+        icon("check-circle", class = "fa-3x", style = "color: #10b981;"),
+        br(), br(),
+        h5("Sin alertas activas"),
+        p("El mercado está operando normalmente")
+      ))
+    }
+    
+    return(alertas_html)
+  })
+  
   output$tabla_metricas_crecimiento <- renderTable({
     met <- metricas_react()
     req(met)
@@ -303,38 +396,51 @@ function(input, output, session) {
       dplyr::arrange(desc(Volumen_Final))
   }, bordered = TRUE, striped = TRUE, spacing = "s")
   
+  
   output$tabla_concentracion_mercado <- renderTable({
     met <- metricas_react()
     kpi <- kpis_react()
     req(met, kpi)
     
+    # Top 5 marcas por concentración
     top_conc <- met %>%
       dplyr::arrange(desc(Participacion_Mercado)) %>%
       dplyr::select(
         Marca_Vehiculo,
-        Volumen_Final,
         Participacion_Mercado
       ) %>%
-      head(10)
+      head(5) %>%
+      dplyr::mutate(
+        Marca_Vehiculo = paste0(row_number(), ". ", Marca_Vehiculo),
+        Participacion_Mercado = paste0(round(Participacion_Mercado, 2), "%")
+      )
     
+    # Agregar fila separadora
+    separador <- data.frame(
+      Marca_Vehiculo = "--- Indicadores ---",
+      Participacion_Mercado = ""
+    )
+    
+    # Indicadores resumen
     resumen <- data.frame(
-      Indicador = c(
-        "Top 5 concentración mercado (%)",
-        "Índice Herfindahl-Hirschman",
-        "Marcas en crecimiento (>0%)"
+      Marca_Vehiculo = c(
+        "Top 5 Concentración",
+        "Índice Herfindahl",
+        "Marcas Creciendo"
       ),
-      Valor = c(
-        round(kpi$top_5_concentracion, 2),
-        round(kpi$indice_herfindahl, 4),
+      Participacion_Mercado = c(
+        paste0(round(kpi$top_5_concentracion, 1), "%"),
+        round(kpi$indice_herfindahl, 2),
         kpi$marcas_creciendo
       )
     )
     
-    list(
-      "Top 10 por participación" = top_conc,
-      "Indicadores de concentración" = resumen
-    )
-  }, bordered = TRUE, striped = TRUE, spacing = "s")
+    # Combinar todo
+    rbind(top_conc, separador, resumen)
+    
+  }, bordered = TRUE, striped = TRUE, spacing = "s", colnames = FALSE)
+  
+  
   
   # Estadísticas de uso del sistema (tab sistema)
   output$tabla_estadisticas_uso_ds <- renderTable({
@@ -354,14 +460,109 @@ function(input, output, session) {
     )
   }, bordered = TRUE, striped = TRUE, spacing = "s")
   
+  
+  # Tablas Top Performers
+  output$tabla_top_volumen <- renderDataTable({
+    met <- metricas_react()
+    req(met)
+    
+    met %>%
+      dplyr::arrange(desc(Volumen_Final)) %>%
+      head(15) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec.%` = Crecimiento_Relativo,
+        Prioridad = Potencial_Analytics,
+        Score = Score_Oportunidad
+      ) %>%
+      dplyr::mutate(
+        Volumen = format(Volumen, big.mark = ",", digits = 0),
+        `Crec.%` = round(`Crec.%`, 1),
+        Score = round(Score, 1)
+      )
+  }, options = list(
+    pageLength = 10,
+    dom = 't',
+    ordering = FALSE,
+    scrollY = "280px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  output$tabla_top_crecimiento <- renderDataTable({
+    met <- metricas_react()
+    req(met)
+    
+    met %>%
+      dplyr::filter(Volumen_Final >= 1000) %>%
+      dplyr::arrange(desc(Crecimiento_Relativo)) %>%
+      head(15) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        `Crec.%` = Crecimiento_Relativo,
+        Volumen = Volumen_Final,
+        Prioridad = Potencial_Analytics,
+        Score = Score_Oportunidad
+      ) %>%
+      dplyr::mutate(
+        Volumen = format(Volumen, big.mark = ",", digits = 0),
+        `Crec.%` = round(`Crec.%`, 1),
+        Score = round(Score, 1)
+      )
+  }, options = list(
+    pageLength = 10,
+    dom = 't',
+    ordering = FALSE,
+    scrollY = "280px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  output$tabla_top_score <- renderDataTable({
+    met <- metricas_react()
+    req(met)
+    
+    met %>%
+      dplyr::arrange(desc(Score_Oportunidad)) %>%
+      head(15) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Score = Score_Oportunidad,
+        Volumen = Volumen_Final,
+        `Crec.%` = Crecimiento_Relativo,
+        Prioridad = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        Volumen = format(Volumen, big.mark = ",", digits = 0),
+        `Crec.%` = round(`Crec.%`, 1),
+        Score = round(Score, 1)
+      )
+  }, options = list(
+    pageLength = 10,
+    dom = 't',
+    ordering = FALSE,
+    scrollY = "280px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  
+  
   # ============================================================================
   # 6. GRÁFICOS PRINCIPALES (VISIÓN EJECUTIVA)
   # ============================================================================
   
   # 6.1 Mapa estratégico principal (Volumen vs Crecimiento)
+  
   output$mapa_estrategico_principal <- renderPlotly({
     met <- metricas_react()
     req(met, nrow(met) > 0)
+    
+    # Definir colores especificos para cada categoria (evita duplicacion en leyenda)
+    colores_potencial <- c(
+      "\U0001F534 ALTA PRIORIDAD" = "#ef4444",    # Rojo
+      "\U0001F7E0 MEDIA PRIORIDAD" = "#f59e0b",   # Naranja
+      "\U0001F535 EMERGENTE" = "#3b82f6",         # Azul
+      "\u26AB BAJA PRIORIDAD" = "#64748b"         # Gris
+    )
     
     plot_ly(
       data = met,
@@ -370,6 +571,7 @@ function(input, output, session) {
       type = "scatter",
       mode = "markers",
       color = ~Potencial_Analytics,
+      colors = colores_potencial,
       sizes = c(10, 40),
       size = ~Score_Oportunidad,
       text = ~paste0(
@@ -381,9 +583,15 @@ function(input, output, session) {
       hoverinfo = "text"
     ) %>%
       layout(
-        xaxis = list(title = "Volumen Final de Vehículos"),
+        xaxis = list(title = "Volumen Final de Vehiculos"),
         yaxis = list(title = "Crecimiento Relativo (%)"),
-        legend = list(orientation = "h", x = 0, y = -0.2)
+        legend = list(
+          orientation = "h", 
+          x = 0, 
+          y = -0.2,
+          title = list(text = "")
+        ),
+        showlegend = TRUE
       )
   })
   

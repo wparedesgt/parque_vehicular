@@ -525,18 +525,37 @@ cuerpo <- dashboardBody(
           div(
             style = "padding: 15px;",
             
+            # fluidRow(
+            #   column(6,
+            #          h5("Metricas de Crecimiento", 
+            #             style = "color: #1a365d; margin-bottom: 15px;"),
+            #          tableOutput("tabla_metricas_crecimiento")
+            #   ),
+            #   column(6,
+            #          h5("Concentracion del Mercado", 
+            #             style = "color: #1a365d; margin-bottom: 15px;"),
+            #          tableOutput("tabla_concentracion_mercado")
+            #   )
+            # )
             fluidRow(
               column(6,
                      h5("Metricas de Crecimiento", 
                         style = "color: #1a365d; margin-bottom: 15px;"),
-                     tableOutput("tabla_metricas_crecimiento")
+                     div(
+                       style = "max-height: 400px; overflow-y: auto; overflow-x: auto;",
+                       tableOutput("tabla_metricas_crecimiento")
+                     )
               ),
               column(6,
                      h5("Concentracion del Mercado", 
                         style = "color: #1a365d; margin-bottom: 15px;"),
-                     tableOutput("tabla_concentracion_mercado")
+                     div(
+                       style = "max-height: 400px; overflow-y: auto;",
+                       tableOutput("tabla_concentracion_mercado")
+                     )
               )
             )
+            
           )
         ),
         
