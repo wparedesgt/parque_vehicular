@@ -31,28 +31,56 @@ function(input, output, session) {
   # mantiene la lógica base de global.R para cálculos de KPIs y alertas.
   # ============================================================================
   
+  
+  
   aplicar_filtros_metricas <- function() {
     met <- metricas_global
     
-    # Filtro por categoría de volumen (tab visión ejecutiva / panorama general)
+    # Mapeo de valores de filtro_categoria_volumen a valores reales
     if (!is.null(input$filtro_categoria_volumen) && 
-        length(input$filtro_categoria_volumen) > 0) {
+        length(input$filtro_categoria_volumen) > 0 &&
+        input$filtro_categoria_volumen != "todas") {
+      
+      categoria_map <- c(
+        "alto" = "Alto Volumen (100K+)",
+        "medio" = "Volumen Medio (10K-100K)",
+        "bajo" = "Volumen Bajo (1K-10K)",
+        "minimo" = "Volumen Minimo (<1K)"
+      )
+      
+      categoria_real <- categoria_map[input$filtro_categoria_volumen]
+      
       met <- met %>%
-        dplyr::filter(Categoria_Volumen %in% input$filtro_categoria_volumen)
+        dplyr::filter(Categoria_Volumen == categoria_real)
     }
     
-    # Filtro por "potencial" (etiquetas Potencial_Analytics)
+    # Mapeo de valores de filtro_potencial a valores reales
     if (!is.null(input$filtro_potencial) && 
         length(input$filtro_potencial) > 0 &&
-        !"Todas" %in% input$filtro_potencial) {
+        input$filtro_potencial != "todos") {
+      
+      potencial_map <- c(
+        "alta" = "\U0001F534 ALTA PRIORIDAD",
+        "media" = "\U0001F7E0 MEDIA PRIORIDAD",
+        "emergente" = "\U0001F535 EMERGENTE",
+        "baja" = "\u26AB BAJA PRIORIDAD"
+      )
+      
+      potencial_real <- potencial_map[input$filtro_potencial]
+      
       met <- met %>%
-        dplyr::filter(Potencial_Analytics %in% input$filtro_potencial)
+        dplyr::filter(Potencial_Analytics == potencial_real)
     }
     
-    # Filtros de la pestaña de oportunidades (si están definidos)
+    # Filtro por vehículos mínimos
+    if (!is.null(input$min_vehiculos) && input$min_vehiculos > 0) {
+      met <- met %>%
+        dplyr::filter(Volumen_Final >= input$min_vehiculos)
+    }
+    
+    # Filtros de la pestaña de oportunidades (mantener igual)
     met_filt_oport <- met
     
-    # Volumen mínimo / máximo
     if (!is.null(input$filtro_volumen_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Volumen_Final >= input$filtro_volumen_min_oport)
@@ -64,7 +92,6 @@ function(input, output, session) {
         dplyr::filter(Volumen_Final <= input$filtro_volumen_max_oport)
     }
     
-    # Crecimiento
     if (!is.null(input$filtro_crecimiento_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Crecimiento_Relativo >= input$filtro_crecimiento_min_oport)
@@ -74,20 +101,17 @@ function(input, output, session) {
         dplyr::filter(Crecimiento_Relativo <= input$filtro_crecimiento_max_oport)
     }
     
-    # Score mínimo
     if (!is.null(input$filtro_score_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Score_Oportunidad >= input$filtro_score_min_oport)
     }
     
-    # Categorías de oportunidad
     if (!is.null(input$filtro_categorias_oport) &&
         length(input$filtro_categorias_oport) > 0) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Categoria_Volumen %in% input$filtro_categorias_oport)
     }
     
-    # Potencial oportunidad
     if (!is.null(input$filtro_potencial_oport) &&
         length(input$filtro_potencial_oport) > 0 &&
         !"Todas" %in% input$filtro_potencial_oport) {
@@ -100,6 +124,8 @@ function(input, output, session) {
       metricas_oportunidades = met_filt_oport
     )
   }
+  
+  
   
   # Botón "Aplicar filtros" (panorama general / visión ejecutiva)
   observeEvent(input$btn_aplicar_filtros, {
@@ -153,6 +179,21 @@ function(input, output, session) {
         "marca_detalle",
         choices = sort(unique(met$Marca_Vehiculo)),
         selected = head(sort(unique(met$Marca_Vehiculo)), 1)
+      )
+    }
+  })
+  
+  # Actualizar lista de marcas para tendencias temporales
+  observe({
+    met <- metricas_react()
+    if (!is.null(met) && nrow(met) > 0) {
+      marcas_disponibles <- sort(unique(met$Marca_Vehiculo))
+      
+      updateSelectInput(
+        session,
+        "marcas_seleccionadas",
+        choices = marcas_disponibles,
+        selected = head(marcas_disponibles, 5)  # Seleccionar las primeras 5 por defecto
       )
     }
   })
@@ -460,9 +501,8 @@ function(input, output, session) {
     )
   }, bordered = TRUE, striped = TRUE, spacing = "s")
   
-  
   # Tablas Top Performers
-  output$tabla_top_volumen <- renderDataTable({
+  output$tabla_top_volumen <- DT::renderDT({
     met <- metricas_react()
     req(met)
     
@@ -472,24 +512,23 @@ function(input, output, session) {
       dplyr::select(
         Marca = Marca_Vehiculo,
         Volumen = Volumen_Final,
-        `Crec.%` = Crecimiento_Relativo,
-        Prioridad = Potencial_Analytics,
+        `Crec_%` = Crecimiento_Relativo,
         Score = Score_Oportunidad
       ) %>%
       dplyr::mutate(
-        Volumen = format(Volumen, big.mark = ",", digits = 0),
-        `Crec.%` = round(`Crec.%`, 1),
+        `Crec_%` = round(`Crec_%`, 1),
         Score = round(Score, 1)
       )
   }, options = list(
-    pageLength = 10,
+    pageLength = 15,
     dom = 't',
     ordering = FALSE,
-    scrollY = "280px",
-    scrollCollapse = TRUE
+    columnDefs = list(
+      list(className = 'dt-right', targets = 1:3)
+    )
   ), rownames = FALSE)
   
-  output$tabla_top_crecimiento <- renderDataTable({
+  output$tabla_top_crecimiento <- DT::renderDT({
     met <- metricas_react()
     req(met)
     
@@ -499,25 +538,24 @@ function(input, output, session) {
       head(15) %>%
       dplyr::select(
         Marca = Marca_Vehiculo,
-        `Crec.%` = Crecimiento_Relativo,
+        `Crec_%` = Crecimiento_Relativo,
         Volumen = Volumen_Final,
-        Prioridad = Potencial_Analytics,
         Score = Score_Oportunidad
       ) %>%
       dplyr::mutate(
-        Volumen = format(Volumen, big.mark = ",", digits = 0),
-        `Crec.%` = round(`Crec.%`, 1),
+        `Crec_%` = round(`Crec_%`, 1),
         Score = round(Score, 1)
       )
   }, options = list(
-    pageLength = 10,
+    pageLength = 15,
     dom = 't',
     ordering = FALSE,
-    scrollY = "280px",
-    scrollCollapse = TRUE
+    columnDefs = list(
+      list(className = 'dt-right', targets = 1:3)
+    )
   ), rownames = FALSE)
   
-  output$tabla_top_score <- renderDataTable({
+  output$tabla_top_score <- DT::renderDT({
     met <- metricas_react()
     req(met)
     
@@ -528,21 +566,115 @@ function(input, output, session) {
         Marca = Marca_Vehiculo,
         Score = Score_Oportunidad,
         Volumen = Volumen_Final,
-        `Crec.%` = Crecimiento_Relativo,
-        Prioridad = Potencial_Analytics
+        `Crec_%` = Crecimiento_Relativo
       ) %>%
       dplyr::mutate(
-        Volumen = format(Volumen, big.mark = ",", digits = 0),
-        `Crec.%` = round(`Crec.%`, 1),
+        `Crec_%` = round(`Crec_%`, 1),
         Score = round(Score, 1)
       )
   }, options = list(
-    pageLength = 10,
+    pageLength = 15,
     dom = 't',
     ordering = FALSE,
-    scrollY = "280px",
+    columnDefs = list(
+      list(className = 'dt-right', targets = 1:3)
+    )
+  ), rownames = FALSE)
+  
+  
+  # Tabla de estadísticas de tendencias
+  output$tabla_estadisticas_tendencias <- DT::renderDT({
+    datos_long <- datos_long_react()
+    req(datos_long, input$marcas_seleccionadas)
+    
+    datos_long %>%
+      dplyr::filter(Marca_Vehiculo %in% input$marcas_seleccionadas) %>%
+      dplyr::group_by(Marca_Vehiculo) %>%
+      dplyr::summarise(
+        `Vol.Inicial` = first(Vehiculos_Registrados),
+        `Vol.Final` = last(Vehiculos_Registrados),
+        `Vol.Promedio` = round(mean(Vehiculos_Registrados, na.rm = TRUE), 0),
+        `Vol.Maximo` = max(Vehiculos_Registrados, na.rm = TRUE),
+        `Vol.Minimo` = min(Vehiculos_Registrados, na.rm = TRUE),
+        `Crec.Absoluto` = `Vol.Final` - `Vol.Inicial`,
+        `Crec.%` = round((`Vol.Final` - `Vol.Inicial`) / `Vol.Inicial` * 100, 1),
+        Volatilidad = round(sd(Vehiculos_Registrados, na.rm = TRUE), 0),
+        `Num.Periodos` = n(),
+        .groups = "drop"
+      ) %>%
+      dplyr::arrange(desc(`Vol.Final`))
+  }, options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = "300px",
     scrollCollapse = TRUE
   ), rownames = FALSE)
+  
+  
+  # Panel de métricas de tendencia
+  output$panel_metricas_tendencia <- renderUI({
+    datos_long <- datos_long_react()
+    req(datos_long, input$marcas_seleccionadas)
+    
+    # Calcular métricas generales
+    datos_filtrados <- datos_long %>%
+      dplyr::filter(Marca_Vehiculo %in% input$marcas_seleccionadas)
+    
+    num_marcas <- length(input$marcas_seleccionadas)
+    num_periodos <- length(unique(datos_filtrados$Fecha))
+    vol_total_inicial <- datos_filtrados %>%
+      dplyr::group_by(Marca_Vehiculo) %>%
+      dplyr::summarise(inicial = first(Vehiculos_Registrados)) %>%
+      dplyr::pull(inicial) %>%
+      sum()
+    
+    vol_total_final <- datos_filtrados %>%
+      dplyr::group_by(Marca_Vehiculo) %>%
+      dplyr::summarise(final = last(Vehiculos_Registrados)) %>%
+      dplyr::pull(final) %>%
+      sum()
+    
+    crec_promedio <- round((vol_total_final - vol_total_inicial) / vol_total_inicial * 100, 1)
+    
+    tagList(
+      div(
+        style = "padding: 15px;",
+        
+        div(
+          style = "margin-bottom: 15px; padding: 12px; background: #e0f2fe; border-left: 4px solid #0891b2; border-radius: 4px;",
+          strong("Marcas Seleccionadas:", style = "color: #0891b2;"),
+          br(),
+          p(num_marcas, style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;")
+        ),
+        
+        div(
+          style = "margin-bottom: 15px; padding: 12px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 4px;",
+          strong("Periodos Analizados:", style = "color: #10b981;"),
+          br(),
+          p(num_periodos, style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;")
+        ),
+        
+        div(
+          style = "margin-bottom: 15px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;",
+          strong("Crecimiento Promedio:", style = "color: #f59e0b;"),
+          br(),
+          p(paste0(crec_promedio, "%"), style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;")
+        ),
+        
+        div(
+          style = "padding: 12px; background: #f1f5f9; border-left: 4px solid #64748b; border-radius: 4px;",
+          strong("Volumen Total:", style = "color: #64748b;"),
+          br(),
+          p(
+            paste0(format(vol_total_final, big.mark = ","), " vehículos"),
+            style = "font-size: 20px; font-weight: 700; margin: 5px 0; color: #1e293b;"
+          )
+        )
+      )
+    )
+  })
+  
+  
   
   
   
@@ -643,6 +775,35 @@ function(input, output, session) {
       )
   })
   
+  
+  # 6.3 Tabla panorama completo
+  output$tabla_panorama_completo <- DT::renderDT({
+    met <- metricas_react()
+    req(met)
+    
+    met %>%
+      dplyr::arrange(desc(Score_Oportunidad)) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        `Cat.Vol` = Categoria_Volumen,
+        Potencial = Potencial_Analytics,
+        Score = Score_Oportunidad
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+  }, options = list(
+    pageLength = 15,
+    scrollX = TRUE,
+    scrollY = "400px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
   # 6.4 Rankings (volumen / crecimiento / score)
   output$grafico_ranking_volumen <- renderPlotly({
     met <- metricas_react()
@@ -687,6 +848,45 @@ function(input, output, session) {
         yaxis = list(title = "")
       )
   })
+  
+  
+  # 6.4.1 Tabla ranking comparativo completo
+  output$tabla_ranking_comparativo <- DT::renderDT({
+    met <- metricas_react()
+    req(met)
+    
+    met %>%
+      dplyr::arrange(desc(Score_Oportunidad)) %>%
+      dplyr::mutate(
+        Ranking_Score = row_number(),
+        Ranking_Volumen = dense_rank(desc(Volumen_Final)),
+        Ranking_Crecimiento = dense_rank(desc(Crecimiento_Relativo))
+      ) %>%
+      dplyr::select(
+        `#Score` = Ranking_Score,
+        Marca = Marca_Vehiculo,
+        `#Vol` = Ranking_Volumen,
+        `#Crec` = Ranking_Crecimiento,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        Score = Score_Oportunidad,
+        Potencial = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+  }, options = list(
+    pageLength = 20,
+    scrollX = TRUE,
+    scrollY = "400px",
+    scrollCollapse = TRUE,
+    order = list(list(0, 'asc'))  # Ordenar por primera columna (Ranking Score)
+  ), rownames = FALSE)
+  
+  
   
   # 6.5 Tendencias temporales globales
   output$grafico_tendencias_temporal <- renderPlotly({

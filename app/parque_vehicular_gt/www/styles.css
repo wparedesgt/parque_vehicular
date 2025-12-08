@@ -1,585 +1,238 @@
-/* ===============================
+/* =============================================================================
    DS CONEXIÓN - ANÁLISIS PARQUE VEHICULAR GUATEMALA
-   CSS Corporativo Profesional v2.0
+   CSS Corporativo Profesional - Versión Simplificada
    Data Science & Business Analytics
-   Desarrollado por: William V. Paredes P.
-   =============================== */
+   ============================================================================= */
 
-/* ===== VARIABLES CSS CORPORATIVAS DS CONEXIÓN ===== */
+/* ===== VARIABLES CORPORATIVAS DS CONEXIÓN ===== */
 :root {
-    /* Colores Corporativos DS Conexión */
+    /* Colores Principales */
     --ds-primary: #1a365d;
     --ds-secondary: #0891b2;
     --ds-accent: #06b6d4;
     --ds-dark: #1e293b;
-    --ds-light: #f8fafc;
     
-    /* Colores de Análisis Estratégico */
-    --alta-prioridad: #ef4444;
-    --media-prioridad: #f59e0b;
-    --emergente: #3b82f6;
-    --baja-prioridad: #64748b;
-    
-    /* Colores de Performance */
+    /* Colores de Estado */
     --success: #10b981;
     --warning: #f59e0b;
-    --info: #3b82f6;
     --danger: #ef4444;
+    --info: #3b82f6;
     
-    /* Escala de Predicción */
-    --excelente: #10b981;
-    --bueno: #34d399;
-    --regular: #fbbf24;
-    --deficiente: #fb923c;
-    --critico: #ef4444;
-    
-    /* Escala de Grises Profesional */
+    /* Grises */
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
-    --gray-400: #94a3b8;
-    --gray-500: #64748b;
     --gray-600: #475569;
-    --gray-700: #334155;
     --gray-800: #1e293b;
-    --gray-900: #0f172a;
-    
-    /* Sombras Empresariales */
-    --shadow-sm: 0 1px 3px rgba(26, 54, 93, 0.12);
-    --shadow-md: 0 4px 15px rgba(26, 54, 93, 0.1);
-    --shadow-lg: 0 10px 25px rgba(26, 54, 93, 0.15);
-    --shadow-enterprise: 0 8px 32px rgba(26, 54, 93, 0.2);
-    
-    /* Transiciones Suaves */
-    --transition-fast: 0.15s ease-out;
-    --transition-base: 0.3s ease-out;
-    --transition-slow: 0.5s ease-out;
-    
-    /* Espaciado Profesional */
-    --space-xs: 0.5rem;
-    --space-sm: 1rem;
-    --space-md: 1.5rem;
-    --space-lg: 2rem;
-    --space-xl: 3rem;
-    
-    /* Border Radius */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
-    --radius-full: 50%;
 }
 
-/* ===== RESET Y BASE ===== */
-*, *::before, *::after {
-    margin: 0;
-    padding: 0;
+/* ===== RESET BÁSICO ===== */
+* {
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 100px;
-}
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
     color: var(--gray-800);
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-    min-height: 100vh;
-    overflow-x: hidden;
-    font-size: 16px;
+    background: var(--gray-50);
 }
 
 /* ===== LAYOUT PRINCIPAL ===== */
 .content-wrapper, .right-side {
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%) !important;
+    background: var(--gray-50) !important;
 }
 
 .main-header .navbar {
-    background: linear-gradient(135deg, var(--ds-primary) 0%, var(--ds-dark) 50%, var(--ds-secondary) 100%) !important;
+    background: var(--ds-primary) !important;
     border-bottom: 3px solid var(--ds-accent);
 }
 
 .main-header .logo {
-    background: linear-gradient(135deg, var(--ds-dark) 0%, var(--ds-primary) 100%) !important;
+    background: var(--ds-dark) !important;
 }
 
 .skin-blue .main-sidebar {
-    background: linear-gradient(180deg, var(--ds-dark) 0%, var(--ds-primary) 100%);
+    background: var(--ds-dark);
 }
 
-/* ===== CAJAS Y COMPONENTES ===== */
+/* ===== CAJAS - SIN ANIMACIONES ===== */
+.box {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: visible;  /* CRÍTICO: permite que dropdowns se muestren */
+}
+
+.box-body {
+    overflow: visible !important;  /* CRÍTICO: no cortar dropdowns */
+}
+
 .box.box-primary {
-    border-top-color: var(--ds-primary);
-    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--ds-primary);
 }
 
 .box.box-danger {
-    border-top-color: var(--danger);
-    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--danger);
 }
 
 .box.box-warning {
-    border-top-color: var(--warning);
-    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--warning);
 }
 
 .box.box-success {
-    border-top-color: var(--success);
-    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--success);
 }
 
 .box.box-info {
-    border-top-color: var(--info);
-    box-shadow: var(--shadow-md);
+    border-top: 3px solid var(--info);
 }
 
-/* ===== BOTONES CORPORATIVOS DS CONEXIÓN ===== */
+/* ===== BOTONES - SÓLIDOS, NO GRADIENTES ===== */
 .btn-primary {
-    background: linear-gradient(135deg, var(--ds-primary) 0%, var(--ds-secondary) 100%);
+    background: var(--ds-primary);
     border-color: var(--ds-primary);
-    box-shadow: 0 2px 8px rgba(26, 54, 93, 0.3);
-    transition: all var(--transition-base);
+    color: white;
 }
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, var(--ds-secondary) 0%, var(--ds-accent) 100%);
-    border-color: var(--ds-accent);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--ds-secondary);
+    border-color: var(--ds-secondary);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+    background: var(--danger);
     border-color: var(--danger);
 }
 
-.btn-danger:hover {
-    background: linear-gradient(135deg, #dc2626 0%, var(--danger) 100%);
-    transform: translateY(-2px);
-}
-
 .btn-success {
-    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    background: var(--success);
     border-color: var(--success);
 }
 
 .btn-info {
-    background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%);
+    background: var(--info);
     border-color: var(--info);
 }
 
 .btn-warning {
-    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+    background: var(--warning);
     border-color: var(--warning);
 }
 
-/* ===== VALUE BOXES DS CONEXIÓN ===== */
+/* ===== VALUE BOXES - SIMPLIFICADOS ===== */
 .small-box {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    border: none;
-    overflow: hidden;
-    position: relative;
-    transition: all var(--transition-base);
-}
-
-.small-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent));
-    z-index: 1;
-}
-
-.small-box:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-}
-
-.small-box h3 {
-    font-size: 32px;
-    font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.small-box p {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.small-box .icon {
-    font-size: 80px;
-    opacity: 0.15;
-}
-
-/* Colores específicos de Value Boxes */
-.small-box.bg-red {
-    background: linear-gradient(135deg, var(--ds-primary), var(--ds-dark)) !important;
-}
-
-.small-box.bg-orange {
-    background: linear-gradient(135deg, var(--ds-secondary), var(--ds-accent)) !important;
-}
-
-.small-box.bg-green {
-    background: linear-gradient(135deg, var(--success), #059669) !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-top: 3px solid var(--ds-accent);
 }
 
 .small-box.bg-blue {
-    background: linear-gradient(135deg, var(--info), #2563eb) !important;
+    background: var(--ds-primary) !important;
 }
 
-/* ===== GRÁFICOS Y VISUALIZACIONES ===== */
-.plotly-container {
-    height: 100% !important;
-    border-radius: var(--radius-md);
+.small-box.bg-red {
+    background: var(--danger) !important;
 }
 
-/* ===== TABLAS PROFESIONALES ===== */
-.dataTables_wrapper {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.small-box.bg-green {
+    background: var(--success) !important;
 }
 
-table {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
+.small-box.bg-orange {
+    background: var(--warning) !important;
 }
 
+/* ===== TABLAS - LIMPIAS ===== */
 table thead {
-    background: linear-gradient(135deg, var(--ds-primary), var(--ds-secondary));
+    background: var(--ds-primary);
     color: white;
 }
 
 table th {
-    padding: var(--space-md);
+    padding: 12px;
     font-weight: 600;
     text-align: left;
-    border-bottom: 2px solid rgba(255,255,255,0.1);
 }
 
 table td {
-    padding: var(--space-md);
-    border-bottom: 1px solid var(--gray-200);
-    transition: background-color var(--transition-fast);
+    padding: 12px;
+    border-bottom: 1px solid var(--gray-100);
 }
 
 table tbody tr:hover {
     background-color: var(--gray-50);
 }
 
-table tbody tr:nth-child(even) {
-    background-color: rgba(248, 249, 250, 0.5);
-}
-
-.table-striped > tbody > tr:nth-child(odd) {
-    background-color: rgba(248, 249, 250, 0.7);
-}
-
 /* ===== NAVEGACIÓN LATERAL ===== */
 .sidebar-menu > li.active > a {
-    background: linear-gradient(135deg, var(--ds-secondary), var(--ds-accent)) !important;
-    border-left: 4px solid var(--ds-accent);
+    background: var(--ds-secondary) !important;
+    border-left: 3px solid var(--ds-accent);
 }
 
 .sidebar-menu > li > a:hover {
     background: rgba(8, 145, 178, 0.1) !important;
-    border-left: 4px solid var(--ds-secondary);
 }
 
-/* ===== CAJAS DE INFORMACIÓN ===== */
-.info, .warning, .tip, .feature-box {
-    padding: var(--space-lg);
-    border-radius: var(--radius-lg);
-    margin: var(--space-lg) 0;
-    position: relative;
-    border-left: 6px solid;
-    box-shadow: var(--shadow-md);
-    transition: all var(--transition-base);
-}
-
-.info {
-    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
-    border-left-color: var(--info);
-    color: #0c4a6e;
-}
-
-.warning {
-    background: linear-gradient(135deg, #fef3c7, #fef9c3);
-    border-left-color: var(--warning);
-    color: #78350f;
-}
-
-.tip {
-    background: linear-gradient(135deg, #d1fae5, #ecfdf5);
-    border-left-color: var(--success);
-    color: #065f46;
-}
-
-.feature-box {
-    background: linear-gradient(135deg, var(--gray-50), #f8fafc);
-    border-left-color: var(--ds-primary);
-    color: var(--gray-800);
-}
-
-.info:hover, .warning:hover, .tip:hover, .feature-box:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* ===== ALERTAS ===== */
+/* ===== ALERTAS - SIMPLES ===== */
 .alert {
-    border-radius: var(--radius-md);
-    border-left-width: 4px;
+    border-radius: 6px;
+    border-left: 4px solid;
 }
 
 .alert-success {
-    background: linear-gradient(135deg, #d1fae5, #ecfdf5);
+    background: #d1fae5;
     border-left-color: var(--success);
     color: #065f46;
 }
 
 .alert-danger {
-    background: linear-gradient(135deg, #fee2e2, #fef2f2);
+    background: #fee2e2;
     border-left-color: var(--danger);
     color: #7f1d1d;
 }
 
 .alert-warning {
-    background: linear-gradient(135deg, #fef3c7, #fef9c3);
+    background: #fef3c7;
     border-left-color: var(--warning);
     color: #78350f;
 }
 
 .alert-info {
-    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+    background: #e0f2fe;
     border-left-color: var(--info);
     color: #0c4a6e;
 }
 
-/* ===== LOADING ANIMATIONS ===== */
-.loading {
+/* ===== DROPDOWNS Y SELECT - SOLUCIÓN DEFINITIVA ===== */
+.selectize-dropdown,
+.bootstrap-select .dropdown-menu {
+    z-index: 9999 !important;
+}
+
+.selectize-control,
+.shiny-input-container {
+    z-index: 100;
     position: relative;
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 24px;
-    height: 24px;
-    margin: -12px 0 0 -12px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid var(--ds-accent);
-    border-radius: 50%;
-    animation: spin 1.2s linear infinite;
-    z-index: 1000;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* ===== EFECTOS HOVER AVANZADOS ===== */
-.box:hover {
-    transform: translateY(-2px);
-    transition: all var(--transition-base);
-    box-shadow: var(--shadow-lg);
-}
-
-/* ===== CÓDIGO Y ELEMENTOS TÉCNICOS ===== */
-code {
-    background: var(--gray-100);
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    color: var(--ds-accent);
-    font-size: 0.9em;
-}
-
-pre {
-    background: var(--gray-900);
-    color: var(--gray-100);
-    padding: var(--space-lg);
-    border-radius: var(--radius-lg);
-    overflow-x: auto;
-    margin: var(--space-lg) 0;
-    box-shadow: var(--shadow-md);
-}
-
-/* ===== BADGES Y ETIQUETAS ===== */
-.badge {
-    border-radius: var(--radius-sm);
-    padding: 4px 8px;
-    font-weight: 600;
-    font-size: 11px;
-}
-
-.badge-primary {
-    background: var(--ds-primary);
-}
-
-.badge-success {
-    background: var(--success);
-}
-
-.badge-danger {
-    background: var(--danger);
-}
-
-.badge-warning {
-    background: var(--warning);
-}
-
-.badge-info {
-    background: var(--info);
 }
 
 /* ===== TABS ===== */
 .nav-tabs > li.active > a {
-    background: linear-gradient(135deg, var(--ds-primary), var(--ds-secondary)) !important;
+    background: var(--ds-primary) !important;
     color: white !important;
-    border-color: var(--ds-accent) !important;
+    border-color: var(--ds-primary) !important;
 }
 
-.nav-tabs > li > a:hover {
-    background: var(--gray-100) !important;
-    border-color: var(--ds-accent) !important;
+/* ===== GRÁFICOS ===== */
+.plotly-container {
+    height: 100% !important;
 }
 
-/* ===== PROGRESS BARS ===== */
-.progress {
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
-.progress-bar {
-    background: linear-gradient(90deg, var(--ds-primary), var(--ds-accent));
-    transition: width var(--transition-base);
-}
-
-/* ===== RESPONSIVO ===== */
-@media (max-width: 1024px) {
-    .content-wrapper {
-        padding: var(--space-md);
-    }
-    
-    .small-box h3 {
-        font-size: 28px;
-    }
-}
-
+/* ===== RESPONSIVE BÁSICO ===== */
 @media (max-width: 768px) {
     body {
         font-size: 14px;
     }
     
-    .small-box h3 {
-        font-size: 24px;
-    }
-    
-    .box {
-        margin-bottom: var(--space-md);
-    }
-    
     table {
         font-size: 0.9em;
     }
-}
-
-@media (max-width: 480px) {
-    .content-wrapper {
-        padding: var(--space-sm);
-    }
-    
-    .small-box {
-        margin-bottom: var(--space-sm);
-    }
-}
-
-/* ===== ANIMACIONES SUTILES ===== */
-@keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-.box, .small-box, .info, .warning, .tip {
-    animation: fadeIn 0.6s ease-out;
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-    .main-sidebar, .main-header, .main-footer {
-        display: none !important;
-    }
-    
-    .content-wrapper {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    .box {
-        break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid var(--gray-300);
-    }
-}
-
-/* ===== ESTILOS ESPECÍFICOS DS CONEXIÓN ===== */
-.ds-header {
-    background: linear-gradient(135deg, var(--ds-primary), var(--ds-secondary));
-    color: white;
-    padding: var(--space-lg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-enterprise);
-}
-
-.ds-metric-box {
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-md);
-    border-left: 4px solid var(--ds-accent);
-    transition: all var(--transition-base);
-}
-
-.ds-metric-box:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-}
-
-.ds-footer {
-    background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
-    color: white;
-    padding: var(--space-lg);
-    text-align: center;
-    border-top: 3px solid var(--ds-accent);
-}
-
-/* ===== TOOLTIPS Y POPOVERS ===== */
-.tooltip-inner {
-    background: var(--ds-dark);
-    border-radius: var(--radius-md);
-}
-
-.popover {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
 }

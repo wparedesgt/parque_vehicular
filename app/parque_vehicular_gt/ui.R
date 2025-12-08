@@ -69,80 +69,24 @@ lateral <- dashboardSidebar(
     "))
   ),
   
-  # ENCABEZADO PERSONALIZADO DS_Conexion
+  # ENCABEZADO CORPORATIVO
   div(
-    style = "
-      text-align: center; 
-      padding: 25px 15px; 
-      background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%);
-      border-bottom: 4px solid #1e293b;
-      margin-bottom: 15px;
-      position: relative;
-      overflow: hidden;
-    ",
+    style = "text-align: center; padding: 20px 15px; background: #1a365d; border-bottom: 3px solid #0891b2; margin-bottom: 15px;",
     
-    # Efecto de fondo
-    tags$div(
-      style = "
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        z-index: 1;
-      "
-    ),
-    # Logo centrado
     tags$img(
       src = "imagenes/logo_dsconexion.png",
-      style = "
-        height: 60px;
-        width: auto;
-        margin-bottom: 12px;
-        filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        position: relative;
-        z-index: 2;
-      "
+      style = "height: 50px; width: auto; margin-bottom: 10px;"
     ),
     
-    # Titulo principal
-    h3(
-      "DS CONEXION",
-      style = "
-        color: white; 
-        margin: 10px 0 6px 0; 
-        font-weight: 700;
-        font-size: 18px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        letter-spacing: 1px;
-        position: relative;
-        z-index: 2;
-      "
-    ),
+    h4("DS CONEXION", style = "color: white; margin: 8px 0; font-weight: 600;"),
     
-    # Subtitulo
-    p(
-      "Business Analytics & Predictive Modeling",
-      style = "
-        color: #f8f9fa; 
-        margin: 0 0 4px 0; 
-        font-size: 13px;
-        font-weight: 500;
-        position: relative;
-        z-index: 2;
-      "
-    ),
+    p("Business Analytics & Predictive Modeling",
+      style = "color: #e9ecef; margin: 0; font-size: 12px;"),
     
-    p(
-      "Parque Vehicular Guatemala",
-      style = "
-        color: #e9ecef; 
-        margin: 0; 
-        font-size: 11px;
-        font-style: italic;
-        position: relative;
-        z-index: 2;
-      "
-    )
+    p("Parque Vehicular Guatemala",
+      style = "color: #cbd5e1; margin: 0; font-size: 11px; font-style: italic;")
   ),
+  
   
   # MENU PRINCIPAL DE NAVEGACION DS_Conexion
   sidebarMenu(
@@ -151,10 +95,9 @@ lateral <- dashboardSidebar(
     menuItem(
       'Dashboard Ejecutivo',
       tabName = 'dashboard_ejecutivo_ds',
-      icon = icon('tachometer-alt', lib = 'font-awesome'),
-      badgeLabel = "Principal", 
-      badgeColor = "red"
+      icon = icon('tachometer-alt', lib = 'font-awesome')
     ),
+    
     
     # CORREGIDO: Eliminado tabName = 'analisis_marcas' que causaba el problema
     menuItem(
@@ -236,22 +179,14 @@ lateral <- dashboardSidebar(
   ),
   
   # Informacion del sistema al final
+  # Footer del sistema
   div(
-    style = "
-      position: absolute;
-      bottom: 0;
-      width: calc(100% - 30px);
-      padding: 20px 15px;
-      background: linear-gradient(to top, rgba(44, 62, 80, 0.4), transparent);
-      border-top: 1px solid #495057;
-    ",
-    p("Ultima actualizacion:", 
-      style = "color: #ced4da; font-size: 11px; margin: 0;"),
-    p(textOutput("timestamp_sistema_ds", inline = TRUE), 
-      style = "color: #f8f9fa; font-size: 10px; margin: 0;"),
-    br(),
-    p("DS. William V. Paredes P. | DS Conexion", 
-      style = "color: #adb5bd; font-size: 10px; margin: 0; font-style: italic;")
+    style = "position: absolute; bottom: 0; width: calc(100% - 30px); padding: 15px; background: #1e293b; border-top: 1px solid #475569;",
+    
+    p("Ultima actualizacion:", style = "color: #cbd5e1; font-size: 11px; margin: 0;"),
+    p(textOutput("timestamp_sistema_ds", inline = TRUE), style = "color: #e9ecef; font-size: 10px; margin: 0;"),
+    tags$br(),
+    p("DS. William V. Paredes P. | DS Conexion", style = "color: #94a3b8; font-size: 10px; margin: 0; font-style: italic;")
   )
 )
 
@@ -263,156 +198,6 @@ cuerpo <- dashboardBody(
   
   # Usar waitress para loading screens
   useWaitress(),
-  
-  # CSS adicional personalizado DS_Conexion
-  tags$head(
-    tags$style(HTML("
-      .content-wrapper, .right-side {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      }
-      
-      .main-header .navbar {
-        background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%) !important;
-        border-bottom: 3px solid #1e293b;
-      }
-      
-      .main-header .logo {
-        background: linear-gradient(135deg, #0891b2 0%, #1a365d 100%) !important;
-      }
-      
-      .skin-red .main-sidebar {
-        background: linear-gradient(180deg, #1e293b 0%, #34495e 100%);
-      }
-      
-      .box.box-primary {
-        border-top-color: #1a365d;
-        box-shadow: 0 4px 12px rgba(196, 30, 58, 0.15);
-      }
-      
-      .box.box-danger {
-        border-top-color: #06b6d4;
-        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
-      }
-      
-      .box.box-warning {
-        border-top-color: #f59e0b;
-        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.15);
-      }
-      
-      .box.box-success {
-        border-top-color: #10b981;
-        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15);
-      }
-      
-      .btn-primary {
-        background: linear-gradient(135deg, #1a365d 0%, #0891b2 100%);
-        border-color: #0891b2;
-        box-shadow: 0 2px 8px rgba(196, 30, 58, 0.3);
-      }
-      
-      .btn-primary:hover {
-        background: linear-gradient(135deg, #0891b2 0%, #1a365d 100%);
-        border-color: #6d1129;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
-      }
-      
-      .btn-danger {
-        background: linear-gradient(135deg, #06b6d4 0%, #c0392b 100%);
-        border-color: #c0392b;
-      }
-      
-      .btn-danger:hover {
-        background: linear-gradient(135deg, #c0392b 0%, #06b6d4 100%);
-        transform: translateY(-1px);
-      }
-      
-      /* Estilos para value boxes DS_Conexion */
-      .small-box {
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        border: none;
-        overflow: hidden;
-        position: relative;
-      }
-      
-      .small-box::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #1a365d, #1e293b);
-        z-index: 1;
-      }
-      
-      .small-box h3 {
-        font-size: 32px;
-        font-weight: 700;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-      }
-      
-      .small-box p {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      
-      .small-box .icon {
-        font-size: 80px;
-        opacity: 0.15;
-      }
-      
-      /* Estilos para graficos */
-      .plotly-container {
-        height: 100% !important;
-        border-radius: 8px;
-      }
-      
-      /* Estilos especificos para tablas DS_Conexion */
-      .dataTables_wrapper {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-      
-      .table-striped > tbody > tr:nth-child(odd) {
-        background-color: rgba(248, 249, 250, 0.7);
-      }
-      
-      /* Loading animations mejoradas */
-      .loading {
-        position: relative;
-        pointer-events: none;
-        opacity: 0.7;
-      }
-      
-      .loading::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 24px;
-        height: 24px;
-        margin: -12px 0 0 -12px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #1a365d;
-        border-radius: 50%;
-        animation: spin 1.2s linear infinite;
-        z-index: 1000;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      
-      /* Efectos hover para boxes */
-      .box:hover {
-        transform: translateY(-2px);
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      }
-    "))
-  ),
   
   # Contenido de las pestanas
   tabItems(
@@ -427,7 +212,7 @@ cuerpo <- dashboardBody(
       fluidRow(
         box(
           title = "Dashboard Ejecutivo - DS Conexion",
-          status = "danger",
+          status = "primary",
           solidHeader = TRUE,
           width = 12,
           height = 130,
@@ -571,13 +356,14 @@ cuerpo <- dashboardBody(
             height = "400px",
             tabPanel("Por Volumen", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_top_volumen"))),
+                         DT::DTOutput("tabla_top_volumen"))),
             tabPanel("Por Crecimiento", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_top_crecimiento"))),
+                         DT::DTOutput("tabla_top_crecimiento"))),
             tabPanel("Por Score", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_top_score")))
+                         DT::DTOutput("tabla_top_score")))
+            
           )
         )
       )
@@ -689,7 +475,8 @@ cuerpo <- dashboardBody(
           
           div(
             style = "max-height: 500px; overflow-y: auto;",
-            dataTableOutput("tabla_panorama_completo")
+            #dataTableOutput("tabla_panorama_completo")
+            DT::DTOutput("tabla_panorama_completo")
           )
         )
       )
@@ -761,7 +548,8 @@ cuerpo <- dashboardBody(
           
           div(
             style = "max-height: 500px; overflow-y: auto;",
-            dataTableOutput("tabla_ranking_comparativo")
+            #dataTableOutput("tabla_ranking_comparativo")
+            DT::DTOutput("tabla_ranking_comparativo")
           )
         )
       )
@@ -844,7 +632,8 @@ cuerpo <- dashboardBody(
           
           div(
             style = "max-height: 400px; overflow-y: auto;",
-            dataTableOutput("tabla_estadisticas_tendencias")
+            #dataTableOutput("tabla_estadisticas_tendencias")
+            DT::DTOutput("tabla_estadisticas_tendencias")
           )
         ),
         
