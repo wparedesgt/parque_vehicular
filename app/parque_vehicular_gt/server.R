@@ -388,7 +388,7 @@ function(input, output, session) {
     
     # Crear tabla
     data.frame(
-      MÃ©trica = c(
+      Métrica = c(
         "ðŸ“ˆ Crecimiento Promedio",
         "ðŸ“Š Crecimiento Mediano", 
         "ðŸš€ Marcas en Crecimiento",
@@ -416,7 +416,7 @@ function(input, output, session) {
     
     if(is.null(metricas_global) || nrow(metricas_global) == 0) {
       return(data.frame(
-        MÃ©trica = "Sin datos disponibles",
+        Métrica = "Sin datos disponibles",
         Valor = "N/A"
       ))
     }
@@ -456,7 +456,7 @@ function(input, output, session) {
     
     # Crear tabla
     data.frame(
-      MÃ©trica = c(
+      Métrica = c(
         "ðŸ¥‡ LÃ­der del Mercado",
         "ðŸ† Top 5 ConcentraciÃ³n", 
         "ðŸ“Š Top 10 ConcentraciÃ³n",
@@ -491,7 +491,7 @@ function(input, output, session) {
       return(data.frame(
         Ranking = "Sin datos",
         Marca = "N/A", 
-        VehÃ­culos = "N/A",
+        Vehículos = "N/A",
         ParticipaciÃ³n = "N/A"
       ))
     }
@@ -502,7 +502,7 @@ function(input, output, session) {
       mutate(
         Ranking = 1:n(),
         Marca = Marca_Vehiculo,
-        VehÃ­culos = format(Volumen_Final, big.mark = ","),
+        Vehículos = format(Volumen_Final, big.mark = ","),
         `ParticipaciÃ³n %` = paste0(round(Participacion_Mercado, 1), "%"),
         Potencial = case_when(
           str_detect(Potencial_Analytics, "ALTA") ~ "ðŸ”´ Alta",
@@ -511,7 +511,7 @@ function(input, output, session) {
           TRUE ~ "âš« Baja"
         )
       ) %>%
-      select(Ranking, Marca, VehÃ­culos, `ParticipaciÃ³n %`, Potencial)
+      select(Ranking, Marca, Vehículos, `ParticipaciÃ³n %`, Potencial)
     
     datatable(
       tabla_volumen,

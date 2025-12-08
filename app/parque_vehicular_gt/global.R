@@ -50,11 +50,11 @@ options(scipen = 9999)
 # =============================================================================
 
 # Configuración de rutas (adaptar según el entorno)
-oficina <- "/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular/app/parque_vehicular_gt"
-servidor <- '/opt/shiny-server/dsconexion_parque_vehicular'
-casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
-setwd(casa)
-rm(list =ls())
+# oficina <- "/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular/app/parque_vehicular_gt"
+# servidor <- '/opt/shiny-server/dsconexion_parque_vehicular'
+# casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
+# setwd(casa)
+# rm(list =ls())
 
 # =============================================================================
 # 3. PALETA CORPORATIVA DS CONEXIÓN
