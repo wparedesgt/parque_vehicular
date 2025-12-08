@@ -1,16 +1,16 @@
 # =============================================================================
-# ANÁLISIS DE MERCADO AUTOMOTRIZ PARA OPORTUNIDADES DE VENTA DE RADIADORES
+# ANÁLISIS DE MERCADO AUTOMOTRIZ 
 # =============================================================================
 # Científico de Datos: Análisis Profundo del Registro Fiscal de Vehículos
-# Período: Enero 2024 - Agosto 2025
+# Período: Enero 2024 - Noviembre 2025
 # =============================================================================
 
-remoto <- "E:/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular"
-oficina <- '/home/wparedes/Documentos/Ciencia_Datos/Radiadores_La_Torre/parque_vehicular'
 casa <- 'C:/Users/wpare/Documents/William/Ciencia_Datos/parque_vehicular'
+casa_ws <- 'H:/wparedes/Documentos/Ciencia_Datos/parque_vehicular'
 
-setwd(oficina)
+setwd(casa_ws)
 rm(list = ls())
+
 
 # Cargar librerías necesarias
 library(tidyverse)
@@ -36,7 +36,6 @@ datos_rfv <- readRDS('datos/rfv.rds')
 cat("=== RESUMEN DEL DATASET ===\n")
 cat("Dimensiones:", dim(datos_rfv), "\n")
 cat("Marcas únicas:", nrow(datos_rfv), "\n")
-cat("Período de análisis: Enero 2024 - Agosto 2025\n\n")
 
 # Convertir a formato long para análisis temporal
 datos_long <- datos_rfv %>%
@@ -111,7 +110,7 @@ metricas_marcas <- datos_long %>%
 
 # Estadísticas generales del mercado
 cat("=== ESTADÍSTICAS GENERALES DEL MERCADO ===\n")
-cat("Total vehículos registrados (Agosto 2025):", format(sum(metricas_marcas$Volumen_Final), big.mark = ","), "\n")
+cat("Total vehículos registrados (Noviembre 2025):", format(sum(metricas_marcas$Volumen_Final), big.mark = ","), "\n")
 cat("Crecimiento total del mercado:", format(sum(metricas_marcas$Crecimiento_Absoluto), big.mark = ","), "vehículos\n")
 cat("Crecimiento promedio del mercado:", round(sum(metricas_marcas$Crecimiento_Absoluto) / sum(metricas_marcas$Volumen_Inicial) * 100, 1), "%\n\n")
 

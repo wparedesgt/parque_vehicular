@@ -1,29 +1,54 @@
 # =============================================================================
-# UI.R - DS CONEXIÓN: ANALISIS PARQUE VEHICULAR
-# Sistema de Business Analytics & Predictive Modeling para Analytics y Sistemas de RefrigeraciÃ³n
+# UI.R - DS CONEXION: ANALISIS PARQUE VEHICULAR
+# Sistema de Business Analytics & Predictive Modeling para Analytics
 # =============================================================================
 
 # =============================================================================
 # 1. ENCABEZADO DEL DASHBOARD 
 # =============================================================================
 
+# encabezado <- dashboardHeader(
+#   
+#   title = "DS Conexion - Analisis Parque Vehicular",
+#   titleWidth = 450,
+#   dropdownMenuOutput("menu_notificaciones_ds")
+# )
+# 
+# # Logo corporativo DS_Conexion en el encabezado
+# encabezado$children[[2]]$children <- tags$a(
+#   href = 'https://dsconexion.com/',
+#   tags$img(
+#     src = 'https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png',
+#     height = '45', 
+#     width = '200',
+#     style = "max-height: 45px; object-fit: contain; margin-top: 3px;"
+#   ),
+#   target = "_blank"
+# )
+
+# =============================================================================
+# 1. ENCABEZADO DEL DASHBOARD 
+# =============================================================================
+
 encabezado <- dashboardHeader(
-  title = "DS Conexión - AnÃ¡lisis Parque Vehicular",
+  
+  title = "DS Conexion - Analisis Parque Vehicular",
   titleWidth = 450,
   dropdownMenuOutput("menu_notificaciones_ds")
 )
 
-# Logo corporativo DS_Conexion en el encabezado
+# Logo corporativo DS_Conexion en el encabezado (estático desde www/imagenes)
 encabezado$children[[2]]$children <- tags$a(
-  href = 'https://dsconexion.com/',
+  href = "https://dsconexion.com/",
+  target = "_blank",
   tags$img(
-    src = 'https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png',
-    height = '45', 
-    width = '200',
-    style = "max-height: 45px; object-fit: contain; margin-top: 3px;"
-  ),
-  target = "_blank"
+    src   = "imagenes/logo_dsconexion.png",
+    height = "45",
+    width  = "200",
+    style  = "max-height: 45px; object-fit: contain; margin-top: 3px;"
+  )
 )
+
 
 # =============================================================================
 # 2. SIDEBAR CORPORATIVO DS_Conexion
@@ -35,19 +60,19 @@ lateral <- dashboardSidebar(
   # CSS personalizado DS_Conexion
   includeCSS('www/styles.css'),
   
-  # JavaScript para funcionalidades especÃ­ficas DS_Conexion
+  # JavaScript para funcionalidades especificas DS_Conexion
   tags$head(
     tags$script(HTML("
-      // FunciÃ³n para actualizaciÃ³n de datos del parque vehicular
+      // Funcion para actualizacion de datos del parque vehicular
       Shiny.addCustomMessageHandler('actualizar_parque_vehicular', function(message) {
         $('#btn_actualizar_datos').addClass('loading');
         setTimeout(function() {
           $('#btn_actualizar_datos').removeClass('loading');
-          toastr.success('Datos del parque vehicular actualizados', 'ActualizaciÃ³n Completa');
+          toastr.success('Datos del parque vehicular actualizados', 'Actualizacion Completa');
         }, 3000);
       });
       
-      // FunciÃ³n para mostrar alertas de oportunidades
+      // Funcion para mostrar alertas de oportunidades
       Shiny.addCustomMessageHandler('mostrar_alerta_oportunidad', function(message) {
         if(message.tipo === 'alta_prioridad') {
           toastr.error(message.mensaje, 'Alta Prioridad');
@@ -90,11 +115,24 @@ lateral <- dashboardSidebar(
     ),
     
     # Logo centrado
+    # tags$img(
+    #   src = "https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png",
+    #   style = "
+    #     height: 60px; 
+    #     width: auto; 
+    #     margin-bottom: 12px;
+    #     filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    #     position: relative;
+    #     z-index: 2;
+    #   "
+    # ),
+    
+    # Logo centrado
     tags$img(
-      src = "https://dsconexion.com/wp-content/uploads/2020/07/logo-data-science-conexion.png",
+      src = "imagenes/logo_dsconexion.png",
       style = "
-        height: 60px; 
-        width: auto; 
+        height: 60px;
+        width: auto;
         margin-bottom: 12px;
         filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         position: relative;
@@ -102,9 +140,11 @@ lateral <- dashboardSidebar(
       "
     ),
     
-    # TÃ­tulo principal
+    
+    
+    # Titulo principal
     h3(
-      "DS CONEXIÓN",
+      "DS CONEXION",
       style = "
         color: white; 
         margin: 10px 0 6px 0; 
@@ -117,7 +157,7 @@ lateral <- dashboardSidebar(
       "
     ),
     
-    # SubtÃ­tulo
+    # Subtitulo
     p(
       "Business Analytics & Predictive Modeling",
       style = "
@@ -143,7 +183,7 @@ lateral <- dashboardSidebar(
     )
   ),
   
-  # MENÃš PRINCIPAL DE NAVEGACIÃ“N DS_Conexion
+  # MENU PRINCIPAL DE NAVEGACION DS_Conexion
   sidebarMenu(
     id = "menu_principal_ds",
     
@@ -157,42 +197,24 @@ lateral <- dashboardSidebar(
     
     # CORREGIDO: Eliminado tabName = 'analisis_marcas' que causaba el problema
     menuItem(
-      'AnÃ¡lisis de Marcas',
+      'Analisis de Marcas',
       icon = icon('chart-bar', lib = 'font-awesome'),
       startExpanded = TRUE,
       menuSubItem('Panorama General', tabName = 'panorama_general'),
       menuSubItem('Rankings de Marcas', tabName = 'rankings_marcas'),
       menuSubItem('Tendencias Temporales', tabName = 'tendencias_temporales'),
-      menuSubItem('AnÃ¡lisis Detallado', tabName = 'analisis_detallado')
+      menuSubItem('Analisis Detallado', tabName = 'analisis_detallado')
     ),
     
     menuItem(
-      'Oportunidades EstratÃ©gicas',
+      'Oportunidades Estrategicas',
       icon = icon('bullseye', lib = 'font-awesome'),
       startExpanded = FALSE,
-      menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades')#,
-      #menuSubItem('Marcas Emergentes', tabName = 'marcas_emergentes'),
-      #menuSubItem('AnÃ¡lisis Competitivo', tabName = 'competitivo_marcas')
+      menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades')
     ),
     
-    # menuItem(
-    #   'Proyecciones y Predicciones',
-    #   icon = icon('crystal-ball', lib = 'font-awesome'),
-    #   startExpanded = FALSE,
-    #   menuSubItem('Modelos Predictivos', tabName = 'modelos_predictivos_ds'),
-    #   menuSubItem('Escenarios Futuros', tabName = 'escenarios_futuros')
-    # ),
-    
-    # menuItem(
-    #   'Inteligencia de Mercado',
-    #   icon = icon('brain', lib = 'font-awesome'),
-    #   startExpanded = FALSE,
-    #   menuSubItem('Alertas AutomÃ¡ticas', tabName = 'alertas_automaticas'),
-    #   menuSubItem('SegmentaciÃ³n Avanzada', tabName = 'segmentacion_avanzada')
-    # ),
-    
     menuItem(
-      'ConfiguraciÃ³n',
+      'Configuracion',
       tabName = 'configuracion_ds',
       icon = icon('cogs', lib = 'font-awesome')
     )
@@ -202,12 +224,12 @@ lateral <- dashboardSidebar(
   hr(style = "border-color: #495057; margin: 20px 0;"),
   div(
     style = "padding: 20px;",
-    h5("ðŸ“Š Control de Datos", 
+    h5("Control de Datos", 
        style = "color: white; margin-bottom: 15px; font-weight: 600;"),
     
     actionButton(
       "btn_actualizar_datos",
-      "ðŸ”„ Actualizar Parque Vehicular",
+      "Actualizar Parque Vehicular",
       icon = icon("sync-alt"),
       class = "btn-danger btn-block",
       style = "margin-bottom: 12px; font-weight: 500;"
@@ -215,7 +237,7 @@ lateral <- dashboardSidebar(
     
     checkboxInput(
       "auto_refresh_ds",
-      "Auto-actualizaciÃ³n (30 min)",
+      "Auto-actualizacion (30 min)",
       value = FALSE
     ),
     
@@ -226,33 +248,33 @@ lateral <- dashboardSidebar(
     )
   ),
   
-  # Indicadores de estado especÃ­ficos DS_Conexion
+  # Indicadores de estado especificos DS_Conexion
   hr(style = "border-color: #495057; margin: 20px 0;"),
   div(
     style = "padding: 20px;",
-    h5("ðŸŽ¯ Estado del Sistema", 
+    h5("Estado del Sistema", 
        style = "color: white; margin-bottom: 15px; font-weight: 600;"),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
       span("Datos SAT:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_sat", "â—", style = "color: #10b981; font-size: 16px;")
+      span(id = "status_sat", "\u25CF", style = "color: #10b981; font-size: 16px;")
     ),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
-      span("AnÃ¡lisis ML:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_ml", "â—", style = "color: #10b981; font-size: 16px;")
+      span("Analisis ML:", style = "color: #ced4da; font-size: 12px;"),
+      span(id = "status_ml", "\u25CF", style = "color: #10b981; font-size: 16px;")
     ),
     
     div(
       style = "display: flex; justify-content: space-between; margin-bottom: 8px;",
       span("Alertas:", style = "color: #ced4da; font-size: 12px;"),
-      span(id = "status_alertas", "â—", style = "color: #f59e0b; font-size: 16px;")
+      span(id = "status_alertas", "\u25CF", style = "color: #f59e0b; font-size: 16px;")
     )
   ),
   
-  # InformaciÃ³n del sistema al final
+  # Informacion del sistema al final
   div(
     style = "
       position: absolute;
@@ -262,12 +284,12 @@ lateral <- dashboardSidebar(
       background: linear-gradient(to top, rgba(44, 62, 80, 0.4), transparent);
       border-top: 1px solid #495057;
     ",
-    p("Ãšltima actualizaciÃ³n:", 
+    p("Ultima actualizacion:", 
       style = "color: #ced4da; font-size: 11px; margin: 0;"),
     p(textOutput("timestamp_sistema_ds", inline = TRUE), 
       style = "color: #f8f9fa; font-size: 10px; margin: 0;"),
     br(),
-    p("DS. William V. Paredes P. | DS Conexión", 
+    p("DS. William V. Paredes P. | DS Conexion", 
       style = "color: #adb5bd; font-size: 10px; margin: 0; font-style: italic;")
   )
 )
@@ -380,13 +402,13 @@ cuerpo <- dashboardBody(
         opacity: 0.15;
       }
       
-      /* Estilos para grÃ¡ficos */
+      /* Estilos para graficos */
       .plotly-container {
         height: 100% !important;
         border-radius: 8px;
       }
       
-      /* Estilos especÃ­ficos para tablas DS_Conexion */
+      /* Estilos especificos para tablas DS_Conexion */
       .dataTables_wrapper {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
@@ -431,7 +453,7 @@ cuerpo <- dashboardBody(
     "))
   ),
   
-  # Contenido de las pestaÃ±as
+  # Contenido de las pestanas
   tabItems(
     
     # =============================================================================
@@ -443,7 +465,7 @@ cuerpo <- dashboardBody(
       # Encabezado ejecutivo DS_Conexion
       fluidRow(
         box(
-          title = "ðŸŽ¯ Dashboard Ejecutivo - DS Conexión",
+          title = "Dashboard Ejecutivo - DS Conexion",
           status = "danger",
           solidHeader = TRUE,
           width = 12,
@@ -454,12 +476,12 @@ cuerpo <- dashboardBody(
             div(
               h4("Sistema de Business Analytics & Predictive Modeling para Analytics", 
                  style = "margin: 0; color: #1a365d; font-weight: 600;"),
-              p("Parque Vehicular Guatemala â€¢ Machine Learning â€¢ AnÃ¡lisis Predictivo â€¢ SAT Data", 
+              p("Parque Vehicular Guatemala | Machine Learning | Analisis Predictivo | SAT Data", 
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
             ),
             div(
               style = "text-align: right;",
-              h5("ðŸ“ˆ LIVE DATA", 
+              h5("LIVE DATA", 
                  style = "margin: 0; color: #06b6d4; font-weight: 600;"),
               p(textOutput("fecha_actual_ds"), 
                 style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
@@ -476,22 +498,22 @@ cuerpo <- dashboardBody(
         valueBoxOutput("vb_score_oportunidad", width = 3)
       ),
       
-      # GrÃ¡ficos principales
+      # Graficos principales
       fluidRow(
         box(
-          title = "ðŸ—ºï¸ Mapa EstratÃ©gico de Oportunidades",
+          title = "Mapa Estrategico de Oportunidades",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 9,
           height = 520,
           footer = HTML(paste0(
-            "<b>InterpretaciÃ³n:</b> ",
-            "ðŸ”´ Alta Prioridad: >50K vehÃ­culos + >10% crecimiento | ",
-            "ðŸŸ  Media Prioridad: >10K vehÃ­culos + >15% crecimiento | ",
-            "ðŸ”µ Emergente: >30% crecimiento + >1K vehÃ­culos | ",
-            "âš« Baja Prioridad: Resto de marcas | ",
-            "Fuente: Superintendencia de AdministraciÃ³n Tributaria (SAT)"
+            "<b>Interpretacion:</b> ",
+            "Alta Prioridad: >50K vehiculos + >10% crecimiento | ",
+            "Media Prioridad: >10K vehiculos + >15% crecimiento | ",
+            "Emergente: >30% crecimiento + >1K vehiculos | ",
+            "Baja Prioridad: Resto de marcas | ",
+            "Fuente: Superintendencia de Administracion Tributaria (SAT)"
           )),
           
           div(
@@ -501,7 +523,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸš¨ Alertas de Oportunidades",
+          title = "Alertas de Oportunidades",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -515,10 +537,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # AnÃ¡lisis detallado
+      # Analisis detallado
       fluidRow(
         box(
-          title = "ðŸ“Š Resumen Ejecutivo del Mercado",
+          title = "Resumen Ejecutivo del Mercado",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -529,12 +551,12 @@ cuerpo <- dashboardBody(
             
             fluidRow(
               column(6,
-                     h5("ðŸ“ˆ MÃ©tricas de Crecimiento", 
+                     h5("Metricas de Crecimiento", 
                         style = "color: #1a365d; margin-bottom: 15px;"),
                      tableOutput("tabla_metricas_crecimiento")
               ),
               column(6,
-                     h5("ðŸŽ¯ ConcentraciÃ³n del Mercado", 
+                     h5("Concentracion del Mercado", 
                         style = "color: #1a365d; margin-bottom: 15px;"),
                      tableOutput("tabla_concentracion_mercado")
               )
@@ -543,7 +565,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸ† Top Performers",
+          title = "Top Performers",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -552,13 +574,13 @@ cuerpo <- dashboardBody(
           tabBox(
             width = 12,
             height = "400px",
-            tabPanel("ðŸ”¥ Por Volumen", 
+            tabPanel("Por Volumen", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_volumen"))),
-            tabPanel("ðŸ“ˆ Por Crecimiento", 
+            tabPanel("Por Crecimiento", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_crecimiento"))),
-            tabPanel("â­ Por Score", 
+            tabPanel("Por Score", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_top_score")))
           )
@@ -574,7 +596,7 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "âš™ï¸ ConfiguraciÃ³n de AnÃ¡lisis",
+          title = "Configuracion de Analisis",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -584,13 +606,13 @@ cuerpo <- dashboardBody(
             column(3,
                    selectInput(
                      "filtro_categoria_volumen",
-                     "CategorÃ­a por Volumen:",
+                     "Categoria por Volumen:",
                      choices = list(
-                       "Todas las CategorÃ­as" = "todas",
+                       "Todas las Categorias" = "todas",
                        "Alto Volumen (100K+)" = "alto",
                        "Volumen Medio (10K-100K)" = "medio",
                        "Volumen Bajo (1K-10K)" = "bajo",
-                       "Volumen MÃ­nimo (<1K)" = "minimo"
+                       "Volumen Minimo (<1K)" = "minimo"
                      ),
                      selected = "todas"
                    )
@@ -601,10 +623,10 @@ cuerpo <- dashboardBody(
                      "Filtrar por Potencial:",
                      choices = list(
                        "Todos los Potenciales" = "todos",
-                       "ðŸ”´ Alta Prioridad" = "alta",
-                       "ðŸŸ  Media Prioridad" = "media", 
-                       "ðŸ”µ Emergente" = "emergente",
-                       "âš« Baja Prioridad" = "baja"
+                       "Alta Prioridad" = "alta",
+                       "Media Prioridad" = "media", 
+                       "Emergente" = "emergente",
+                       "Baja Prioridad" = "baja"
                      ),
                      selected = "todos"
                    )
@@ -612,7 +634,7 @@ cuerpo <- dashboardBody(
             column(3,
                    numericInput(
                      "min_vehiculos",
-                     "VehÃ­culos MÃ­nimos:",
+                     "Vehiculos Minimos:",
                      value = 0,
                      min = 0,
                      step = 1000
@@ -622,7 +644,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_aplicar_filtros",
-                     "ðŸ” Aplicar Filtros",
+                     "Aplicar Filtros",
                      class = "btn-primary btn-block"
                    )
             )
@@ -633,7 +655,7 @@ cuerpo <- dashboardBody(
       # Visualizaciones del panorama general
       fluidRow(
         box(
-          title = "ðŸ“Š DistribuciÃ³n del Parque Vehicular por CategorÃ­a",
+          title = "Distribucion del Parque Vehicular por Categoria",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -647,7 +669,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸŽ¯ Matriz de Potencial de Analytics",
+          title = "Matriz de Potencial de Analytics",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -664,7 +686,7 @@ cuerpo <- dashboardBody(
       # Tabla resumen panorama
       fluidRow(
         box(
-          title = "ðŸ“‹ Vista PanorÃ¡mica Completa",
+          title = "Vista Panoramica Completa",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -686,13 +708,13 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "ðŸ† Top 15 Marcas por Volumen de VehÃ­culos",
+          title = "Top 15 Marcas por Volumen de Vehiculos",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           height = 550,
-          footer = "Ranking basado en el volumen total de vehÃ­culos registrados al Ãºltimo perÃ­odo disponible",
+          footer = "Ranking basado en el volumen total de vehiculos registrados al ultimo periodo disponible",
           
           div(
             style = "height: 470px;",
@@ -701,13 +723,13 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸ“ˆ Top 15 Marcas por Crecimiento",
+          title = "Top 15 Marcas por Crecimiento",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           height = 550,
-          footer = "Ranking basado en el crecimiento relativo entre primer y Ãºltimo perÃ­odo registrado",
+          footer = "Ranking basado en el crecimiento relativo entre primer y ultimo periodo registrado",
           
           div(
             style = "height: 470px;",
@@ -718,7 +740,7 @@ cuerpo <- dashboardBody(
       
       fluidRow(
         box(
-          title = "â­ Top 15 Marcas por Score de Oportunidad",
+          title = "Top 15 Marcas por Score de Oportunidad",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -736,7 +758,7 @@ cuerpo <- dashboardBody(
       # Tabla comparativa de rankings
       fluidRow(
         box(
-          title = "ðŸ“Š Ranking Comparativo Completo",
+          title = "Ranking Comparativo Completo",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -756,10 +778,10 @@ cuerpo <- dashboardBody(
     tabItem(
       tabName = "tendencias_temporales",
       
-      # ConfiguraciÃ³n de tendencias
+      # Configuracion de tendencias
       fluidRow(
         box(
-          title = "ðŸ“… ConfiguraciÃ³n de AnÃ¡lisis Temporal",
+          title = "Configuracion de Analisis Temporal",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -770,7 +792,7 @@ cuerpo <- dashboardBody(
                    selectInput(
                      "marcas_seleccionadas",
                      "Seleccionar Marcas:",
-                     choices = NULL, # Se llenarÃ¡ dinÃ¡micamente
+                     choices = NULL,
                      selected = NULL,
                      multiple = TRUE
                    )
@@ -778,11 +800,11 @@ cuerpo <- dashboardBody(
             column(4,
                    selectInput(
                      "tipo_visualizacion",
-                     "Tipo de VisualizaciÃ³n:",
+                     "Tipo de Visualizacion:",
                      choices = list(
-                       "LÃ­neas de Tiempo" = "lineas",
-                       "Ãrea Apilada" = "area",
-                       "Barras por PerÃ­odo" = "barras"
+                       "Lineas de Tiempo" = "lineas",
+                       "Area Apilada" = "area",
+                       "Barras por Periodo" = "barras"
                      ),
                      selected = "lineas"
                    )
@@ -790,7 +812,7 @@ cuerpo <- dashboardBody(
             column(4,
                    checkboxInput(
                      "mostrar_tendencia",
-                     "Mostrar LÃ­nea de Tendencia",
+                     "Mostrar Linea de Tendencia",
                      value = TRUE
                    )
             )
@@ -798,16 +820,16 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # GrÃ¡fico principal de tendencias
+      # Grafico principal de tendencias
       fluidRow(
         box(
-          title = "ðŸ“ˆ EvoluciÃ³n Temporal del Parque Vehicular",
+          title = "Evolucion Temporal del Parque Vehicular",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 12,
           height = 600,
-          footer = "EvoluciÃ³n mensual de las marcas seleccionadas â€¢ Datos: Enero 2024 - Agosto 2025",
+          footer = "Evolucion mensual de las marcas seleccionadas | Datos: Enero 2024 - Agosto 2025",
           
           div(
             style = "height: 520px;",
@@ -816,10 +838,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # AnÃ¡lisis estadÃ­stico de tendencias
+      # Analisis estadistico de tendencias
       fluidRow(
         box(
-          title = "ðŸ“Š AnÃ¡lisis EstadÃ­stico de Tendencias",
+          title = "Analisis Estadistico de Tendencias",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -832,7 +854,7 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸŽ¯ MÃ©tricas de Tendencia",
+          title = "Metricas de Tendencia",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -847,15 +869,15 @@ cuerpo <- dashboardBody(
     ),
     
     # =============================================================================
-    # TAB 5: ANÃLISIS DETALLADO
+    # TAB 5: ANALISIS DETALLADO
     # =============================================================================
     tabItem(
       tabName = "analisis_detallado",
       
-      # Selector de marca para anÃ¡lisis detallado
+      # Selector de marca para analisis detallado
       fluidRow(
         box(
-          title = "ðŸ” SelecciÃ³n para AnÃ¡lisis Detallado",
+          title = "Seleccion para Analisis Detallado",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -865,8 +887,8 @@ cuerpo <- dashboardBody(
             column(6,
                    selectInput(
                      "marca_detalle",
-                     "Seleccionar Marca para AnÃ¡lisis:",
-                     choices = NULL, # Se llenarÃ¡ dinÃ¡micamente
+                     "Seleccionar Marca para Analisis:",
+                     choices = NULL,
                      selected = NULL,
                      width = "100%"
                    )
@@ -875,7 +897,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_generar_detalle",
-                     "ðŸ“Š Generar AnÃ¡lisis Detallado",
+                     "Generar Analisis Detallado",
                      class = "btn-primary btn-block"
                    )
             )
@@ -883,11 +905,11 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # InformaciÃ³n detallada de la marca seleccionada
+      # Informacion detallada de la marca seleccionada
       fluidRow(
-        # Panel de mÃ©tricas clave
+        # Panel de metricas clave
         box(
-          title = "ðŸ“ˆ MÃ©tricas Clave de la Marca",
+          title = "Metricas Clave de la Marca",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -900,9 +922,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # GrÃ¡fico de evoluciÃ³n individual
+        # Grafico de evolucion individual
         box(
-          title = "ðŸ“Š EvoluciÃ³n Individual",
+          title = "Evolucion Individual",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -916,16 +938,16 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # AnÃ¡lisis comparativo con competencia
+      # Analisis comparativo con competencia
       fluidRow(
         box(
-          title = "ðŸ†š ComparaciÃ³n con Competencia Directa",
+          title = "Comparacion con Competencia Directa",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 12,
           height = 500,
-          footer = "ComparaciÃ³n con las 5 marcas mÃ¡s similares en volumen y caracterÃ­sticas",
+          footer = "Comparacion con las 5 marcas mas similares en volumen y caracteristicas",
           
           div(
             style = "height: 420px;",
@@ -934,10 +956,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # Tabla de anÃ¡lisis detallado
+      # Tabla de analisis detallado
       fluidRow(
         box(
-          title = "ðŸ“‹ Reporte Detallado de la Marca",
+          title = "Reporte Detallado de la Marca",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -952,15 +974,15 @@ cuerpo <- dashboardBody(
     ),
     
     # =============================================================================
-    # TAB: MAPA DE OPORTUNIDADES ESTRATÃ‰GICAS
+    # TAB: MAPA DE OPORTUNIDADES ESTRATEGICAS
     # =============================================================================
     tabItem(
       tabName = "mapa_oportunidades",
       
-      # Encabezado estratÃ©gico
+      # Encabezado estrategico
       fluidRow(
         box(
-          title = "ðŸ—ºï¸ MAPA ESTRATÃ‰GICO DE OPORTUNIDADES - NIVEL EJECUTIVO",
+          title = "MAPA ESTRATEGICO DE OPORTUNIDADES - NIVEL EJECUTIVO",
           status = "danger",
           solidHeader = TRUE,
           width = 12,
@@ -969,14 +991,14 @@ cuerpo <- dashboardBody(
           div(
             style = "display: flex; justify-content: space-between; align-items: center; padding: 10px 0;",
             div(
-              h4("Sistema de IdentificaciÃ³n y PriorizaciÃ³n de Oportunidades", 
+              h4("Sistema de Identificacion y Priorizacion de Oportunidades", 
                  style = "margin: 0; color: #1a365d; font-weight: 600;"),
-              p("AnÃ¡lisis Multidimensional â€¢ SegmentaciÃ³n Inteligente â€¢ Recomendaciones Accionables", 
+              p("Analisis Multidimensional | Segmentacion Inteligente | Recomendaciones Accionables", 
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;")
             ),
             div(
               style = "text-align: right;",
-              h5("ðŸŽ¯ STRATEGIC VIEW", 
+              h5("STRATEGIC VIEW", 
                  style = "margin: 0; color: #06b6d4; font-weight: 600;"),
               p("Nivel: Gerencia General", 
                 style = "margin: 2px 0 0 0; color: #6c757d; font-size: 12px;")
@@ -988,7 +1010,7 @@ cuerpo <- dashboardBody(
       # Panel de control avanzado
       fluidRow(
         box(
-          title = "âš™ï¸ CENTRO DE CONTROL ESTRATÃ‰GICO",
+          title = "CENTRO DE CONTROL ESTRATEGICO",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -998,10 +1020,10 @@ cuerpo <- dashboardBody(
           fluidRow(
             # Columna 1: Filtros de Volumen y Crecimiento
             column(3,
-                   h5("ðŸ“Š DimensiÃ³n: Volumen", style = "color: #1e293b; margin-bottom: 10px;"),
+                   h5("Dimension: Volumen", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_volumen_min_oport",
-                     "Volumen MÃ­nimo:",
+                     "Volumen Minimo:",
                      min = 0,
                      max = 500000,
                      value = 1000,
@@ -1010,7 +1032,7 @@ cuerpo <- dashboardBody(
                    ),
                    sliderInput(
                      "filtro_volumen_max_oport",
-                     "Volumen MÃ¡ximo:",
+                     "Volumen Maximo:",
                      min = 1000,
                      max = 1500000,
                      value = 500000,
@@ -1021,10 +1043,10 @@ cuerpo <- dashboardBody(
             
             # Columna 2: Filtros de Crecimiento
             column(3,
-                   h5("ðŸ“ˆ DimensiÃ³n: Crecimiento", style = "color: #1e293b; margin-bottom: 10px;"),
+                   h5("Dimension: Crecimiento", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_crecimiento_min_oport",
-                     "Crecimiento MÃ­nimo:",
+                     "Crecimiento Minimo:",
                      min = -50,
                      max = 200,
                      value = 0,
@@ -1033,7 +1055,7 @@ cuerpo <- dashboardBody(
                    ),
                    sliderInput(
                      "filtro_crecimiento_max_oport",
-                     "Crecimiento MÃ¡ximo:",
+                     "Crecimiento Maximo:",
                      min = -50,
                      max = 200,
                      value = 200,
@@ -1042,12 +1064,12 @@ cuerpo <- dashboardBody(
                    )
             ),
             
-            # Columna 3: Filtros de Score y CategorÃ­as
+            # Columna 3: Filtros de Score y Categorias
             column(3,
-                   h5("â­ DimensiÃ³n: Score", style = "color: #1e293b; margin-bottom: 10px;"),
+                   h5("Dimension: Score", style = "color: #1e293b; margin-bottom: 10px;"),
                    sliderInput(
                      "filtro_score_min_oport",
-                     "Score MÃ­nimo:",
+                     "Score Minimo:",
                      min = 0,
                      max = 100,
                      value = 40,
@@ -1056,7 +1078,7 @@ cuerpo <- dashboardBody(
                    ),
                    selectInput(
                      "filtro_categorias_oport",
-                     "CategorÃ­as:",
+                     "Categorias:",
                      choices = list(
                        "Todas" = "todas",
                        "Alto Volumen" = "alto",
@@ -1069,28 +1091,28 @@ cuerpo <- dashboardBody(
             
             # Columna 4: Filtros de Potencial y Acciones
             column(3,
-                   h5("ðŸŽ¯ DimensiÃ³n: Potencial", style = "color: #1e293b; margin-bottom: 10px;"),
+                   h5("Dimension: Potencial", style = "color: #1e293b; margin-bottom: 10px;"),
                    checkboxGroupInput(
                      "filtro_potencial_oport",
                      "Niveles de Prioridad:",
                      choices = list(
-                       "ðŸ”´ Alta Prioridad" = "alta",
-                       "ðŸŸ  Media Prioridad" = "media",
-                       "ðŸ”µ Emergente" = "emergente",
-                       "âš« Baja Prioridad" = "baja"
+                       "Alta Prioridad" = "alta",
+                       "Media Prioridad" = "media",
+                       "Emergente" = "emergente",
+                       "Baja Prioridad" = "baja"
                      ),
                      selected = c("alta", "media", "emergente")
                    ),
                    br(),
                    actionButton(
                      "btn_aplicar_filtros_oport",
-                     "ðŸ” Aplicar Filtros",
+                     "Aplicar Filtros",
                      class = "btn-danger btn-block",
                      style = "font-weight: 600;"
                    ),
                    actionButton(
                      "btn_resetear_filtros_oport",
-                     "â†º Resetear",
+                     "Resetear",
                      class = "btn-default btn-block",
                      style = "margin-top: 5px;"
                    )
@@ -1099,7 +1121,7 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # KPIs DinÃ¡micos del Filtrado
+      # KPIs Dinamicos del Filtrado
       fluidRow(
         valueBoxOutput("vb_marcas_filtradas_oport", width = 3),
         valueBoxOutput("vb_volumen_oportunidad_oport", width = 3),
@@ -1107,20 +1129,20 @@ cuerpo <- dashboardBody(
         valueBoxOutput("vb_potencial_mercado_oport", width = 3)
       ),
       
-      # Mapa estratÃ©gico principal + matriz de decisiÃ³n
+      # Mapa estrategico principal + matriz de decision
       fluidRow(
         # Mapa de burbujas avanzado
         box(
-          title = "ðŸ—ºï¸ MAPA ESTRATÃ‰GICO INTERACTIVO: Volumen vs Crecimiento vs Score",
+          title = "MAPA ESTRATEGICO INTERACTIVO: Volumen vs Crecimiento vs Score",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 8,
           height = 600,
           footer = HTML(paste0(
-            "<b>Eje X:</b> Volumen de VehÃ­culos (escala logarÃ­tmica) | ",
+            "<b>Eje X:</b> Volumen de Vehiculos (escala logaritmica) | ",
             "<b>Eje Y:</b> Crecimiento Relativo (%) | ",
-            "<b>TamaÃ±o burbuja:</b> Score de Oportunidad | ",
+            "<b>Tamano burbuja:</b> Score de Oportunidad | ",
             "<b>Color:</b> Nivel de Prioridad"
           )),
           
@@ -1130,9 +1152,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # Matriz de decisiÃ³n estratÃ©gica
+        # Matriz de decision estrategica
         box(
-          title = "ðŸ“Š MATRIZ DE DECISIÃ“N 2x2",
+          title = "MATRIZ DE DECISION 2x2",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1146,11 +1168,11 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # AnÃ¡lisis por cuadrantes + distribuciones
+      # Analisis por cuadrantes + distribuciones
       fluidRow(
-        # Tabla de cuadrantes estratÃ©gicos
+        # Tabla de cuadrantes estrategicos
         box(
-          title = "ðŸŽ¯ SEGMENTACIÃ“N POR CUADRANTES ESTRATÃ‰GICOS",
+          title = "SEGMENTACION POR CUADRANTES ESTRATEGICOS",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1158,24 +1180,24 @@ cuerpo <- dashboardBody(
           
           tabBox(
             width = 12,
-            tabPanel("â­ Estrellas (Alto Vol + Alto Crec)", 
+            tabPanel("Estrellas (Alto Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_estrellas_oport"))),
-            tabPanel("ðŸš€ Promesas (Bajo Vol + Alto Crec)", 
+            tabPanel("Promesas (Bajo Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_promesas_oport"))),
-            tabPanel("ðŸ’° Base Consolidada (Alto Vol + Bajo Crec)", 
+            tabPanel("Base Consolidada (Alto Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_base_consolidada_oport"))),
-            tabPanel("â“ Interrogantes (Bajo Vol + Bajo Crec)", 
+            tabPanel("Interrogantes (Bajo Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          dataTableOutput("tabla_cuadrante_interrogantes_oport")))
           )
         ),
         
-        # Distribuciones y concentraciÃ³n
+        # Distribuciones y concentracion
         box(
-          title = "ðŸ“ˆ ANÃLISIS DE DISTRIBUCIÃ“N",
+          title = "ANALISIS DE DISTRIBUCION",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1193,10 +1215,10 @@ cuerpo <- dashboardBody(
         )
       ),
       
-      # AnÃ¡lisis temporal de oportunidades
+      # Analisis temporal de oportunidades
       fluidRow(
         box(
-          title = "ðŸ“… EVOLUCIÃ“N TEMPORAL DE OPORTUNIDADES CLAVE",
+          title = "EVOLUCION TEMPORAL DE OPORTUNIDADES CLAVE",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1215,7 +1237,7 @@ cuerpo <- dashboardBody(
             column(3,
                    selectInput(
                      "criterio_temporal_oport",
-                     "Criterio de SelecciÃ³n:",
+                     "Criterio de Seleccion:",
                      choices = list(
                        "Por Score" = "score",
                        "Por Volumen" = "volumen",
@@ -1235,7 +1257,7 @@ cuerpo <- dashboardBody(
                    br(),
                    actionButton(
                      "btn_actualizar_temporal_oport",
-                     "ðŸ”„ Actualizar",
+                     "Actualizar",
                      class = "btn-primary btn-block"
                    )
             )
@@ -1251,7 +1273,7 @@ cuerpo <- dashboardBody(
       # Panel de recomendaciones inteligentes
       fluidRow(
         box(
-          title = "ðŸŽ¯ RECOMENDACIONES ESTRATÃ‰GICAS AUTOMÃTICAS",
+          title = "RECOMENDACIONES ESTRATEGICAS AUTOMATICAS",
           status = "warning",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1263,9 +1285,9 @@ cuerpo <- dashboardBody(
           )
         ),
         
-        # MÃ©tricas de concentraciÃ³n y riesgo
+        # Metricas de concentracion y riesgo
         box(
-          title = "âš ï¸ ANÃLISIS DE RIESGO Y CONCENTRACIÃ“N",
+          title = "ANALISIS DE RIESGO Y CONCENTRACION",
           status = "danger",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1281,7 +1303,7 @@ cuerpo <- dashboardBody(
       # Tabla maestra de oportunidades
       fluidRow(
         box(
-          title = "ðŸ“‹ TABLA MAESTRA DE OPORTUNIDADES - EXPORTABLE",
+          title = "TABLA MAESTRA DE OPORTUNIDADES - EXPORTABLE",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1289,8 +1311,8 @@ cuerpo <- dashboardBody(
           
           div(
             style = "margin-bottom: 15px;",
-            downloadButton("btn_exportar_oportunidades_excel", "ðŸ“Š Exportar a Excel", class = "btn-success"),
-            downloadButton("btn_exportar_oportunidades_csv", "ðŸ“„ Exportar a CSV", class = "btn-info", style = "margin-left: 10px;")
+            downloadButton("btn_exportar_oportunidades_excel", "Exportar a Excel", class = "btn-success"),
+            downloadButton("btn_exportar_oportunidades_csv", "Exportar a CSV", class = "btn-info", style = "margin-left: 10px;")
           ),
           
           div(
@@ -1303,20 +1325,20 @@ cuerpo <- dashboardBody(
     
     
     # =============================================================================
-    # TAB 6: CONFIGURACIÃ“N
+    # TAB 6: CONFIGURACION
     # =============================================================================
     tabItem(
       tabName = "configuracion_ds",
       
       fluidRow(
         box(
-          title = "âš™ï¸ ConfiguraciÃ³n del Sistema DS_Conexion",
+          title = "Configuracion del Sistema DS_Conexion",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           
-          h4("ðŸ“ GestiÃ³n de Datos"),
+          h4("Gestion de Datos"),
           selectInput(
             "fuente_datos",
             "Fuente de Datos:",
@@ -1329,14 +1351,14 @@ cuerpo <- dashboardBody(
           ),
           
           br(),
-          actionButton("test_carga_datos", "ðŸ§ª Probar Carga de Datos", class = "btn-info"),
+          actionButton("test_carga_datos", "Probar Carga de Datos", class = "btn-info"),
           
           hr(),
           
-          h4("ðŸ”„ ActualizaciÃ³n AutomÃ¡tica"),
+          h4("Actualizacion Automatica"),
           selectInput(
             "frecuencia_actualizacion_ds",
-            "Frecuencia de ActualizaciÃ³n:",
+            "Frecuencia de Actualizacion:",
             choices = list(
               "Manual" = "manual",
               "Cada 30 minutos" = "30min",
@@ -1351,30 +1373,30 @@ cuerpo <- dashboardBody(
         ),
         
         box(
-          title = "ðŸ“Š InformaciÃ³n del Sistema",
+          title = "Informacion del Sistema",
           status = "info",
           solidHeader = TRUE,
           collapsible = TRUE,
           width = 6,
           
-          h4("ðŸ”§ Estado Actual"),
+          h4("Estado Actual"),
           verbatimTextOutput("info_sistema_ds"),
           
           hr(),
           
-          h4("ðŸ“ˆ EstadÃ­sticas de Uso"),
+          h4("Estadisticas de Uso"),
           tableOutput("tabla_estadisticas_uso_ds"),
           
           hr(),
           
-          h4("ðŸ’¾ Acciones del Sistema"),
+          h4("Acciones del Sistema"),
           div(
             style = "text-align: center;",
-            actionButton("limpiar_cache_ds", "ðŸ—‘ï¸ Limpiar Cache", 
+            actionButton("limpiar_cache_ds", "Limpiar Cache", 
                          class = "btn-warning", style = "margin: 5px;"),
-            actionButton("exportar_datos_ds", "ðŸ“¤ Exportar AnÃ¡lisis", 
+            actionButton("exportar_datos_ds", "Exportar Analisis", 
                          class = "btn-info", style = "margin: 5px;"),
-            actionButton("reiniciar_app_ds", "ðŸ”„ Reiniciar App", 
+            actionButton("reiniciar_app_ds", "Reiniciar App", 
                          class = "btn-danger", style = "margin: 5px;")
           )
         )
@@ -1383,7 +1405,7 @@ cuerpo <- dashboardBody(
       # Log del sistema
       fluidRow(
         box(
-          title = "ðŸ“‹ Log del Sistema DS_Conexion",
+          title = "Log del Sistema DS_Conexion",
           status = "success",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -1397,27 +1419,24 @@ cuerpo <- dashboardBody(
       )
     )
     
-    # AquÃ­ se agregarÃ¡n mÃ¡s tabs segÃºn se vayan desarrollando
-    # Los otros menÃºs (Mapa de Oportunidades, Marcas Emergentes, etc.) se implementarÃ¡n en iteraciones futuras
-    
   )
 )
 
 # =============================================================================
-# 4. PIE DE PÃGINA DS_Conexion
+# 4. PIE DE PAGINA DS_Conexion
 # =============================================================================
 
 pie_dashboard_ds <- dashboardFooter(
   left = div(
     style = "color: #6c757d; font-size: 13px;",
-    "DS Conexión â€¢ Sistema de Business Analytics & Predictive Modeling â€¢ Parque Vehicular Guatemala"
+    "DS Conexion | Sistema de Business Analytics & Predictive Modeling | Parque Vehicular Guatemala"
   ),
   right = div(
     style = "color: #6c757d; font-size: 13px;",
-    "DS. William V. Paredes P. | DS Conexión â€¢ ", 
+    "DS. William V. Paredes P. | DS Conexion | ", 
     textOutput("version_app_ds", inline = TRUE),
-    " â€¢ ",
-    tags$a("DS Conexión", 
+    " | ",
+    tags$a("DS Conexion", 
            href = "https://dsconexion.com/", 
            target = "_blank", 
            style = "color: #1a365d; text-decoration: none;")
@@ -1433,6 +1452,6 @@ dashboardPage(
   sidebar = lateral,
   body = cuerpo,
   footer = pie_dashboard_ds,
-  title = "DS Conexión - AnÃ¡lisis Parque Vehicular",
+  title = "DS Conexion - Analisis Parque Vehicular",
   skin = "blue"
 )
