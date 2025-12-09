@@ -33,8 +33,105 @@ function(input, output, session) {
   
   
   
+  # aplicar_filtros_metricas <- function() {
+  #   met <- metricas_global
+  #   
+  #   # Mapeo de valores de filtro_categoria_volumen a valores reales
+  #   if (!is.null(input$filtro_categoria_volumen) && 
+  #       length(input$filtro_categoria_volumen) > 0 &&
+  #       input$filtro_categoria_volumen != "todas") {
+  #     
+  #     categoria_map <- c(
+  #       "alto" = "Alto Volumen (100K+)",
+  #       "medio" = "Volumen Medio (10K-100K)",
+  #       "bajo" = "Volumen Bajo (1K-10K)",
+  #       "minimo" = "Volumen Minimo (<1K)"
+  #     )
+  #     
+  #     categoria_real <- categoria_map[input$filtro_categoria_volumen]
+  #     
+  #     met <- met %>%
+  #       dplyr::filter(Categoria_Volumen == categoria_real)
+  #   }
+  #   
+  #   # Mapeo de valores de filtro_potencial a valores reales
+  #   if (!is.null(input$filtro_potencial) && 
+  #       length(input$filtro_potencial) > 0 &&
+  #       input$filtro_potencial != "todos") {
+  #     
+  #     potencial_map <- c(
+  #       "alta" = "\U0001F534 ALTA PRIORIDAD",
+  #       "media" = "\U0001F7E0 MEDIA PRIORIDAD",
+  #       "emergente" = "\U0001F535 EMERGENTE",
+  #       "baja" = "\u26AB BAJA PRIORIDAD"
+  #     )
+  #     
+  #     potencial_real <- potencial_map[input$filtro_potencial]
+  #     
+  #     met <- met %>%
+  #       dplyr::filter(Potencial_Analytics == potencial_real)
+  #   }
+  #   
+  #   # Filtro por vehículos mínimos
+  #   if (!is.null(input$min_vehiculos) && input$min_vehiculos > 0) {
+  #     met <- met %>%
+  #       dplyr::filter(Volumen_Final >= input$min_vehiculos)
+  #   }
+  #   
+  #   # Filtros de la pestaña de oportunidades (mantener igual)
+  #   met_filt_oport <- met
+  #   
+  #   if (!is.null(input$filtro_volumen_min_oport)) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Volumen_Final >= input$filtro_volumen_min_oport)
+  #   }
+  #   if (!is.null(input$filtro_volumen_max_oport) &&
+  #       !is.na(input$filtro_volumen_max_oport) &&
+  #       input$filtro_volumen_max_oport > 0) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Volumen_Final <= input$filtro_volumen_max_oport)
+  #   }
+  #   
+  #   if (!is.null(input$filtro_crecimiento_min_oport)) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Crecimiento_Relativo >= input$filtro_crecimiento_min_oport)
+  #   }
+  #   if (!is.null(input$filtro_crecimiento_max_oport)) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Crecimiento_Relativo <= input$filtro_crecimiento_max_oport)
+  #   }
+  #   
+  #   if (!is.null(input$filtro_score_min_oport)) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Score_Oportunidad >= input$filtro_score_min_oport)
+  #   }
+  #   
+  #   if (!is.null(input$filtro_categorias_oport) &&
+  #       length(input$filtro_categorias_oport) > 0) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Categoria_Volumen %in% input$filtro_categorias_oport)
+  #   }
+  #   
+  #   if (!is.null(input$filtro_potencial_oport) &&
+  #       length(input$filtro_potencial_oport) > 0 &&
+  #       !"Todas" %in% input$filtro_potencial_oport) {
+  #     met_filt_oport <- met_filt_oport %>%
+  #       dplyr::filter(Potencial_Analytics %in% input$filtro_potencial_oport)
+  #   }
+  #   
+  #   list(
+  #     metricas_generales = met,
+  #     metricas_oportunidades = met_filt_oport
+  #   )
+  # }
+  
+  
   aplicar_filtros_metricas <- function() {
     met <- metricas_global
+    
+    # ========================================================================
+    # FILTROS DEL PANORAMA GENERAL
+    # ========================================================================
     
     # Mapeo de valores de filtro_categoria_volumen a valores reales
     if (!is.null(input$filtro_categoria_volumen) && 
@@ -78,9 +175,13 @@ function(input, output, session) {
         dplyr::filter(Volumen_Final >= input$min_vehiculos)
     }
     
-    # Filtros de la pestaña de oportunidades (mantener igual)
+    # ========================================================================
+    # FILTROS DE OPORTUNIDADES ESTRATÉGICAS
+    # ========================================================================
+    
     met_filt_oport <- met
     
+    # Volumen mínimo / máximo
     if (!is.null(input$filtro_volumen_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Volumen_Final >= input$filtro_volumen_min_oport)
@@ -92,6 +193,7 @@ function(input, output, session) {
         dplyr::filter(Volumen_Final <= input$filtro_volumen_max_oport)
     }
     
+    # Crecimiento mínimo / máximo
     if (!is.null(input$filtro_crecimiento_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Crecimiento_Relativo >= input$filtro_crecimiento_min_oport)
@@ -101,22 +203,47 @@ function(input, output, session) {
         dplyr::filter(Crecimiento_Relativo <= input$filtro_crecimiento_max_oport)
     }
     
+    # Score mínimo
     if (!is.null(input$filtro_score_min_oport)) {
       met_filt_oport <- met_filt_oport %>%
         dplyr::filter(Score_Oportunidad >= input$filtro_score_min_oport)
     }
     
+    # Categorías de oportunidad (con mapeo)
     if (!is.null(input$filtro_categorias_oport) &&
-        length(input$filtro_categorias_oport) > 0) {
-      met_filt_oport <- met_filt_oport %>%
-        dplyr::filter(Categoria_Volumen %in% input$filtro_categorias_oport)
+        length(input$filtro_categorias_oport) > 0 &&
+        input$filtro_categorias_oport != "todas") {
+      
+      # Mapear valores del input a categorías reales
+      if (input$filtro_categorias_oport == "alto") {
+        met_filt_oport <- met_filt_oport %>%
+          dplyr::filter(Categoria_Volumen == "Alto Volumen (100K+)")
+        
+      } else if (input$filtro_categorias_oport == "medio") {
+        met_filt_oport <- met_filt_oport %>%
+          dplyr::filter(Categoria_Volumen == "Volumen Medio (10K-100K)")
+        
+      } else if (input$filtro_categorias_oport == "bajo_emergente") {
+        met_filt_oport <- met_filt_oport %>%
+          dplyr::filter(Categoria_Volumen %in% c("Volumen Bajo (1K-10K)", "Volumen Minimo (<1K)"))
+      }
     }
     
+    # Potencial oportunidad (con mapeo)
     if (!is.null(input$filtro_potencial_oport) &&
-        length(input$filtro_potencial_oport) > 0 &&
-        !"Todas" %in% input$filtro_potencial_oport) {
+        length(input$filtro_potencial_oport) > 0) {
+      
+      potencial_map_oport <- c(
+        "alta" = "\U0001F534 ALTA PRIORIDAD",
+        "media" = "\U0001F7E0 MEDIA PRIORIDAD",
+        "emergente" = "\U0001F535 EMERGENTE",
+        "baja" = "\u26AB BAJA PRIORIDAD"
+      )
+      
+      potenciales_reales <- potencial_map_oport[input$filtro_potencial_oport]
+      
       met_filt_oport <- met_filt_oport %>%
-        dplyr::filter(Potencial_Analytics %in% input$filtro_potencial_oport)
+        dplyr::filter(Potencial_Analytics %in% potenciales_reales)
     }
     
     list(
@@ -124,6 +251,7 @@ function(input, output, session) {
       metricas_oportunidades = met_filt_oport
     )
   }
+  
   
   
   
@@ -611,6 +739,161 @@ function(input, output, session) {
   ), rownames = FALSE)
   
   
+  # 7.4 Tablas de cuadrantes estratégicos (Matriz BCG adaptada)
+  
+  # Cuadrante 1: Estrellas (Alto Volumen + Alto Crecimiento)
+  output$tabla_cuadrante_estrellas_oport <- DT::renderDT({
+    met <- metricas_react()
+    req(met, nrow(met) > 0)
+    
+    # Calcular medianas como umbrales
+    mediana_volumen <- median(met$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(met$Crecimiento_Relativo, na.rm = TRUE)
+    
+    # Filtrar estrellas
+    estrellas <- met %>%
+      dplyr::filter(
+        Volumen_Final >= mediana_volumen,
+        Crecimiento_Relativo >= mediana_crecimiento
+      ) %>%
+      dplyr::arrange(desc(Score_Oportunidad)) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        Score = Score_Oportunidad,
+        Potencial = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+    
+    estrellas
+    
+  }, options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = "250px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  # Cuadrante 2: Promesas (Bajo Volumen + Alto Crecimiento)
+  output$tabla_cuadrante_promesas_oport <- DT::renderDT({
+    met <- metricas_react()
+    req(met, nrow(met) > 0)
+    
+    mediana_volumen <- median(met$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(met$Crecimiento_Relativo, na.rm = TRUE)
+    
+    promesas <- met %>%
+      dplyr::filter(
+        Volumen_Final < mediana_volumen,
+        Crecimiento_Relativo >= mediana_crecimiento
+      ) %>%
+      dplyr::arrange(desc(Crecimiento_Relativo)) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        Score = Score_Oportunidad,
+        Potencial = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+    
+    promesas
+    
+  }, options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = "250px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  # Cuadrante 3: Base Consolidada (Alto Volumen + Bajo Crecimiento)
+  output$tabla_cuadrante_base_consolidada_oport <- DT::renderDT({
+    met <- metricas_react()
+    req(met, nrow(met) > 0)
+    
+    mediana_volumen <- median(met$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(met$Crecimiento_Relativo, na.rm = TRUE)
+    
+    base_consolidada <- met %>%
+      dplyr::filter(
+        Volumen_Final >= mediana_volumen,
+        Crecimiento_Relativo < mediana_crecimiento
+      ) %>%
+      dplyr::arrange(desc(Volumen_Final)) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        Score = Score_Oportunidad,
+        Potencial = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+    
+    base_consolidada
+    
+  }, options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = "250px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  # Cuadrante 4: Interrogantes (Bajo Volumen + Bajo Crecimiento)
+  output$tabla_cuadrante_interrogantes_oport <- DT::renderDT({
+    met <- metricas_react()
+    req(met, nrow(met) > 0)
+    
+    mediana_volumen <- median(met$Volumen_Final, na.rm = TRUE)
+    mediana_crecimiento <- median(met$Crecimiento_Relativo, na.rm = TRUE)
+    
+    interrogantes <- met %>%
+      dplyr::filter(
+        Volumen_Final < mediana_volumen,
+        Crecimiento_Relativo < mediana_crecimiento
+      ) %>%
+      dplyr::arrange(desc(Score_Oportunidad)) %>%
+      dplyr::select(
+        Marca = Marca_Vehiculo,
+        Volumen = Volumen_Final,
+        `Crec_%` = Crecimiento_Relativo,
+        `Part_%` = Participacion_Mercado,
+        Score = Score_Oportunidad,
+        Potencial = Potencial_Analytics
+      ) %>%
+      dplyr::mutate(
+        `Crec_%` = round(`Crec_%`, 1),
+        `Part_%` = round(`Part_%`, 2),
+        Score = round(Score, 1)
+      )
+    
+    interrogantes
+    
+  }, options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = "250px",
+    scrollCollapse = TRUE
+  ), rownames = FALSE)
+  
+  
+  
+  
   # Panel de métricas de tendencia
   output$panel_metricas_tendencia <- renderUI({
     datos_long <- datos_long_react()
@@ -675,7 +958,143 @@ function(input, output, session) {
   })
   
   
+  # Panel de métricas clave de la marca seleccionada
+  output$panel_metricas_marca <- renderUI({
+    met <- metricas_react()
+    req(met, input$marca_detalle)
+    
+    # Obtener métricas de la marca seleccionada
+    marca_info <- met %>%
+      dplyr::filter(Marca_Vehiculo == input$marca_detalle)
+    
+    req(nrow(marca_info) > 0)
+    
+    # Extraer valores
+    volumen <- marca_info$Volumen_Final
+    crecimiento <- marca_info$Crecimiento_Relativo
+    participacion <- marca_info$Participacion_Mercado
+    score <- marca_info$Score_Oportunidad
+    potencial <- marca_info$Potencial_Analytics
+    categoria_vol <- marca_info$Categoria_Volumen
+    volatilidad <- marca_info$Volatilidad
+    
+    # Determinar color según potencial
+    color_potencial <- case_when(
+      grepl("ALTA", potencial) ~ "#ef4444",
+      grepl("MEDIA", potencial) ~ "#f59e0b",
+      grepl("EMERGENTE", potencial) ~ "#3b82f6",
+      TRUE ~ "#64748b"
+    )
+    
+    tagList(
+      # Volumen Final
+      div(
+        style = "margin-bottom: 15px; padding: 12px; background: #e0f2fe; border-left: 4px solid #0891b2; border-radius: 4px;",
+        strong("Volumen Total:", style = "color: #0891b2;"),
+        br(),
+        p(format(volumen, big.mark = ","), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small("vehículos registrados", style = "color: #64748b;")
+      ),
+      
+      # Crecimiento
+      div(
+        style = paste0(
+          "margin-bottom: 15px; padding: 12px; border-left: 4px solid; border-radius: 4px;",
+          "background: ", if(crecimiento >= 0) "#ecfdf5" else "#fee2e2", ";",
+          "border-left-color: ", if(crecimiento >= 0) "#10b981" else "#ef4444", ";"
+        ),
+        strong("Crecimiento:", style = paste0("color: ", if(crecimiento >= 0) "#10b981" else "#ef4444", ";")),
+        br(),
+        p(paste0(round(crecimiento, 1), "%"), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small(
+          if(crecimiento >= 0) "crecimiento positivo" else "declive", 
+          style = "color: #64748b;"
+        )
+      ),
+      
+      # Score de Oportunidad
+      div(
+        style = "margin-bottom: 15px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;",
+        strong("Score de Oportunidad:", style = "color: #f59e0b;"),
+        br(),
+        p(round(score, 1), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small("de 100 puntos", style = "color: #64748b;")
+      ),
+      
+      # Participación de Mercado
+      div(
+        style = "margin-bottom: 15px; padding: 12px; background: #f3e8ff; border-left: 4px solid #a855f7; border-radius: 4px;",
+        strong("Participación de Mercado:", style = "color: #a855f7;"),
+        br(),
+        p(paste0(round(participacion, 2), "%"), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small("del mercado total", style = "color: #64748b;")
+      ),
+      
+      # Potencial Analytics
+      div(
+        style = paste0(
+          "margin-bottom: 15px; padding: 12px; border-left: 4px solid; border-radius: 4px;",
+          "background: #f1f5f9; border-left-color: ", color_potencial, ";"
+        ),
+        strong("Clasificación:", style = paste0("color: ", color_potencial, ";")),
+        br(),
+        p(potencial, 
+          style = "font-size: 16px; font-weight: 700; margin: 5px 0; color: #1e293b;")
+      ),
+      
+      # Categoría de Volumen
+      div(
+        style = "padding: 12px; background: #f1f5f9; border-left: 4px solid #64748b; border-radius: 4px;",
+        strong("Categoría:", style = "color: #64748b;"),
+        br(),
+        p(categoria_vol, 
+          style = "font-size: 14px; font-weight: 600; margin: 5px 0; color: #1e293b;")
+      )
+    )
+  })
   
+  
+  # Tabla reporte detallado de la marca
+  output$tabla_reporte_detallado <- DT::renderDT({
+    datos_long <- datos_long_react()
+    met <- metricas_react()
+    req(datos_long, met, input$marca_detalle)
+    
+    # Evolución temporal de la marca
+    evolucion <- datos_long %>%
+      dplyr::filter(Marca_Vehiculo == input$marca_detalle) %>%
+      dplyr::arrange(Fecha) %>%
+      dplyr::mutate(
+        Cambio_Absoluto = Vehiculos_Registrados - dplyr::lag(Vehiculos_Registrados),
+        Cambio_Porcentual = ifelse(
+          !is.na(dplyr::lag(Vehiculos_Registrados)) & dplyr::lag(Vehiculos_Registrados) > 0,
+          round((Vehiculos_Registrados - dplyr::lag(Vehiculos_Registrados)) / 
+                  dplyr::lag(Vehiculos_Registrados) * 100, 1),
+          NA
+        )
+      ) %>%
+      dplyr::select(
+        Periodo = Periodo,
+        Año = Anio,
+        Mes = Mes,
+        Volumen = Vehiculos_Registrados,
+        `Cambio Abs.` = Cambio_Absoluto,
+        `Cambio %` = Cambio_Porcentual
+      )
+    
+    evolucion
+    
+  }, options = list(
+    pageLength = 20,
+    scrollX = TRUE,
+    scrollY = "300px",
+    scrollCollapse = TRUE,
+    order = list(list(1, 'desc'), list(2, 'desc'))  # Ordenar por Año y Mes descendente
+  ), rownames = FALSE)
   
   
   # ============================================================================

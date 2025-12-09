@@ -966,16 +966,20 @@ cuerpo <- dashboardBody(
             width = 12,
             tabPanel("Estrellas (Alto Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_cuadrante_estrellas_oport"))),
+                         DT::DTOutput("tabla_cuadrante_estrellas_oport")
+                         )),
             tabPanel("Promesas (Bajo Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_cuadrante_promesas_oport"))),
+                         DT::DTOutput("tabla_cuadrante_promesas_oport")
+                         )),
             tabPanel("Base Consolidada (Alto Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_cuadrante_base_consolidada_oport"))),
+                         DT::DTOutput("tabla_cuadrante_base_consolidada_oport")
+                         )),
             tabPanel("Interrogantes (Bajo Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
-                         dataTableOutput("tabla_cuadrante_interrogantes_oport")))
+                         DT::DTOutput("tabla_cuadrante_interrogantes_oport")
+                         ))
           )
         ),
         
