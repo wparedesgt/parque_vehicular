@@ -5,7 +5,7 @@ account: dsconexion
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 16272933
-bundleId: 11294389
+bundleId: 11300237
 url: https://dsconexion.shinyapps.io/parque_vehicular_gt/
 version: 1
 asMultiple: FALSE

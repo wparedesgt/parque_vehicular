@@ -958,6 +958,225 @@ function(input, output, session) {
   })
   
   
+  # Panel de recomendaciones estratégicas automáticas
+  output$panel_recomendaciones_inteligentes_oport <- renderUI({
+    met <- metricas_react()
+    kpi <- kpis_react()
+    req(met, kpi)
+    
+    # Análisis de oportunidades
+    alta_prioridad <- met %>%
+      dplyr::filter(grepl("ALTA PRIORIDAD", Potencial_Analytics)) %>%
+      dplyr::arrange(desc(Score_Oportunidad))
+    
+    emergentes <- met %>%
+      dplyr::filter(grepl("EMERGENTE", Potencial_Analytics)) %>%
+      dplyr::arrange(desc(Crecimiento_Relativo))
+    
+    alto_crecimiento <- met %>%
+      dplyr::filter(Crecimiento_Relativo >= 20) %>%
+      dplyr::arrange(desc(Crecimiento_Relativo))
+    
+    declive <- met %>%
+      dplyr::filter(Crecimiento_Relativo < -5) %>%
+      dplyr::arrange(Crecimiento_Relativo)
+    
+    # Generar recomendaciones
+    recomendaciones <- list()
+    
+    # Recomendación 1: Marcas de alta prioridad
+    if (nrow(alta_prioridad) > 0) {
+      top_alta <- head(alta_prioridad, 3)
+      recomendaciones[[1]] <- div(
+        style = "margin-bottom: 20px; padding: 15px; background: #fee2e2; border-left: 5px solid #ef4444; border-radius: 4px;",
+        h5(icon("exclamation-circle"), " PRIORIDAD ALTA: Oportunidades Estratégicas", 
+           style = "color: #7f1d1d; margin-bottom: 10px; font-weight: 700;"),
+        p(
+          paste0("Se identificaron ", nrow(alta_prioridad), " marcas de alta prioridad. ",
+                 "Recomendamos enfocar recursos en: "),
+          strong(paste(head(top_alta$Marca_Vehiculo, 3), collapse = ", ")),
+          style = "color: #1e293b; margin: 5px 0;"
+        ),
+        p(
+          paste0("Estas marcas combinan alto volumen (promedio: ", 
+                 format(round(mean(top_alta$Volumen_Final), 0), big.mark = ","), 
+                 " vehículos) con crecimiento sostenido (promedio: ",
+                 round(mean(top_alta$Crecimiento_Relativo), 1), "%)."),
+          style = "color: #64748b; font-size: 13px; margin: 0;"
+        )
+      )
+    }
+    
+    # Recomendación 2: Marcas emergentes
+    if (nrow(emergentes) > 0) {
+      top_emerg <- head(emergentes, 3)
+      recomendaciones[[length(recomendaciones) + 1]] <- div(
+        style = "margin-bottom: 20px; padding: 15px; background: #dbeafe; border-left: 5px solid #3b82f6; border-radius: 4px;",
+        h5(icon("rocket"), " POTENCIAL EMERGENTE: Marcas en Crecimiento", 
+           style = "color: #1e3a8a; margin-bottom: 10px; font-weight: 700;"),
+        p(
+          paste0("Se detectaron ", nrow(emergentes), " marcas emergentes con alto potencial. ",
+                 "Destacan: "),
+          strong(paste(head(top_emerg$Marca_Vehiculo, 3), collapse = ", ")),
+          style = "color: #1e293b; margin: 5px 0;"
+        ),
+        p(
+          paste0("Aunque su volumen actual es menor, presentan un crecimiento excepcional (promedio: ",
+                 round(mean(top_emerg$Crecimiento_Relativo), 1), "%)."),
+          style = "color: #64748b; font-size: 13px; margin: 0;"
+        )
+      )
+    }
+    
+    # Recomendación 3: Alto crecimiento
+    if (nrow(alto_crecimiento) > 0 && nrow(alto_crecimiento) > nrow(emergentes)) {
+      adicionales <- alto_crecimiento %>%
+        dplyr::filter(!Marca_Vehiculo %in% emergentes$Marca_Vehiculo) %>%
+        head(3)
+      
+      if (nrow(adicionales) > 0) {
+        recomendaciones[[length(recomendaciones) + 1]] <- div(
+          style = "margin-bottom: 20px; padding: 15px; background: #d1fae5; border-left: 5px solid #10b981; border-radius: 4px;",
+          h5(icon("chart-line"), " CRECIMIENTO ACELERADO: Monitoreo Especial", 
+             style = "color: #065f46; margin-bottom: 10px; font-weight: 700;"),
+          p(
+            paste0("Marcas adicionales con crecimiento superior al 20%: "),
+            strong(paste(adicionales$Marca_Vehiculo, collapse = ", ")),
+            style = "color: #1e293b; margin: 5px 0;"
+          ),
+          p(
+            "Estas marcas merecen seguimiento cercano para identificar tendencias sostenibles.",
+            style = "color: #64748b; font-size: 13px; margin: 0;"
+          )
+        )
+      }
+    }
+    
+    # Recomendación 4: Marcas en declive
+    if (nrow(declive) > 0) {
+      top_declive <- head(declive, 3)
+      recomendaciones[[length(recomendaciones) + 1]] <- div(
+        style = "margin-bottom: 20px; padding: 15px; background: #fef3c7; border-left: 5px solid #f59e0b; border-radius: 4px;",
+        h5(icon("exclamation-triangle"), " ALERTA: Marcas en Declive", 
+           style = "color: #78350f; margin-bottom: 10px; font-weight: 700;"),
+        p(
+          paste0("Se identificaron ", nrow(declive), " marcas con declive significativo (>-5%). ",
+                 "Requieren atención: "),
+          strong(paste(head(top_declive$Marca_Vehiculo, 3), collapse = ", ")),
+          style = "color: #1e293b; margin: 5px 0;"
+        ),
+        p(
+          paste0("Decrecimiento promedio: ", round(mean(top_declive$Crecimiento_Relativo), 1), "%. ",
+                 "Evaluar causas y considerar estrategias correctivas."),
+          style = "color: #64748b; font-size: 13px; margin: 0;"
+        )
+      )
+    }
+    
+    # Recomendación general si no hay recomendaciones específicas
+    if (length(recomendaciones) == 0) {
+      recomendaciones[[1]] <- div(
+        style = "padding: 15px; background: #f1f5f9; border-left: 5px solid #64748b; border-radius: 4px;",
+        h5(icon("info-circle"), " Estado del Mercado", 
+           style = "color: #475569; margin-bottom: 10px; font-weight: 700;"),
+        p(
+          "El mercado presenta condiciones estables sin alertas críticas. ",
+          "Continuar con el monitoreo regular de tendencias.",
+          style = "color: #1e293b; margin: 0;"
+        )
+      )
+    }
+    
+    tagList(recomendaciones)
+  })
+  
+  # Panel de métricas de riesgo y concentración
+  output$panel_metricas_riesgo_oport <- renderUI({
+    met <- metricas_react()
+    kpi <- kpis_react()
+    req(met, kpi)
+    
+    # Calcular métricas
+    num_marcas <- nrow(met)
+    concentracion_top5 <- kpi$top_5_concentracion
+    indice_hh <- kpi$indice_herfindahl
+    marcas_declive <- sum(met$Crecimiento_Relativo < 0, na.rm = TRUE)
+    perc_declive <- round(marcas_declive / num_marcas * 100, 1)
+    volatilidad_promedio <- mean(met$Coef_Variacion, na.rm = TRUE) * 100
+    
+    # Determinar niveles de riesgo
+    riesgo_concentracion <- if(concentracion_top5 > 70) {
+      list(nivel = "ALTO", color = "#ef4444", bg = "#fee2e2")
+    } else if(concentracion_top5 > 50) {
+      list(nivel = "MEDIO", color = "#f59e0b", bg = "#fef3c7")
+    } else {
+      list(nivel = "BAJO", color = "#10b981", bg = "#d1fae5")
+    }
+    
+    riesgo_declive <- if(perc_declive > 30) {
+      list(nivel = "ALTO", color = "#ef4444", bg = "#fee2e2")
+    } else if(perc_declive > 15) {
+      list(nivel = "MEDIO", color = "#f59e0b", bg = "#fef3c7")
+    } else {
+      list(nivel = "BAJO", color = "#10b981", bg = "#d1fae5")
+    }
+    
+    tagList(
+      # Concentración del mercado
+      div(
+        style = paste0("margin-bottom: 15px; padding: 12px; background: ", riesgo_concentracion$bg, 
+                       "; border-left: 4px solid ", riesgo_concentracion$color, "; border-radius: 4px;"),
+        strong("Concentración Top 5:", style = paste0("color: ", riesgo_concentracion$color, ";")),
+        br(),
+        p(paste0(round(concentracion_top5, 1), "%"), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small(paste("Riesgo:", riesgo_concentracion$nivel), 
+                   style = "color: #64748b;")
+      ),
+      
+      # Índice Herfindahl-Hirschman
+      div(
+        style = "margin-bottom: 15px; padding: 12px; background: #f1f5f9; border-left: 4px solid #64748b; border-radius: 4px;",
+        strong("Índice H-H:", style = "color: #64748b;"),
+        br(),
+        p(round(indice_hh, 0), 
+          style = "font-size: 24px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small(
+          if(indice_hh < 1500) "Mercado competitivo" 
+          else if(indice_hh < 2500) "Moderadamente concentrado"
+          else "Alta concentración",
+          style = "color: #64748b;"
+        )
+      ),
+      
+      # Marcas en declive
+      div(
+        style = paste0("margin-bottom: 15px; padding: 12px; background: ", riesgo_declive$bg, 
+                       "; border-left: 4px solid ", riesgo_declive$color, "; border-radius: 4px;"),
+        strong("Marcas en Declive:", style = paste0("color: ", riesgo_declive$color, ";")),
+        br(),
+        p(paste0(marcas_declive, " (", perc_declive, "%)"), 
+          style = "font-size: 20px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small(paste("Riesgo:", riesgo_declive$nivel), 
+                   style = "color: #64748b;")
+      ),
+      
+      # Volatilidad promedio
+      div(
+        style = "padding: 12px; background: #e0f2fe; border-left: 4px solid #0891b2; border-radius: 4px;",
+        strong("Volatilidad Promedio:", style = "color: #0891b2;"),
+        br(),
+        p(paste0(round(volatilidad_promedio, 1), "%"), 
+          style = "font-size: 20px; font-weight: 700; margin: 5px 0; color: #1e293b;"),
+        tags$small("Coeficiente de variación", 
+                   style = "color: #64748b;")
+      )
+    )
+  })
+  
+  
+  
+  
   # Panel de métricas clave de la marca seleccionada
   output$panel_metricas_marca <- renderUI({
     met <- metricas_react()
