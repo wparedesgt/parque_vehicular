@@ -14,7 +14,7 @@ encabezado <- dashboardHeader(
   dropdownMenuOutput("menu_notificaciones_ds")
 )
 
-# Logo corporativo DS_Conexion en el encabezado (estático desde www/imagenes)
+# Logo corporativo DS_Conexion en el encabezado (estÃ¡tico desde www/imagenes)
 encabezado$children[[2]]$children <- tags$a(
   href = "https://dsconexion.com/",
   target = "_blank",
@@ -115,6 +115,21 @@ lateral <- dashboardSidebar(
       icon = icon('bullseye', lib = 'font-awesome'),
       startExpanded = FALSE,
       menuSubItem('Mapa de Oportunidades', tabName = 'mapa_oportunidades')
+    ),
+    
+    menuItem(
+      'Mapas (PRO)',
+      icon = icon('map-marked-alt', lib = 'font-awesome'),
+      startExpanded = FALSE,
+      menuSubItem('Crecimiento por Municipio', tabName = 'mapa_crecimiento_municipio')
+    ),
+    
+    menuItem(
+      'Predicciones IA (PRO)',
+      icon = icon('brain', lib = 'font-awesome'),
+      startExpanded = FALSE,
+      menuSubItem('Escenarios Futuros por Marca', tabName = 'prediccion_escenarios'),
+      menuSubItem('Prediccion Proximos 6 Meses', tabName = 'prediccion_6_meses')
     ),
     
     menuItem(
@@ -223,16 +238,16 @@ cuerpo <- dashboardBody(
             # Texto principal pensado para potenciales clientes
             div(
               h4(
-                "Análisis del parque vehicular en Guatemala para decisiones de negocio",
+                "AnÃ¡lisis del parque vehicular en Guatemala para decisiones de negocio",
                 style = "margin: 0; color: #1a365d; font-weight: 600;"
               ),
               p(
-                "Parque Vehicular Guatemala | Analítica de datos | Modelos predictivos | Datos SAT",
+                "Parque Vehicular Guatemala | AnalÃ­tica de datos | Modelos predictivos | Datos SAT",
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;"
               )
             ),
             
-            # Lado derecho: última actualización según los datos cargados
+            # Lado derecho: Ãºltima actualizaciÃ³n segÃºn los datos cargados
             div(
               style = "text-align: right;",
               h5(
@@ -309,19 +324,6 @@ cuerpo <- dashboardBody(
           
           div(
             style = "padding: 15px;",
-            
-            # fluidRow(
-            #   column(6,
-            #          h5("Metricas de Crecimiento", 
-            #             style = "color: #1a365d; margin-bottom: 15px;"),
-            #          tableOutput("tabla_metricas_crecimiento")
-            #   ),
-            #   column(6,
-            #          h5("Concentracion del Mercado", 
-            #             style = "color: #1a365d; margin-bottom: 15px;"),
-            #          tableOutput("tabla_concentracion_mercado")
-            #   )
-            # )
             fluidRow(
               column(6,
                      h5("Metricas de Crecimiento", 
@@ -967,19 +969,19 @@ cuerpo <- dashboardBody(
             tabPanel("Estrellas (Alto Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          DT::DTOutput("tabla_cuadrante_estrellas_oport")
-                         )),
+                     )),
             tabPanel("Promesas (Bajo Vol + Alto Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          DT::DTOutput("tabla_cuadrante_promesas_oport")
-                         )),
+                     )),
             tabPanel("Base Consolidada (Alto Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          DT::DTOutput("tabla_cuadrante_base_consolidada_oport")
-                         )),
+                     )),
             tabPanel("Interrogantes (Bajo Vol + Bajo Crec)", 
                      div(style = "max-height: 320px; overflow-y: auto;",
                          DT::DTOutput("tabla_cuadrante_interrogantes_oport")
-                         ))
+                     ))
           )
         ),
         
@@ -1203,6 +1205,54 @@ cuerpo <- dashboardBody(
             style = "max-height: 400px; overflow-y: auto; background-color: #1e2124; color: #dcddde; padding: 15px; font-family: 'Courier New', monospace; font-size: 12px; border-radius: 5px;",
             verbatimTextOutput("log_sistema_ds")
           )
+        )
+      )
+    ),
+    
+    # =============================================================================
+    # TAB: MAPA CRECIMIENTO POR MUNICIPIO (SUSCRIPCION)
+    # =============================================================================
+    tabItem(
+      tabName = "mapa_crecimiento_municipio",
+      fluidRow(
+        box(
+          title = "Crecimiento por Municipio - Contenido Premium",
+          status = "warning",
+          solidHeader = TRUE,
+          width = 12,
+          uiOutput("contenido_premium_mapas")
+        )
+      )
+    ),
+    
+    # =============================================================================
+    # TAB: ESCENARIOS FUTUROS POR MARCA (SUSCRIPCION)
+    # =============================================================================
+    tabItem(
+      tabName = "prediccion_escenarios",
+      fluidRow(
+        box(
+          title = "Escenarios Futuros por Marca - Contenido Premium",
+          status = "info",
+          solidHeader = TRUE,
+          width = 12,
+          uiOutput("contenido_premium_escenarios")
+        )
+      )
+    ),
+    
+    # =============================================================================
+    # TAB: PREDICCION PROXIMOS 6 MESES (SUSCRIPCION)
+    # =============================================================================
+    tabItem(
+      tabName = "prediccion_6_meses",
+      fluidRow(
+        box(
+          title = "Prediccion Proximos 6 Meses - Contenido Premium",
+          status = "danger",
+          solidHeader = TRUE,
+          width = 12,
+          uiOutput("contenido_premium_prediccion")
         )
       )
     )

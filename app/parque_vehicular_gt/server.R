@@ -1874,12 +1874,127 @@ function(input, output, session) {
     ultima_actualizacion(Sys.time())
   }, ignoreInit = TRUE)
   
+  # # ============================================================================
+  # # 11. LOG DE INICIO DEL SERVIDOR
+  # # ============================================================================
+  # 
+  # cat("\n[OK] SERVIDOR DS Conexion INICIADO CORRECTAMENTE\n")
+  # cat("Dashboard ejecutivo y modulos de oportunidades cargados.\n")
+  # cat("=======================================================\n")
+  
   # ============================================================================
-  # 11. LOG DE INICIO DEL SERVIDOR
+  # 11. CONTENIDOS PREMIUM (SUSCRIPCION)
+  # ============================================================================
+  
+  # Funcion auxiliar para generar el panel de suscripcion
+  generar_panel_suscripcion <- function(icono, color_icono, titulo, color_titulo, clase_boton) {
+    div(
+      style = "text-align: center; padding: 50px 30px;",
+      
+      icon(icono, class = "fa-4x", style = paste0("color: ", color_icono, "; margin-bottom: 20px;")),
+      
+      h2(titulo, style = paste0("color: ", color_titulo, "; margin-bottom: 25px; font-weight: 700;")),
+      
+      div(
+        style = "max-width: 700px; margin: 0 auto; text-align: left; background: #f8fafc; padding: 30px; border-radius: 10px; border: 1px solid #e2e8f0;",
+        
+        h4(icon("info-circle"), " Informacion de Acceso", 
+           style = "color: #1a365d; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;"),
+        
+        p("Estos menus unicamente son accesibles a traves de la opcion de suscripcion anual.",
+          style = "font-size: 15px; color: #1e293b; margin-bottom: 15px;"),
+        
+        p(HTML("La suscripcion anual tiene un costo de <strong style='color: #059669; font-size: 18px;'>USD 225.00</strong> como unico pago por año, sin contrato."),
+          style = "font-size: 15px; color: #1e293b; margin-bottom: 15px;"),
+        
+        p("Esto da acceso a estos menus, ademas de activar los botones de descarga para Excel o CSV del Mapa de Oportunidades Estrategicas.",
+          style = "font-size: 15px; color: #1e293b; margin-bottom: 20px;"),
+        
+        hr(style = "border-color: #e2e8f0;"),
+        
+        h5(icon("envelope"), " Como Solicitar Acceso", 
+           style = "color: #1a365d; margin-bottom: 15px;"),
+        
+        p("Puede realizar su solicitud para que lo contactemos a traves del siguiente enlace:",
+          style = "font-size: 14px; color: #475569; margin-bottom: 10px;"),
+        
+        div(
+          style = "text-align: center; margin: 20px 0;",
+          tags$a(
+            href = "https://dsconexion.com/contact-us/",
+            target = "_blank",
+            class = paste0("btn ", clase_boton, " btn-lg"),
+            style = "font-weight: 600; padding: 12px 30px;",
+            icon("external-link-alt"), " Ir al Formulario de Contacto"
+          )
+        ),
+        
+        p(HTML("Eligiendo la opcion: <strong>Activacion Panel RFV</strong>"),
+          style = "font-size: 14px; color: #475569; text-align: center; margin-bottom: 10px;"),
+        
+        p("Para las instrucciones de pago y habilitacion por un año de este panel.",
+          style = "font-size: 14px; color: #475569; text-align: center; margin-bottom: 20px;"),
+        
+        hr(style = "border-color: #e2e8f0;"),
+        
+        div(
+          style = "background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;",
+          p(icon("check-circle", style = "color: #10b981;"), 
+            " Todos los meses se actualizaran los datos. Usted puede continuar de forma gratuita con la pagina de consulta si no desea usar la version de pago.",
+            style = "font-size: 13px; color: #065f46; margin: 0;")
+        ),
+        
+        div(
+          style = "background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-top: 15px;",
+          p(icon("lightbulb", style = "color: #3b82f6;"), 
+            " Si necesita un dato mas preciso, como comportamientos por modelo, linea y año de una marca especifica, lo puede solicitar tambien a traves del formulario.",
+            style = "font-size: 13px; color: #1e40af; margin: 0;")
+        )
+      )
+    )
+  }
+  
+  # Panel para Mapas - Crecimiento por Municipio
+  output$contenido_premium_mapas <- renderUI({
+    generar_panel_suscripcion(
+      icono = "lock",
+      color_icono = "#f59e0b",
+      titulo = "Contenido Premium - Mapas",
+      color_titulo = "#78350f",
+      clase_boton = "btn-warning"
+    )
+  })
+  
+  # Panel para Predicciones IA - Escenarios
+  output$contenido_premium_escenarios <- renderUI({
+    generar_panel_suscripcion(
+      icono = "brain",
+      color_icono = "#3b82f6",
+      titulo = "Predicciones con Inteligencia Artificial",
+      color_titulo = "#1e3a8a",
+      clase_boton = "btn-info"
+    )
+  })
+  
+  # Panel para Predicciones IA - 6 Meses
+  output$contenido_premium_prediccion <- renderUI({
+    generar_panel_suscripcion(
+      icono = "chart-line",
+      color_icono = "#ef4444",
+      titulo = "Proyecciones Avanzadas",
+      color_titulo = "#7f1d1d",
+      clase_boton = "btn-danger"
+    )
+  })
+  
+  # ============================================================================
+  # 12. LOG DE INICIO DEL SERVIDOR
   # ============================================================================
   
   cat("\n[OK] SERVIDOR DS Conexion INICIADO CORRECTAMENTE\n")
   cat("Dashboard ejecutivo y modulos de oportunidades cargados.\n")
   cat("=======================================================\n")
+  
+  
   
 }
