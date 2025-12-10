@@ -238,11 +238,11 @@ cuerpo <- dashboardBody(
             # Texto principal pensado para potenciales clientes
             div(
               h4(
-                "AnÃ¡lisis del parque vehicular en Guatemala para decisiones de negocio",
+                "Análisis del parque vehicular en Guatemala para decisiones de negocio",
                 style = "margin: 0; color: #1a365d; font-weight: 600;"
               ),
               p(
-                "Parque Vehicular Guatemala | AnalÃ­tica de datos | Modelos predictivos | Datos SAT",
+                "Parque Vehicular Guatemala | Analítica de datos | Modelos predictivos | Datos SAT",
                 style = "margin: 8px 0 0 0; color: #6c757d; font-size: 14px; font-weight: 500;"
               )
             ),
