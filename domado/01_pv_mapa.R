@@ -111,14 +111,9 @@ muestra_int <- merge(rfv_total, geolocalizacion,
                      by.y = c('NOMBRE_DEPARTAMENTO', 'NOMBRE_MUNICIPIO'))
 
 
-resumen_anual <- muestra_int %>% 
-  group_by(ANIO_ALZA) %>% 
-  summarise(
-    TOTAL_CANTIDAD = sum(CANTIDAD, na.rm = TRUE),
-    .groups = "drop"
-  ) %>% 
-  arrange(ANIO_ALZA)
+muestra_anual <- muestra_int %>% 
+  group_by(across(-c(MES, CANTIDAD))) %>% 
+  summarise(CANTIDAD = sum(CANTIDAD, na.rm = TRUE), .groups = "drop")
 
 
-
-saveRDS(muestra_int, 'datos/rfv_w_geo.rds')
+saveRDS(muestra_anual, 'datos/rfv_w_geo.rds')
