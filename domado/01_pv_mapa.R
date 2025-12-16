@@ -82,6 +82,13 @@ f_lee_pv <- function(ruta){
 }
 
 rfv_total <- f_lee_pv(ruta_archivo)
+
+# escuintla <-rfv_total %>%
+#   filter(NOMBRE_DEPARTAMENTO == 'ESCUINTLA')
+# 
+# unique(escuintla$NOMBRE_MUNICIPIO)
+
+
 geolocalizacion <- read.csv('H:/catalogos/gt_geolocalizacion.csv', 
                             header = TRUE, 
                             sep = ';')
@@ -105,6 +112,8 @@ geolocalizacion <- geolocalizacion %>%
 geolocalizacion$NOMBRE_MUNICIPIO <- str_replace_all(geolocalizacion$NOMBRE_MUNICIPIO, 'Guatemala City', 'Guatemala')
 geolocalizacion$NOMBRE_MUNICIPIO <- toupper(geolocalizacion$NOMBRE_MUNICIPIO)
 geolocalizacion$NOMBRE_DEPARTAMENTO <- toupper(geolocalizacion$NOMBRE_DEPARTAMENTO)
+geolocalizacion$NOMBRE_MUNICIPIO <- str_replace_all(geolocalizacion$NOMBRE_MUNICIPIO, 'PUERTO SAN JOSE', 'SAN JOSE')
+
 
 muestra_int <- merge(rfv_total, geolocalizacion, 
                      by.x = c('NOMBRE_DEPARTAMENTO', 'NOMBRE_MUNICIPIO'), 
@@ -114,6 +123,5 @@ muestra_int <- merge(rfv_total, geolocalizacion,
 muestra_anual <- muestra_int %>% 
   group_by(across(-c(MES, CANTIDAD))) %>% 
   summarise(CANTIDAD = sum(CANTIDAD, na.rm = TRUE), .groups = "drop")
-
 
 saveRDS(muestra_anual, 'datos/rfv_w_geo.rds')

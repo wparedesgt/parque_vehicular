@@ -34,6 +34,20 @@ departamentos_shp <- st_read("shapes/gadm41_GTM_1.shp", quiet = TRUE)
 departamentos_shp <- st_transform(departamentos_shp, crs = 4326)  # Convertir a WGS84
 municipios_shp <- st_read("shapes/gadm41_GTM_2.shp", quiet = TRUE)
 
+#Corrigiendo Error en Dpto.
+municipios_shp$NAME_1 <- str_replace_all(municipios_shp$NAME_1, 'Quezaltenango', 'Quetzaltenango')
+municipios_shp$NAME_2 <- str_replace_all(municipios_shp$NAME_2, 'Ostuncalco', str_to_title('SAN JUAN OSTUNCALCO'))
+municipios_shp$NAME_2 <- str_replace_all(municipios_shp$NAME_2, 'Santa Cruz El Chol', str_to_title('EL CHOL'))
+municipios_shp$NAME_2 <- str_replace_all(municipios_shp$NAME_2, 'Petapa', str_to_title('SAN MIGUEL PETAPA'))
+municipios_shp$NAME_2 <- str_replace_all(municipios_shp$NAME_2, 'San Sibinal', str_to_title('Sibinal'))
+
+
+
+index_solola <- which(municipios_shp$NAME_2 == '?' & municipios_shp$NAME_1 == 'Sololá')
+municipios_shp$NAME_2[index_solola] <- 'Solola'
+
+
+
 municipios_shp_muni <- municipios_shp %>%
   st_transform(4326) %>%
   mutate(
@@ -97,13 +111,13 @@ pal <- colorBin(
 # =====================================================
 
 anio_inicio <- 1980
-anio_fin    <- 2020
-fil_uso_vehiculo <- "PARTICULAR"
+anio_fin    <- 2010
+fil_uso_vehiculo <- c(unique(rfv_w_geo$USO_VEHICULO))
 vector_fechas <- c(anio_inicio:anio_fin)
 
 rfv_muni <- rfv_w_geo %>%
   filter(ANIO_ALZA %in% vector_fechas,
-         USO_VEHICULO == fil_uso_vehiculo) %>%
+         USO_VEHICULO %in% fil_uso_vehiculo) %>%
   group_by(NOMBRE_DEPARTAMENTO, NOMBRE_MUNICIPIO) %>%
   summarise(CANTIDAD = sum(CANTIDAD, na.rm = TRUE), .groups = "drop") %>%
   mutate(
@@ -142,7 +156,6 @@ leaflet(muni_veh_area) %>%
             pal = pal, values = ~DENS_CAP,
             title = "Vehículos por km² (escala fija, cap P99)", opacity = 1)
 
-vehiculos_80 <- rfv_w_geo %>% filter(ANIO_ALZA == 1980)
-sum(vehiculos_80$CANTIDAD, na.rm = TRUE)
-sum(rfv_w_geo$CANTIDAD, na.rm = TRUE)
+
+
 
