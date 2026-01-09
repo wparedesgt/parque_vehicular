@@ -111,7 +111,7 @@ pal <- colorBin(
 # =====================================================
 
 anio_inicio <- 1980
-anio_fin    <- 2010
+anio_fin    <- 2025
 fil_uso_vehiculo <- c(unique(rfv_w_geo$USO_VEHICULO))
 vector_fechas <- c(anio_inicio:anio_fin)
 

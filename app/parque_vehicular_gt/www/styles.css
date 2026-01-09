@@ -58,11 +58,15 @@ body {
 .box {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    overflow: visible;  /* CRÍTICO: permite que dropdowns se muestren */
+    overflow: visible;  /* CRITICO: permite que dropdowns se muestren */
 }
 
 .box-body {
-    overflow: visible !important;  /* CRÍTICO: no cortar dropdowns */
+    overflow: visible !important;  /* CRITICO: no cortar dropdowns */
+}
+
+.well {
+    overflow: visible !important;  /* CRITICO: permite dropdowns en wellPanel */
 }
 
 .box.box-primary {
@@ -202,17 +206,14 @@ table tbody tr:hover {
     color: #0c4a6e;
 }
 
-/* ===== DROPDOWNS Y SELECT - SOLUCIÓN DEFINITIVA ===== */
+/* ===== DROPDOWNS Y SELECT ===== */
 .selectize-dropdown,
 .bootstrap-select .dropdown-menu {
     z-index: 9999 !important;
 }
 
-.selectize-control,
-.shiny-input-container {
-    z-index: 100;
-    position: relative;
-}
+/* NOTA: Se eliminaron las reglas de .selectize-control y .shiny-input-container
+   que causaban problemas de apilamiento en los dropdowns */
 
 /* ===== TABS ===== */
 .nav-tabs > li.active > a {
