@@ -132,10 +132,11 @@ muestra <- registros_largos %>%
 
 
 saveRDS(muestra, 'datos/rfv.rds')
-write.csv(muestra, 'datos/rfv.csv')
+#write.csv(muestra, 'datos/rfv.csv')
 
 # Chequeo rápido en consola
 cat("Meses incluidos:\n"); print(unique(sapply(fechas, mes_label)))
 cat("Dimensiones de la tabla final (filas x columnas): ", paste(dim(muestra), collapse=" x "), "\n")
 print(head(muestra, 10))
+
 

@@ -125,3 +125,4 @@ muestra_anual <- muestra_int %>%
   summarise(CANTIDAD = sum(CANTIDAD, na.rm = TRUE), .groups = "drop")
 
 saveRDS(muestra_anual, 'datos/rfv_w_geo.rds')
+
